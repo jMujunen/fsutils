@@ -5,4 +5,5 @@ from .LogFile import Log
 from .ScriptFile import Exe
 from .DirNode import Dir
 
-all = ["GenericFile", "ImageFile", "VideoFile", "LogFile", "ScriptFile", "DirNode"]
+
+all = ["File", "Img", "Video", "Log", "Exe", "Dir"]
