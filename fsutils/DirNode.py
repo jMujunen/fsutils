@@ -3,7 +3,6 @@
 import os
 import datetime
 import re
-from itertools import chain
 from typing import List, Iterator
 from dataclasses import dataclass
 from fsutils import File, Log, Exe, Video, Img
@@ -117,6 +116,10 @@ class Dir(File):
                     return obj(os.path.join(self.path, d, file_name))
         except (FileNotFoundError, NotADirectoryError) as e:
             print(e)
+
+    @property
+    def is_dir(self) -> bool:
+        return os.path.isdir(self.path)
 
     @property
     def is_empty(self) -> bool:

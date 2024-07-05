@@ -55,9 +55,13 @@ class Video(File):
                 print(f"Failed to run ffprobe on {self.path}.", file=sys.stderr)
                 self._metadata = {}
         return self._metadata
+        """
+
+        ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,codec_long_name Apex\ Legends\ 2023.03.16\ -\ 21.30.22.08.DVR.mp4
+        """
 
     @property
-    def tags(self):
+    def tags(self) -> dict:
         return self.metadata.get("tags", {}) if self.metadata else {}
 
     @property
@@ -75,8 +79,8 @@ class Video(File):
         return self.metadata.get("duration", 0)
 
     @property
-    def capture_date(self) -> datetime | None:
-        return self.tags.get("creation_time")
+    def capture_date(self) -> datetime:
+        return self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getctime(self.path))
 
     # @property
     # def capture_date(self):
@@ -206,3 +210,9 @@ class Video(File):
             text=True,
         )
         return float(result.stdout)
+
+
+# Run as script
+if __name__ == "__main__":
+    path = sys.argv[1] or "~/mnt/ssd/OBS/Joona/PUBG/"
+    vid = Video(path)

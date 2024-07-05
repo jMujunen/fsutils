@@ -109,7 +109,7 @@ class Img(File):
             print(e)
 
     @property
-    def capture_date(self) -> datetime | None:
+    def capture_date(self) -> datetime:
         """
         Return the capture date of the image if it exists in the EXIF data.
 
@@ -118,8 +118,8 @@ class Img(File):
             str or None: The capture date in the format 'YYYY:MM:DD HH:MM:SS' if it exists,
                         otherwise None.
         """
-        if self.exif is not None:
-            tag, data = [(k, v) for k, v in self.exif.items() if isinstance(v, tuple)][0]
+        # if self.exif is not None:
+        #   tag, data = [(k, v) for k, v in self.exif.items() if isinstance(v, tuple)][0]
         # Iterating over all EXIF data fields
         for tag_id in self.exif:
             # Get the tag name, instead of human unreadable tag id
@@ -129,6 +129,7 @@ class Img(File):
             if isinstance(data, bytes):
                 data = data.decode()
             if str(tag).startswith("DateTime"):
+                print("Capture Date : ", data)
                 date, time = str(data).split(" ")
                 year, month, day = date.split(":")
                 hour, minute, second = time.split(":")
@@ -140,7 +141,7 @@ class Img(File):
                     int(minute),
                     int(second[:2]),
                 )
-        return None
+        return datetime.fromtimestamp(os.path.getmtime(self.path))
 
     def generate_title(self) -> str | None:
         """Generate a title for the image using ollama"""
@@ -158,7 +159,6 @@ class Img(File):
             return response["message"]["content"]
         except Exception as e:
             print(f"An error occurred while generating a title:\n{str(e)}")
-
 
     def render(self, width: int = 640, height: int = 640):
         """Render the image in the terminal using kitty terminal"""
@@ -185,14 +185,12 @@ class Img(File):
         """Save the image to a specified location"""
         pass
 
-    #
-
-    def resize(self, width: int = 320, height: int = 320, overwrite: bool = False) -> str:
+    def resize(self, width: int = 320, height: int = 320, overwrite=False) -> str:
         """Resize the image to specified width and height
 
         Returns:
         ---------
-            saved_image_path (str): Path to the new image
+        >>> saved_image_path (str): Path to the new image
         """
         saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename}")
         with Image.open(self.path) as img:
