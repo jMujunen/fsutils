@@ -12,7 +12,9 @@ import ollama
 import imagehash
 import base64
 
-from .GenericFile import File
+from fsutils import File
+
+# from .GenericFile import File
 from size import Converter
 
 
@@ -115,8 +117,7 @@ class Img(File):
 
         Returns:
         ----------
-            str or None: The capture date in the format 'YYYY:MM:DD HH:MM:SS' if it exists,
-                        otherwise None.
+            datetime: The capture date in the format 'YYYY:MM:DD HH:MM:SS'
         """
         # if self.exif is not None:
         #   tag, data = [(k, v) for k, v in self.exif.items() if isinstance(v, tuple)][0]
@@ -141,7 +142,8 @@ class Img(File):
                     int(minute),
                     int(second[:2]),
                 )
-        return datetime.fromtimestamp(os.path.getmtime(self.path))
+        date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
+        return datetime.fromisoformat(date_str)
 
     def generate_title(self) -> str | None:
         """Generate a title for the image using ollama"""
@@ -151,7 +153,7 @@ class Img(File):
                 messages=[
                     {
                         "role": "user",
-                        "content": "Catagorize the image into 1 of the following based on the scene. Cat, Portrait, Car, Nature",  # Based off the scene in the image, create a filename under 5 tokens?",
+                        "content": "Catagorize the image into 1 of the following based on the scene. Cat, Portrait, Car, Nature, Adventure",
                         "images": [self.path],
                     },
                 ],
@@ -190,9 +192,15 @@ class Img(File):
 
         Returns:
         ---------
-        >>> saved_image_path (str): Path to the new image
+            saved_image_path (str): Path to the new image
         """
-        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename}")
+        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename.strip('resized_')}")
+        if (
+            os.path.exists(saved_image_path)
+            and not overwrite
+            and Img(saved_image_path).dimensions == (width, height)
+        ):
+            return saved_image_path
         with Image.open(self.path) as img:
             resized_img = img.resize((width, height))
         try:
@@ -200,11 +208,11 @@ class Img(File):
         except OSError as e:
             print(f"An error occurred while saving resized image:\n{str(e)}")
         finally:
-            buffered = BytesIO()
-            resized_img.save(buffered, format="JPEG")
-            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+            # buffered = BytesIO()
+            # resized_img.save(buffered, format="JPEG")
+            # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-            return img_str
+            return saved_image_path
 
     def compress(self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False):
         # load the image to memory
@@ -258,11 +266,13 @@ class Img(File):
             print(f"{"="*60}")
 
     def to_base64(self) -> str:
-        with Image.open(self.path) as img:
+        resized = self.resize()
+        with Image.open(resized) as img:
             try:
                 buffered = BytesIO()
                 img.save(buffered, format="JPEG")
                 img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                os.remove(resized)
             except OSError as e:
                 print("OSError  while converting to base64:")
                 return str(e)
@@ -295,3 +305,9 @@ class Img(File):
         except Exception as e:
             print(f"Error: {e}")
             return False
+
+
+if __name__ == "__main__":
+    img = Img("/tmp/pics/resized_os_crash.meme.jpg")
+    print(img.dimensions)
+    print(img.to_base64())
