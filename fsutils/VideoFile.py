@@ -173,7 +173,7 @@ class Video(File):
             output if output is not None else self.path[:-4] + f"_compressed.{self.extension}"
         )
         result = subprocess.run(
-            f'ffmpeg -i "{self.path}" -c:v hevc_nvenc -crf 20 -qp 20 "{output_path}"',
+            f'ffmpeg -i "{self.path}" -c:v h264_nvenc -crf 18 -qp 28 "{output_path}"',
             shell=True,
             capture_output=True,
             text=True,
