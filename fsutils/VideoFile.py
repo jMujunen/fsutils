@@ -55,10 +55,6 @@ class Video(File):
                 print(f"Failed to run ffprobe on {self.path}.", file=sys.stderr)
                 self._metadata = {}
         return self._metadata
-        """
-
-        ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,codec_long_name Apex\ Legends\ 2023.03.16\ -\ 21.30.22.08.DVR.mp4
-        """
 
     @property
     def tags(self) -> dict:
@@ -66,21 +62,19 @@ class Video(File):
 
     @property
     def bitrate(self) -> int:
-        """Extract the bitrate with ffprobe.
-
-        Returns:
-        ----------
-            int: The bitrate of the video in bits per second.
-        """
-        return self.metadata.get("bit_rate", -1)
+        """Extract the bitrate/s with ffprobe."""
+        return round(int(self.metadata.get("bit_rate", -1)) / self.duration)
 
     @property
-    def duration(self) -> float:
-        return self.metadata.get("duration", 0)
+    def duration(self) -> int:
+        return round(float(self.metadata.get("duration", 0)))
 
     @property
     def capture_date(self) -> datetime:
-        return self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getctime(self.path))
+        capture_date = str(
+            self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getmtime(self.path))
+        ).split(".")[0]
+        return datetime.fromisoformat(capture_date)
 
     # @property
     # def capture_date(self):

@@ -19,8 +19,7 @@ from size import Converter
 
 
 class Img(File):
-    """
-    A class representing information about an image
+    """A class representing information about an image
 
     Attributes:
     ----------
@@ -46,8 +45,7 @@ class Img(File):
         super().__init__(path)
 
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash | None:
-        """
-        Calculate the hash value of the image
+        """Calculate the hash value of the image
 
         Paramters:
         ---------
@@ -79,7 +77,7 @@ class Img(File):
             print(f"Error calculating hash: {e}")
 
     @property
-    def dimensions(self) -> tuple:
+    def dimensions(self) -> tuple[int, int]:
         """
         Extract the dimensions of the image
 
@@ -130,7 +128,6 @@ class Img(File):
             if isinstance(data, bytes):
                 data = data.decode()
             if str(tag).startswith("DateTime"):
-                print("Capture Date : ", data)
                 date, time = str(data).split(" ")
                 year, month, day = date.split(":")
                 hour, minute, second = time.split(":")

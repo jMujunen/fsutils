@@ -272,7 +272,7 @@ def obj(path: str) -> File:
         ".jpeg": Img,
         ".png": Img,
         ".nef": Img,
-        ".heic": Img,
+        # ".heic": Img,
         ".gif": Img,
         # Logs
         ".log": Log,
