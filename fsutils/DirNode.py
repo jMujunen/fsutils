@@ -52,7 +52,8 @@ class Dir(File):
         ----------
             list: A list of file names
         """
-        return [file for file in self if isinstance(file, (File, Video, Img, Exe, Log))]
+        # return [file for file in self if isinstance(file, (File, Video, Img, Exe, Log))]
+        return [f for f in self if not os.path.isdir(f.path)]
 
     @property
     def content(self) -> List[str]:
@@ -123,8 +124,7 @@ class Dir(File):
 
     @property
     def is_empty(self) -> bool:
-        """
-        Check if the directory is empty.
+        """Check if the directory is empty.
 
         Returns:
         --------
@@ -134,8 +134,7 @@ class Dir(File):
 
     @property
     def images(self) -> List[Img]:
-        """
-        Return a list of ImageObject instances found in the directory.
+        """Return a list of ImageObject instances found in the directory.
 
         Returns:
         --------
@@ -145,8 +144,7 @@ class Dir(File):
 
     @property
     def videos(self) -> List[Video]:
-        """
-        Return a list of VideoObject instances found in the directory.
+        """Return a list of VideoObject instances found in the directory.
 
         Returns:
         --------
@@ -156,8 +154,7 @@ class Dir(File):
 
     @property
     def dirs(self) -> List[File]:
-        """
-        Return a list of DirectoryObject instances found in the directory.
+        """Return a list of DirectoryObject instances found in the directory.
 
         Returns:
         ----------
@@ -198,13 +195,7 @@ class Dir(File):
         return item in self.files
 
     def __len__(self):
-        """
-        Return the number of items in the object
-
-        Returns:
-        ----------
-            int: The number of files and subdirectories in the directory
-        """
+        """Return the number of items in the object"""
         return len([i for i in self.objects()])
 
     def __iter__(self) -> Iterator[File]:
@@ -220,14 +211,18 @@ class Dir(File):
         #     [f"{directory}" for directory, _, _ in os.walk(self.path)],
         # ):
         #     yield obj(str(file_path))
-        for root, dirs, files in os.walk(self.path):
+        for root, _, files in os.walk(self.path):
             for file in files:
-                yield obj(os.path.join(root, file))
-            for directory in dirs:
-                yield Dir(os.path.join(self.path, directory))
+                path = os.path.join(root, file)  # full path of the file
+                if os.path.isdir(path):
+                    yield Dir(path)
+                else:
+                    yield obj(path)
+            for directory in _:
+                yield Dir(os.path.join(root, directory))
 
     def __eq__(self, other: File) -> bool:
-        """Compare two DirNodes
+        """Compare the contents of Dirs
 
         Parameters:
         ----------
@@ -239,7 +234,7 @@ class Dir(File):
         """
         if not isinstance(other, Dir):
             return False
-        return self.path == other.path
+        return self.content == other.content
 
 
 def obj(path: str) -> File:
@@ -304,8 +299,10 @@ def obj(path: str) -> File:
 
 
 if __name__ == "__main__":
-    path = Dir("/mnt/ssd/Photos/RAW/")
+    path = Dir("/home/joona/.dotfiles")
     from ExecutionTimer import ExecutionTimer
 
     with ExecutionTimer():
-        print(len(path))
+        for item in path:
+            if item.is_dir:
+                print(item)

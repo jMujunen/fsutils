@@ -8,7 +8,7 @@ import re
 import shutil
 import chardet
 from typing import Iterator, List, Any
-from .mimecfg import FILE_TYPES
+from fsutils.mimecfg import FILE_TYPES
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
@@ -61,8 +61,8 @@ class File:
             encoding (str): Encoding type of the file (default is utf-8)
         """
         self.encoding = encoding
-        self.path = os.path.abspath(path)
-        self._content = None
+        self.path = os.path.expanduser(path)
+        self._content = []
 
     def head(self, n: int = 5) -> str:
         """
@@ -107,56 +107,27 @@ class File:
 
     @property
     def size(self) -> int:
-        """
-        Return the size of the file in bytes
-
-        Returns:
-        ----------
-            int: The size of the file in bytes
-        """
+        """Return the size of the file in bytes"""
         return int(os.path.getsize(self.path))
 
     @property
     def dir_name(self) -> str:
-        """
-        Return the parent directory of the file
-
-        Returns:
-            str: The parent directory of the file
-        """
+        """Return the parent directory of the file"""
         return os.path.dirname(self.path) if not self.is_dir else self.path
 
     @property
     def file_name(self) -> str:
-        """
-        Return the file name without the extension
-
-        Returns:
-        ----------
-            str: The file name without the extension
-        """
+        """Return the file name without the extension"""
         return str(os.path.splitext(self.path)[0])
 
     @property
     def basename(self) -> str:
-        """
-        Return the file name with the extension
-
-        Returns:
-        ----------
-            str: The file name with the extension
-        """
+        """Return the file name with the extension"""
         return str(os.path.basename(self.path))
 
     @property
     def extension(self) -> str:
-        """
-        Return the file extension
-
-        Returns:
-        ----------
-            str: The file extension
-        """
+        """Return the file extension"""
         return str(os.path.splitext(self.path)[-1]).lower()
 
     @extension.setter
@@ -171,135 +142,98 @@ class File:
         return 0
 
     @property
-    def content(self) -> List[Any] | str:
-        """Helper for self.read()
-
-        Returns:
-        --------
-            str: The content of the file
-        """
+    def content(self) -> List[Any]:
+        """Helper for self.read()"""
         if not self._content:
             self._content = self.read()
         return self._content
 
-    def read(self, *args) -> List[Any] | str:
+    def read(self, **kwargs) -> List[Any]:
         """
         Method for reading the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
         practice to override this method in subclasses that deal with binary files.
 
-        Parameters:
+        Kwargs:
         ------------
-            a, b (optional): Return content[a:b]
+            a=0, b=~ (optional): Return lines[a:b]
+            refresh (optional): If True, the method will re-read the file from disk. Defaults to False.
         Returns:
         ----------
             str: The content of the file
         """
-        try:
-            with open(self.path, "rb") as f:
-                content = f.read().decode("utf-8")
-                with open(self.path, "r", encoding=self.encoding) as f:
-                    content = f.read()
-        except Exception as e:
-            print(e)
+        if not self._content or kwargs.get("refresh", False):
             try:
-                with open(self.path, "r", encoding=self.encoding) as f:
-                    content = f.read()
+                with open(self.path, "rb") as f:
+                    lines = f.read.decode(self.encoding)
+                    content = list(
+                        lines.split("\n")[kwargs.get("a", 0) : kwargs.get("b", len(self._content))]
+                    )
             except Exception as e:
                 print(e)
-                raise TypeError(f"Reading {type(self)} is unsupported")
-        self._content = content
-        return self._content.split("\n")[args[0] : args[1]] if len(args) == 2 else self._content
+                try:
+                    with open(self.path, "r", encoding=self.encoding) as f:
+                        content = f.readlines()
+                except Exception as e:
+                    print(e)
+                    try:
+                        with open(self.path, "rb") as f:
+                            content = f.readlines()
+                    except Exception as e:
+                        raise TypeError(f"Reading {type(self)} is unsupported")
+            self._content = content
+        return (
+            self._content[kwargs.get("a", 0) : kwargs.get("b", len(self._content))]
+            if kwargs
+            else self._content
+        )
 
     @property
     def is_file(self) -> bool:
-        """
-        Check if the object is a file
-
-        Returns:
-        ----------
-            bool: True if the object is a file, False otherwise
-        """
+        """Check if the object is a file"""
         if GIT_OBJECT_REGEX.match(self.basename):
             return False
         return os.path.isfile(self.path)
 
     @property
     def is_executable(self) -> bool:
-        """
-        Check if the file is executable
-
-        Returns:
-        ----------
-            bool: True if the file is executable, False otherwise
-        """
+        """Check if the file is executable"""
         return os.access(self.path, os.X_OK)
 
     @property
     def is_dir(self) -> bool:
-        """
-        Check if the object is a directory
-
-        Returns:
-        ----------
-            bool: True if the object is a directory, False otherwise
-        """
+        """Check if the object is a directory"" """
         return os.path.isdir(self.path)
 
     @property
     def is_video(self) -> bool:
-        """
-        Check if the file is a video
-
-        Returns:
-        ----------
-            bool: True if the file is a video, False otherwise
-        """
+        """Check if the file is a video"""
         return self.extension.lower() in FILE_TYPES["video"]
 
     @property
     def is_gitobject(self) -> bool:
-        """
-        Check if the file is a git object
-
-        Returns:
-        ----------
-            bool: True if the file is a git object, False otherwise
-        """
+        """Check if the file is a git object"""
         return GIT_OBJECT_REGEX.match(self.basename) is not None
 
     @property
     def is_image(self) -> bool:
-        """
-        Check if the file is an image
-
-        Returns:
-        ----------
-            bool: True if the file is an image, False otherwise
-        """
+        """Check if the file is an image"""
         return self.extension.lower() in FILE_TYPES["img"]
 
     def detect_encoding(self) -> str | None:
-        """
-        Detects encoding of the file
-
-        Returns:
-        -------
-            str: Encoding of the file
-        """
+        """Detects encoding of the file"""
         with open(self.path, "rb") as f:
             encoding = chardet.detect(f.read())["encoding"]
         return encoding
 
-    def unixify(self) -> str:
+    def unixify(self) -> List[str]:
         """Convert DOS line endings to UNIX - \\r\\n -> \\n"""
-        self._content = re.sub("\r\n", "\n", "\n".join(self.content))
+        self._content = "".split(re.sub("\r\n$|\r$", "\n", "".join(self.content)))
         return self._content
 
     def __iter__(self) -> Iterator[str]:
-        """
-        Iterate over the lines of a file.
+        """Iterate over the lines of a file.
 
         Yields:
         --------
@@ -307,19 +241,13 @@ class File:
         """
         try:
             for line in self.content:
-                yield line.strip()
+                yield (str(line).strip())
         except TypeError as e:
             # else:
             raise TypeError(f"Object of type {type(self)} is not iterable: {e}")
 
     def __len__(self) -> int:
-        """
-        Get the number of lines in a file.
-
-        Returns:
-        -------
-            int: The number of lines in the file
-        """
+        """Get the number of lines in a file."""
         try:
             return len(list(iter(self)))
         except Exception as e:
@@ -337,19 +265,16 @@ class File:
         -------
             bool: True if the line is found, False otherwise
         """
-        return any(item in line for line in self)
+        return any(item in line for line in self) or any(
+            item in word for word in item.split(" ") for line in self
+        )
 
     def __eq__(self, other) -> bool:
-        """
-        Compare two FileObjects
+        """Compare two FileObjects
 
         Paramaters:
         ----------
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
-
-        Returns:
-        ----------
-            bool: True if the two Objects are equal, False otherwise
         """
         if not isinstance(other, File):
             return False
@@ -360,11 +285,10 @@ class File:
         return self._content == other.content
 
     def __str__(self) -> str:
-        """
-        Return a string representation of the FileObject
-
-        Returns:
-        ----------
-            str: A string representation of the FileObject
-        """
+        """Return a string representation of the FileObject"""
         return str(self.__dict__)
+
+
+if __name__ == "__main__":
+    readme = File("~/.dotfiles/README.md")
+    print(readme == readme)

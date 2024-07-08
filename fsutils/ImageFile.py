@@ -42,6 +42,7 @@ class Img(File):
 
     def __init__(self, path: str):
         self._exif = None
+        # self._capture_date = self._exif.
         super().__init__(path)
 
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash | None:
@@ -91,13 +92,7 @@ class Img(File):
 
     @property
     def exif(self) -> Image.Exif | None:
-        """
-        Extract the EXIF data from the image
-
-        Returns:
-        ----------
-            Exif: A dictionary mapping of the  EXIF data.
-        """
+        """Extract the EXIF data from the image"""
         if self._exif is not None:
             return self._exif
         # Open Image
@@ -110,35 +105,33 @@ class Img(File):
 
     @property
     def capture_date(self) -> datetime:
-        """
-        Return the capture date of the image if it exists in the EXIF data.
-
-        Returns:
-        ----------
-            datetime: The capture date in the format 'YYYY:MM:DD HH:MM:SS'
-        """
+        """Return the capture date of the image if it exists in the EXIF data."""
         # if self.exif is not None:
         #   tag, data = [(k, v) for k, v in self.exif.items() if isinstance(v, tuple)][0]
         # Iterating over all EXIF data fields
-        for tag_id in self.exif:
-            # Get the tag name, instead of human unreadable tag id
-            tag = TAGS.get(tag_id, tag_id)
-            data = self.exif.get(tag_id)
-            # Decode bytes
-            if isinstance(data, bytes):
-                data = data.decode()
-            if str(tag).startswith("DateTime"):
-                date, time = str(data).split(" ")
-                year, month, day = date.split(":")
-                hour, minute, second = time.split(":")
-                return datetime(
-                    int(year),
-                    int(month),
-                    int(day),
-                    int(hour),
-                    int(minute),
-                    int(second[:2]),
-                )
+        if self.exif is None:
+            for tag_id in self.exif:
+                try:
+                    # Get the tag name, instead of human unreadable tag id
+                    tag = TAGS.get(tag_id, tag_id)
+                    data = self.exif.get(tag_id)
+                    # Decode bytes
+                    if isinstance(data, bytes):
+                        data = data.decode()
+                    if str(tag).startswith("DateTime"):
+                        date, time = str(data).split(" ")
+                        year, month, day = date.split(":")
+                        hour, minute, second = time.split(":")
+                        return datetime(
+                            int(year),
+                            int(month),
+                            int(day),
+                            int(hour),
+                            int(minute),
+                            int(second[:2]),
+                        )
+                except:
+                    continue
         date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
         return datetime.fromisoformat(date_str)
 
@@ -212,6 +205,27 @@ class Img(File):
             return saved_image_path
 
     def compress(self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False):
+        """Compresses an image
+
+        Paramaters:
+        ---------
+            new_size_ratio (float): The new size ratio of the image after compression
+            quality (int): The quality of the compression from 0-100, where 100 is best quality and highest file size
+            width (int): The new width of the image after resizing
+            height (int): The new height of the image after resizing
+            to_jpg (bool): Convert the image to jpg format if True, else keep it in its original format
+
+        Returns:
+        ---------
+            str: The path to the compressed image file if successful, else an error message
+            if an error occurred during saving the compressed image file to disk
+
+        Raises:
+        --------
+            OSError: If an error occurred while saving the compressed image file to disk
+            IOError: If an error occurred while opening the image file from disk
+            ValueError: If an invalid value was passed for width, height or new_size_ratio parameters
+        """
         # load the image to memory
         with Image.open(self.path) as img:
             if to_jpg:
@@ -302,6 +316,13 @@ class Img(File):
         except Exception as e:
             print(f"Error: {e}")
             return False
+
+    def __eq__(self, other) -> bool:
+        return (
+            True
+            if super().__eq__(other) or self.calculate_hash() == other.calculate_hash()
+            else False
+        )
 
 
 if __name__ == "__main__":
