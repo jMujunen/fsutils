@@ -4,7 +4,6 @@ import subprocess
 import os
 from datetime import datetime
 from io import BytesIO
-from typing import List
 
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
@@ -109,7 +108,7 @@ class Img(File):
         # if self.exif is not None:
         #   tag, data = [(k, v) for k, v in self.exif.items() if isinstance(v, tuple)][0]
         # Iterating over all EXIF data fields
-        if self.exif is None:
+        if self._exif is None:
             for tag_id in self.exif:
                 try:
                     # Get the tag name, instead of human unreadable tag id
@@ -132,6 +131,8 @@ class Img(File):
                         )
                 except:
                     continue
+        else:
+            self.__dict__.get("capture_date")
         date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
         return datetime.fromisoformat(date_str)
 
@@ -318,10 +319,17 @@ class Img(File):
             return False
 
     def __eq__(self, other) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
         return (
             True
             if super().__eq__(other) or self.calculate_hash() == other.calculate_hash()
             else False
+        )
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date}".format(
+            **vars(self)
         )
 
 

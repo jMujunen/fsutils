@@ -6,12 +6,11 @@ import os
 import json
 import cv2
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from .GenericFile import File
+from .ffprobe import FFProbe, FFStream
 
 
-@dataclass
 class Video(File):
     """
     A class representing information about a video.
@@ -31,6 +30,7 @@ class Video(File):
 
     def __init__(self, path: str):
         self._metadata = None
+        self._info = None
         super().__init__(path)
 
     @property
@@ -196,14 +196,26 @@ class Video(File):
         # [ ] - WIP
         return subprocess.call(f"ffmpeg  -i {self.path}  image%03d.jpg", shell=True)
 
-    def info(self):
-        result = subprocess.run(
-            f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "{self.path}"',
-            shell=True,
-            capture_output=True,
-            text=True,
+    @property
+    def info(self) -> FFStream | None:
+        if self._info is None:
+            for stream in FFProbe(self.path).streams:
+                if stream.is_video():
+                    self._info = stream
+        return self._info
+
+    @property
+    def codec(self) -> str | None:
+        return self.info.codec() if self.info else None
+
+    @property
+    def dimentions(self) -> tuple[int, int] | None:
+        return self.info.frame_size() if self.info else None
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimentions}, info={self.info}".format(
+            **vars(self)
         )
-        return float(result.stdout)
 
 
 # Run as script

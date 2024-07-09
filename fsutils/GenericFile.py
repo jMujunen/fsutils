@@ -1,8 +1,5 @@
 """Base class and building block for all other classes defined in this library"""
 
-from dataclasses import dataclass
-
-
 import os
 import re
 import shutil
@@ -13,7 +10,6 @@ from fsutils.mimecfg import FILE_TYPES
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
-@dataclass
 class File:
     """
     This is the base class for all of the following objects.
@@ -171,12 +167,12 @@ class File:
                         lines.split("\n")[kwargs.get("a", 0) : kwargs.get("b", len(self._content))]
                     )
             except Exception as e:
-                print(e)
+                # print(e)
                 try:
                     with open(self.path, "r", encoding=self.encoding) as f:
                         content = f.readlines()
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     try:
                         with open(self.path, "rb") as f:
                             content = f.readlines()
@@ -276,7 +272,7 @@ class File:
         ----------
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
         """
-        if not isinstance(other, File):
+        if not isinstance(other, (self.__class__, File)):
             return False
         try:
             self._content = self.read()
@@ -287,6 +283,17 @@ class File:
     def __str__(self) -> str:
         """Return a string representation of the FileObject"""
         return str(self.__dict__)
+
+    def __setattr__(self, name: str, value: Any, /) -> None:
+        """Set an attribute for the FileObject."""
+        if name == "_File__path":
+            raise AttributeError("Cannot change file path.")
+        self.__dict__[name] = value
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
+            **vars(self)
+        )
 
 
 if __name__ == "__main__":

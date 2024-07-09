@@ -4,11 +4,10 @@ import os
 import datetime
 import re
 from typing import List, Iterator
-from dataclasses import dataclass
 from fsutils import File, Log, Exe, Video, Img
+from size import Converter
 
 
-@dataclass
 class Dir(File):
     """
     A class representing information about a directory.
@@ -44,57 +43,38 @@ class Dir(File):
         super().__init__(path)
 
     @property
-    def files(self) -> List[File]:
-        """
-        Return a list of file names in the directory represented by this object.
-
-        Returns:
-        ----------
-            list: A list of file names
-        """
+    def files(self) -> List[str]:
+        """Return a list of file names in the directory represented by this object."""
         # return [file for file in self if isinstance(file, (File, Video, Img, Exe, Log))]
-        return [f for f in self if not os.path.isdir(f.path)]
+        return [f.basename for f in self if not os.path.isdir(f.path)]
 
     @property
-    def content(self) -> List[str]:
-        return os.listdir(self.path)
+    def content(self) -> List[str] | None:
+        try:
+            return os.listdir(self.path)
+        except NotADirectoryError:
+            pass
 
-    @property
-    def directories(self) -> List[str]:
-        """
-        Return a list of subdirectory paths in the directory represented by this object.
-
-        Returns:
-        ----------
-            list: A list of subdirectory paths
-        """
-        raise NotImplementedError("Depreciated method!")
+    # @property
+    # def directories(self) -> List[str]:
+    #     """Return a list of subdirectory paths in the directory represented by this object."""
+    #     raise NotImplementedError("Depreciated method!")
 
     @property
     def rel_directories(self) -> List[str]:
-        """
-        Return a list of subdirectory paths relative to the directory represented by this object
-
-        Returns:
-            list: A list of subdirectory paths relative to the directory represented by this object
-        """
-        return [f".{folder.replace(self.path, "")}" for folder in self.directories]
+        """Return a list of subdirectory paths relative to the directory represented by this object"""
+        return [f".{folder.path.replace(self.path, "")}" for folder in self.dirs]
 
     def objects(self) -> List[File]:
-        """
-        Convert each file in self to an appropriate type of object inheriting from File.
-
-        Returns:
-        ------
-            The appropriate inhearitance of FileObject
-        """
+        """Convert each file in self to an appropriate type of object inheriting from File."""
         if self._objects is None:
             self._objects = [file for file in self]
         return self._objects
 
     def file_info(self, file_name: str) -> File | None:
         """
-        Query the object for files with the given name. Returns an appropriate FileObject if found.
+        Query the object for files with the given name.
+        Returns an appropriate FileObject if found.
 
         Paramaters
         ----------
@@ -104,19 +84,20 @@ class Dir(File):
         ---------
             File (class) | None: Information about the specified file if found
         """
-        if file_name not in self.files:
-            return
         try:
             try:
                 if file_name in os.listdir(self.path):
                     return obj(os.path.join(self.path, file_name))
             except (NotADirectoryError, FileNotFoundError):
                 pass
-            for d in self.directories:
-                if file_name in os.listdir(os.path.join(self.path, d)):
-                    return obj(os.path.join(self.path, d, file_name))
+            for d in self.dirs:
+                content = os.listdir(os.path.join(self.path, d.path))
+                if file_name in content:
+                    return obj(os.path.join(self.path, d.path, file_name))
+                # return obj(os.path.join(self.path, d, file_name))
         except (FileNotFoundError, NotADirectoryError) as e:
             print(e)
+        return
 
     @property
     def is_dir(self) -> bool:
@@ -144,40 +125,40 @@ class Dir(File):
 
     @property
     def videos(self) -> List[Video]:
-        """Return a list of VideoObject instances found in the directory.
-
-        Returns:
-        --------
-            List[VideoObject]: A list of VideoObject instances
-        """
+        """Return a list of VideoObject instances found in the directory."""
         return [item for item in self if isinstance(item, Video)]
 
     @property
     def dirs(self) -> List[File]:
-        """Return a list of DirectoryObject instances found in the directory.
-
-        Returns:
-        ----------
-            List[DirectoryObject]: A list of DirectoryObject instances
-        """
+        """Return a list of DirectoryObject instances found in the directory."""
         return [item for item in self if isinstance(item, Dir)]
 
-    def sort(self) -> None:
+    def sort(self, spec="mtime", reversed=True) -> None:
+        """Sort the files and directories by the specifying attribute."""
+        specs = {
+            "mtime": lambda: file_stats.st_mtime,
+            "ctime": lambda: file_stats.st_ctime,
+            "atime": lambda: file_stats.st_atime,
+            "size": lambda: int(Converter(file_stats.st_size)),
+            "name": lambda: print(self.basename),
+            "ext": lambda: print(self.extension),
+        }
         files = []
         for item in self:
-            if item.is_file:
+            if item.is_file and spec in list(specs.keys())[:4]:
                 file_stats = os.stat(item.path)
-                atime = datetime.datetime.fromtimestamp(file_stats.st_atime).strftime(
+                result = datetime.datetime.fromtimestamp(specs[spec]()).strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
-                files.append((item.path, atime))
-
+                files.append((item.path, result))
+            else:  # item.is_file and spec in ["ext", "name"]:
+                result = specs[spec]()
         files.sort(key=lambda x: x[1])
         files.reverse()
         # Print the table
-        print(("{:<20}{:<40}").format("atime", "File"))
-        for filepath, atime in files:
-            print(("{:<20}{:<40}").format(atime, filepath.replace(self.path, "")))
+        print(("{:<20}{:<40}").format(spec, "File"))
+        for filepath, s in files:
+            print(("{:<20}{:<40}").format(s, filepath.replace(self.path, "")))
 
     def __contains__(self, item: File) -> bool:
         """Compare items in two DirecoryObjects
@@ -232,9 +213,18 @@ class Dir(File):
         ----------
             bool: True if the path of the two instances are equal, False otherwise.
         """
-        if not isinstance(other, Dir):
+        if not isinstance(other, (Dir, File)):
             return False
         return self.content == other.content
+
+    def fmt(self, *args) -> str:
+        """Print a formated string representation of each object in self."""
+        return f"{self.__class__.__name__}({self.path})"
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.size}, dir_name={self.path}, path={self.path}, is_empty={self.is_empty})".format(
+            **vars(self)
+        )
 
 
 def obj(path: str) -> File:

@@ -6,10 +6,13 @@ import re
 import pandas as pd
 from .GenericFile import File
 from typing import List
-
+from dataclasses import dataclass
 from Color import fg, style
+from .decorators import auto_repr
 
 
+@dataclass
+@auto_repr
 class Log(File):
     """
     A class to represent a hwlog file.

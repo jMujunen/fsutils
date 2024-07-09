@@ -1,6 +1,8 @@
 from .GenericFile import File
+from .decorators import auto_repr
 
 
+@auto_repr
 class Exe(File):
     """
     A class representing information about an executable file
