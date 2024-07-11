@@ -5,14 +5,9 @@ from pandas import Series
 import re
 import pandas as pd
 from .GenericFile import File
-from typing import List
-from dataclasses import dataclass
-from Color import fg, style
-from .decorators import auto_repr
+from typing import List, Union
 
 
-@dataclass
-@auto_repr
 class Log(File):
     """
     A class to represent a hwlog file.
@@ -39,29 +34,18 @@ class Log(File):
 
     @property
     def header(self) -> str:
-        """
-        Get the header of the log file.
-
-        Returns:
-        --------
-            str: The header of the log file.
-        """
-        return self.head(1).strip().strip(self.spec)
+        """Get the header of the log file."""
+        return self.head()[0].strip().strip(self.spec)
 
     @property
     def columns(self) -> List[str]:
-        """
-        Get the columns of the log file.
-
-        Returns:
-        --------
-            list: Each column of the log file.
-        """
-        return [col for col in self.head(1).split(self.spec)]
+        """Get the columns of the log file as a list"""
+        return [col for col in self.head()[0].split(self.spec)]
 
     @property
     def footer(self) -> str | None:
-        second_last, last = self.tail(2).strip().split("\n")
+        """Get the footer of the log file."""
+        second_last, last = self.tail()[-1], self.tail()[-2]
         second_last = second_last.strip(self.spec)
         last = last.strip(self.spec)
         return second_last if second_last == self.header else None
@@ -90,7 +74,7 @@ class Log(File):
         pattern = re.compile(
             r"(GPU2.\w+\(.*\)|NaN|N\/A|Fan2|°|Â|\*|,,+|\s\[[^\s]+\]|\"|\+|\s\[..TDP\]|\s\[\]|\s\([^\s]\))"
         )
-        pattern = re.compile(r"(,\s+|\s+,)")
+        # pattern = re.compile(r"(,\s+|\s+,)")
 
         sanatized_content = []
         lines = len(self)
@@ -121,72 +105,107 @@ class Log(File):
             df = pd.read_csv(self.sanatize())
         return df.mean()
 
-    def compare(self, other: File) -> None:
+    def compare(self, other) -> None:
         """
         Compare the statistics of this log file with another. Prints a table comparing each column's mean values.
 
         Parameters:
         -----------
-            other (Log): Another Log instance to compare against.
-
+            other (LogFile): Another LogFile instance to compare against.
         """
 
-        # FIXME : Account for differences in columns. Currently, differences in columns output the following:
-        """ 12V                              + 44                  11.94
-            Vcore                            1.287               + 1.301
-            VIN3                             + 55                  1.315
-            GPU_Temperature                  + 70                     55
-            GPU_Clock                        + 2575                 1964
-            Frame_Time                       4.07                 + 8.73
-            GPU_Busy                         + 58                  4.749 """
-
-        def compare_values(num1: str | int, num2: str | int):
-            digits = re.compile(r"(\d+(\.\d+)?)")
-
-            num1 = digits.search(str(num1))[0]
-            num2 = digits.search(str(num2))[0]
-            # num2 = re.search(r'(\d+(\.\d+)?)', line.split(' ')[-1]).group(0)
-            if float(num1) == float(num2):
-                return (
-                    f"{num1.replace(num1, f'{fg.cyan}{'\u003d'}{style.reset} {str(num1)}')}",
-                    num2,
-                )
-            if float(num1) > float(num2):
-                return (
-                    f"{num1.replace(num1, f'{fg.red}{'\u002b'}{style.reset} {str(num1)}')}",
-                    num2,
-                )
-            return (
-                num1,
-                f"{num2.replace(num2, f' {fg.red}{'\u002b'}{style.reset} {str(num2)}')}",
-            )
-
-        def round_values(val):
+        def round_values(val: Union[str, float]) -> Union[int, float]:
             try:
-                if float(val) < 5:
-                    # round to three decimal places
-                    return float(f"{float(val):.3f}")
-                elif 5 <= float(val) < 15:
-                    # round to two decimal places
-                    return float(f"{float(val):.2f}")
+                val = float(val)
+                if val < 5:
+                    return round(val, 3)
+                elif 5 <= val < 15:
+                    return round(val, 2)
                 else:
-                    return int(val)  # no decimal places
-            except Exception as e:
-                print(f"\033[31m {e}\033[0m")
+                    return int(val)
+            except ValueError as e:
+                print(f"\033[31m Error rounding value: {e}\033[0m")
+                return val
+
+        def compare_values(num1: Union[str, float], num2: Union[str, float]) -> tuple:
+            num1 = round_values(num1)
+            num2 = round_values(num2)
+            if num1 == num2:
+                return (f"{num1}", str(num1))
+            elif num1 > num2:
+                return (f"\033[32m{num1}\033[0m", f"\033[31m+{str(num1 - num2)}\033[0m")
+            else:
+                return (f"\033[31m{num1}\033[0m", f"\033[32m+{str(num2 - num1)}\033[0m")
 
         print("{:<20} {:>15} {:>20}".format("Sensor", self.basename, other.basename))
-        if isinstance(other, Log):
-            df_stats1 = self.stats
-            for k, v in df_stats1.items():
-                try:
-                    num1, num2 = compare_values(round_values(v), round_values(other.stats[k]))
-                    print(f"{k:<32} {num1:<15} {num2:>20}")
-                except KeyError:
-                    pass
+        for k in set(self.stats.keys()).intersection(other.stats.keys()):
+            num1, num2 = compare_values(self.stats[k], other.stats[k])
+            print(f"{k:<32} {num1:<15} {num2:>20}")
+
+    # def compare(self, other: File) -> None:
+    #     """
+    #     Compare the statistics of this log file with another. Prints a table comparing each column's mean values.
+
+    #     Parameters:
+    #     -----------
+    #         other (Log): Another Log instance to compare against.
+
+    #     """
+
+    #     # FIXME : Account for differences in columns. Currently, differences in columns output the following:
+    #     """ 12V                              + 44                  11.94
+    #         Vcore                            1.287               + 1.301
+    #         VIN3                             + 55                  1.315
+    #         GPU_Temperature                  + 70                     55
+    #         GPU_Clock                        + 2575                 1964
+    #         Frame_Time                       4.07                 + 8.73
+    #         GPU_Busy                         + 58                  4.749 """
+
+    #     def compare_values(num1: str | int, num2: str | int):
+    #         digits = re.compile(r"(\d+(\.\d+)?)")
+
+    #         num1 = digits.search(str(num1))[0]
+    #         num2 = digits.search(str(num2))[0]
+    #         # num2 = re.search(r'(\d+(\.\d+)?)', line.split(' ')[-1]).group(0)
+    #         if float(num1) == float(num2):
+    #             return (
+    #                 f"{num1.replace(num1, f'{fg.cyan}{'\u003d'}{style.reset} {str(num1)}')}",
+    #                 num2,
+    #             )
+    #         if float(num1) > float(num2):
+    #             return (
+    #                 f"{num1.replace(num1, f'{fg.red}{'\u002b'}{style.reset} {str(num1)}')}",
+    #                 num2,
+    #             )
+    #         return (
+    #             num1,
+    #             f"{num2.replace(num2, f' {fg.red}{'\u002b'}{style.reset} {str(num2)}')}",
+    #         )
+
+    #     def round_values(val):
+    #         try:
+    #             if float(val) < 5:
+    #                 # round to three decimal places
+    #                 return float(f"{float(val):.3f}")
+    #             elif 5 <= float(val) < 15:
+    #                 # round to two decimal places
+    #                 return float(f"{float(val):.2f}")
+    #             else:
+    #                 return int(val)  # no decimal places
+    #         except Exception as e:
+    #             print(f"\033[31m {e}\033[0m")
+
+    #     print("{:<20} {:>15} {:>20}".format("Sensor", self.basename, other.basename))
+    #     if isinstance(other, Log):
+    #         df_stats1 = self.stats
+    #         for k, v in df_stats1.items():
+    #             try:
+    #                 num1, num2 = compare_values(round_values(v), round_values(other.stats[k]))
+    #                 print(f"{k:<32} {num1:<15} {num2:>20}")
+    #             except KeyError:
+    #                 pass
 
     def save(self) -> None:
-        """
-        Save the (updated) content to the log file (overwrites original content).
-        """
+        """Save the (updated) content to the log file (overwrites original content)."""
         with open(self.path, "w") as f:
             f.write(self._content)

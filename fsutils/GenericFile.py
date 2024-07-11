@@ -47,7 +47,7 @@ class File:
 
     """
 
-    def __init__(self, path: str, encoding: str = "utf-8"):
+    def __init__(self, path: str, encoding: str = "utf-8") -> None:
         """
         Constructor for the FileObject class.
 
@@ -57,10 +57,10 @@ class File:
             encoding (str): Encoding type of the file (default is utf-8)
         """
         self.encoding = encoding
-        self.path = os.path.expanduser(path)
+        self.path = os.path.abspath(os.path.expanduser(path))
         self._content = []
 
-    def head(self, n: int = 5) -> str:
+    def head(self, n=5) -> list:
         """
         Return the first n lines of the file
 
@@ -70,15 +70,15 @@ class File:
 
         Returns:
         ----------
-            str: The first n lines of the file
+            list: The first n lines of the file
         """
         # if isinstance(self, (File, Exe, Log)):
         try:
-            return "\n".join(self.content[:n])
+            return self.content[:n]
         except Exception as e:
             raise TypeError(f"P{e}: The object must be a File or an Exe instance")
 
-    def tail(self, n: int = 5) -> str:
+    def tail(self, n=5) -> list:
         """
         Return the last n lines of the file
 
@@ -88,11 +88,11 @@ class File:
 
         Returns:
         ----------
-            str: The last n lines of the file
+            list: The last n lines of the file
         """
         # if isinstance(self, (File, Exe)):
         try:
-            return "\n".join(self.content[-n:])
+            return self.content[-n:]
         except Exception as e:
             raise TypeError(f"{e}: The object must be a FileObject or an ExecutableObject")
 
@@ -172,7 +172,7 @@ class File:
                     with open(self.path, "r", encoding=self.encoding) as f:
                         content = f.readlines()
                 except Exception as e:
-                    # print(e)
+                    print(e)
                     try:
                         with open(self.path, "rb") as f:
                             content = f.readlines()
@@ -287,6 +287,7 @@ class File:
     def __setattr__(self, name: str, value: Any, /) -> None:
         """Set an attribute for the FileObject."""
         if name == "_File__path":
+            raise AttributeError("Cannot change file path.")
             raise AttributeError("Cannot change file path.")
         self.__dict__[name] = value
 
