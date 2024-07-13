@@ -4,12 +4,17 @@ import subprocess
 import os
 from datetime import datetime
 from io import BytesIO
+import time
+import base64
+import errno
+import numpy as np
 
+import cv2
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
+
 import ollama
 import imagehash
-import base64
 
 from fsutils import File
 
@@ -153,11 +158,11 @@ class Img(File):
         except Exception as e:
             print(f"An error occurred while generating a title:\n{str(e)}")
 
-    def render(self, width: int = 640, height: int = 640):
+    def render(self, render_size=320):
         """Render the image in the terminal using kitty terminal"""
         try:
             subprocess.run(
-                f'kitten icat --use-window-size {width},100,{height},100 "{self.path}"',
+                f'kitten icat --use-window-size 100,100,{render_size},100 "{self.path}"',
                 shell=True,
                 check=False,
             )
@@ -178,7 +183,9 @@ class Img(File):
         """Save the image to a specified location"""
         pass
 
-    def resize(self, width: int = 320, height: int = 320, overwrite=False) -> str:
+    def resize(
+        self, width: int = 320, height: int = 320, overwrite=False, file_path: str | None = None
+    ):
         """Resize the image to specified width and height
 
         Returns:
@@ -186,12 +193,14 @@ class Img(File):
             saved_image_path (str): Path to the new image
         """
         saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename.strip('resized_')}")
+        if file_path is not None:
+            saved_image_path = file_path
         if (
             os.path.exists(saved_image_path)
             and not overwrite
             and Img(saved_image_path).dimensions == (width, height)
         ):
-            return saved_image_path
+            return self.__class__(saved_image_path)
         with Image.open(self.path) as img:
             resized_img = img.resize((width, height))
         try:
@@ -203,7 +212,7 @@ class Img(File):
             # resized_img.save(buffered, format="JPEG")
             # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-            return saved_image_path
+            return self.__class__(saved_image_path)
 
     def compress(self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False):
         """Compresses an image
@@ -279,16 +288,39 @@ class Img(File):
 
     def to_base64(self) -> str:
         resized = self.resize()
-        with Image.open(resized) as img:
+        with Image.open(resized.path) as img:
             try:
                 buffered = BytesIO()
                 img.save(buffered, format="JPEG")
                 img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-                os.remove(resized)
+                os.remove(resized.path)
             except OSError as e:
                 print("OSError  while converting to base64:")
                 return str(e)
         return img_str
+
+    def encode(self) -> str | None:
+        while True:
+            try:
+                with open(self.path, "rb") as image:
+                    return base64.b64decode(image.read()).decode("utf-8")
+            except IOError as e:
+                if e.errno != errno.EACCES:
+                    raise
+                time.sleep(0.1)
+
+    def grayscale(self, output: str) -> File:
+        """Convert the image to grayscale and save it to the specified output path.
+
+        Paramaters:
+        ------------
+            output (str): The path where the grayscale image will be saved.
+        """
+
+        img = cv2.imread(self.path)
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite(output, gray_img)
+        return Img(output)
 
     @property
     def is_corrupt(self) -> bool:

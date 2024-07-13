@@ -162,10 +162,12 @@ class Video(File):
             f"ffmpeg -ss mm:ss -to mm2:ss2 -i {self.path} -codec copy {output_path}"
         )
 
-    def compress(self, output: str | None | Path = None) -> int:
-        output_path = (
-            output if output is not None else self.path[:-4] + f"_compressed.{self.extension}"
-        )
+    def compress(self, output_dir: str) -> int:
+        output_path = f"{output_dir}/{self.basename}"
+        if os.path.exists(output_path):
+            other = Video(output_path)
+            if not other.is_corrupt:
+                pass
         result = subprocess.run(
             f'ffmpeg -i "{self.path}" -c:v h264_nvenc -crf 18 -qp 28 "{output_path}"',
             shell=True,
