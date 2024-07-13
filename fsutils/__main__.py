@@ -1,110 +1,132 @@
 #!/usr/bin/env python3
 import argparse
-import sys
-from fsutils import Log, Img, Video  # , File, Dir, obj, Exe
+
+from fsutils import Video  # , File, Dir, obj, Exe
+from Color import cprint, fg, style
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Command line tool for fsutils.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+def parse_args():
+    # Create the main parser
+    main_parser = argparse.ArgumentParser(
+        prog="fstuils", description="A collection of command line utilities"
     )
+    subparsers = main_parser.add_subparsers(help="commands", dest="command")
 
-    subparsers = parser.add_subparsers(dest="command")
-
-    # Log File Commands
-    log_parser = subparsers.add_parser("log", help="Commands related to log files.")
-    log_subparsers = log_parser.add_subparsers()
-
-    compare_log_parser = log_subparsers.add_parser("compare", help="Compare two log files.")
-    compare_log_parser.add_argument("file1", type=str, help="Path to the first log file.")
-    compare_log_parser.add_argument("file2", type=str, help="Path to the second log file.")
-
-    # Image File Commands
-    image_parser = subparsers.add_parser("image", help="Commands related to image files.")
-    image_subparsers = image_parser.add_subparsers()
-
-    open_image_parser = image_subparsers.add_parser("open", help="Open an image file.")
-    open_image_parser.add_argument("file_path", type=str, help="Path to the image file.")
-
-    save_image_parser = image_subparsers.add_parser(
-        "save", help="Save an image to a specified location."
+    # Create the parser for the "video" command
+    video_parser = subparsers.add_parser("video", help="Video related operations")
+    video_subparsers = video_parser.add_subparsers(help="video commands", dest="video_command")
+    # Create a parser for the "makegif" command under "video"
+    makegif_parser = video_subparsers.add_parser(
+        "makegif",
+        help="Create GIF from video",
     )
-    save_image_parser.add_argument("file_path", type=str, help="Path to the image file.")
-    save_image_parser.add_argument(
-        "output_path", type=str, help="Output path where the image will be saved."
-    )
-
-    # Video File Commands
-    video_parser = subparsers.add_parser("video", help="Commands related to video files.")
-    video_subparsers = video_parser.add_subparsers()
-
-    metadata_video_parser = video_subparsers.add_parser(
-        "metadata", help="Extract metadata from a video file."
-    )
-    metadata_video_parser.add_argument("file_path", type=str, help="Path to the video file.")
-    make_gif_video_parser = video_subparsers.add_parser(
-        "makegif", help="Make a gif from a video file."
-    )
-    make_gif_video_parser.add_argument("file_path", type=str, help="Path to the video file.")
-    make_gif_video_parser.add_argument(
-        "-o",
-        "--output",
+    makegif_parser.add_argument(
+        "file",
+        help="Input video file",
         type=str,
-        help="Output path for the gif.",
-        default="./output.gif",
-        required=False,
     )
-    make_gif_video_parser.add_argument(
-        "-s",
+    makegif_parser.add_argument(
+        "--fps",
+        type=int,
+        default=24,
+    )
+    makegif_parser.add_argument(
         "--scale",
         type=int,
         default=500,
         help="Scale factor for the gif - (100-1000 is usually good).",
-        required=False,
     )
-    make_gif_video_parser.add_argument(
-        "--fps",
-        type=int,
-        help="Frames per second for the gif.",
-        default=24,
-        required=False,
+    makegif_parser.add_argument(
+        "-o",
+        "--output",
+        help="Output file",
+        type=str,
+        default="./output.gif",
     )
 
-    # Parse and execute arguments
-    args = parser.parse_args()
+    video_info = video_subparsers.add_parser(
+        "info",
+        help="Display information about a video",
+    )
+    video_info.add_argument(
+        "file",
+        type=str,
+        help="Input Video File",
+    )
+    video_info.add_argument(
+        "--codec",
+        help="Display codec information",
+        action="store_true",
+    )
+    video_info.add_argument(
+        "--dimensions",
+        help="Display video dimensions",
+        action="store_true",
+    )
+    video_info.add_argument(
+        "--duration",
+        help="Display video duration",
+        action="store_true",
+    )
+    video_info.add_argument(
+        "--bitrate",
+        help="Display video bitrate",
+        action="store_true",
+    )
+    video_info.add_argument(
+        "--size",
+        help="Display size of file in bytes",
+        action="store_true",
+    )
+    video_info.add_argument(
+        "--capture_date",
+        help="Display capture date of video",
+        action="store_true",
+    )
 
-    if args.command == "log":
-        if args.subcommand == "compare":
-            log1 = Log(args.file1)
-            log2 = Log(args.file2)
-            log1.compare(log2)
+    # Create a parser for the "img" command under "video"
+    img_parser = video_subparsers.add_parser("img", help="Image related operations")
+    img_subparsers = img_parser.add_subparsers(help="image commands", dest="img_command")
 
-    elif args.command == "image":
-        if args.subcommand == "open":
-            # Initialize and render
-            blob = Img(args.file_path)
-            blob.render()
-            return
-        elif args.subcommand == "save":
-            return 1
-    elif args.command == "video":
-        if args.subcommand == "metadata":
-            metadata = Video(args.file_path).metadata
-            print(metadata)
-        elif args.subcommand == "makegif":
-            blob = Video(args.file_path)
-            return blob.make_gif(
-                args.scale,
-                args.fps,
-                args.output,
-            )
-    else:
-        parser.print_help()
-        return 1
+    # Create a parser for the "resize" command under "img resize"
+    resize_parser = img_subparsers.add_parser("resize", help="Resize an image")
+    resize_parser.add_argument("--width", type=int, required=True)
+    resize_parser.add_argument("--height", type=int, required=False)
 
-    return 0
+    return main_parser.parse_args()
+
+
+def log_parser(arguments):
+    pass
+
+
+def image_parser(arguments):
+    pass
+
+
+def video_parser(arguments) -> int:
+    specs = {
+        "codec": Video(arguments.file).codec,
+        "dimensions": Video(arguments.file).dimentions,
+        "duration": Video(arguments.file).duration,
+        "bitrate": Video(arguments.file).bitrate,
+        "size": Video(arguments.file).size,
+        "capture_date": Video(arguments.file).capture_date,
+        "info": Video(arguments.file).info,
+    }
+    if arguments.video_command == "makegif":
+        return Video(arguments.file).make_gif(arguments.scale, arguments.fps, arguments.output)
+    elif arguments.video_command == "info":
+        print(Video(arguments.file).info)
+        for arg, value in arguments.__dict__.items():
+            if arg in specs.keys() and value:
+                print(f"{arg}: {specs[arg]}")
+        return 0
+    return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    args = parse_args()
+    cprint(args, style.bold)
+    if args.command == "video":
+        video_parser(args)
