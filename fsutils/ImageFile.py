@@ -7,7 +7,6 @@ from io import BytesIO
 import time
 import base64
 import errno
-import numpy as np
 
 import cv2
 from PIL import Image, UnidentifiedImageError

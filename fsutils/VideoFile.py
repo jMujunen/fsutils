@@ -6,7 +6,11 @@ import os
 import json
 import cv2
 import sys
+from typing import Any, Optional, Tuple, List, Dict
+
 from pathlib import Path
+
+from .exceptions import DurationError
 from .GenericFile import File
 from .ffprobe import FFProbe, FFStream
 
@@ -28,13 +32,13 @@ class Video(File):
 
     """
 
-    def __init__(self, path: str):
+    def __init__(self, path: str) -> None:
         self._metadata = None
         self._info = None
         super().__init__(path)
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict:
         if not self._metadata:
             ffprobe_cmd = [
                 "ffprobe",
@@ -57,13 +61,19 @@ class Video(File):
         return self._metadata
 
     @property
-    def tags(self) -> dict:
+    def tags(self) -> Optional[Dict]:
         return self.metadata.get("tags", {}) if self.metadata else {}
 
     @property
-    def bitrate(self) -> int:
+    def bitrate(self) -> Optional[int]:
         """Extract the bitrate/s with ffprobe."""
-        return round(int(self.metadata.get("bit_rate", -1)) / self.duration)
+        try:
+            bitrate = round(int(self.metadata.get("bit_rate", -1)) / self.duration)
+            return bitrate
+        except ZeroDivisionError:
+            if self.is_corrupt:
+                print(f"\033[31m{self.basename} is corrupt!\033[0m")
+            return 0
 
     @property
     def duration(self) -> int:
@@ -75,6 +85,22 @@ class Video(File):
             self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getmtime(self.path))
         ).split(".")[0]
         return datetime.fromisoformat(capture_date)
+
+    @property
+    def info(self) -> FFStream | None:
+        if self._info is None:
+            for stream in FFProbe(self.path).streams:
+                if stream.is_video():
+                    self._info = stream
+        return self._info
+
+    @property
+    def codec(self) -> str | None:
+        return self.info.codec() if self.info else None
+
+    @property
+    def dimentions(self) -> tuple[int, int] | None:
+        return self.info.frame_size() if self.info else None
 
     # @property
     # def capture_date(self):
@@ -176,6 +202,7 @@ class Video(File):
         )
         return result.returncode
 
+    # NOTE:  Untested
     def extract_audio(self, output_path: str | None = None) -> int:
         return subprocess.call(
             [
@@ -188,31 +215,17 @@ class Video(File):
             ]
         )
 
+    # NOTE:  Untested
     def extract_subtitle(self, output_path: str | None = None) -> int:
         return subprocess.call(
             f"ffmpeg -i {self.path} -map s -c copy {os.path.splitext(self.path)[0]}_subtitle.srt",
             shell=True,
         )
 
+    # NOTE:  Untested
     def extract_frames(self, output_path: str | None = None) -> int:
         # [ ] - WIP
         return subprocess.call(f"ffmpeg  -i {self.path}  image%03d.jpg", shell=True)
-
-    @property
-    def info(self) -> FFStream | None:
-        if self._info is None:
-            for stream in FFProbe(self.path).streams:
-                if stream.is_video():
-                    self._info = stream
-        return self._info
-
-    @property
-    def codec(self) -> str | None:
-        return self.info.codec() if self.info else None
-
-    @property
-    def dimentions(self) -> tuple[int, int] | None:
-        return self.info.frame_size() if self.info else None
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimentions}, info={self.info}".format(

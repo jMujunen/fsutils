@@ -76,7 +76,7 @@ class Dir(File):
         Query the object for files with the given name.
         Returns an appropriate FileObject if found.
 
-        Paramaters
+        Parameters
         ----------
             file_name (str): The name of the file
 
@@ -161,7 +161,7 @@ class Dir(File):
             print(("{:<20}{:<40}").format(s, filepath.replace(self.path, "")))
 
     def __contains__(self, item: File) -> bool:
-        """Compare items in two DirecoryObjects
+        """Compare items in two DirectoryObjects
 
         Parameters:
         ----------
@@ -218,7 +218,7 @@ class Dir(File):
         return self.content == other.content
 
     def fmt(self, *args) -> str:
-        """Print a formated string representation of each object in self."""
+        """Print a formatted string representation of each object in self."""
         return f"{self.__class__.__name__}({self.path})"
 
     def __repr__(self) -> str:

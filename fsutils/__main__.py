@@ -84,27 +84,35 @@ def parse_args():
         action="store_true",
     )
 
-    # Create a parser for the "img" command under "video"
-    img_parser = video_subparsers.add_parser("img", help="Image related operations")
-    img_subparsers = img_parser.add_subparsers(help="image commands", dest="img_command")
+    img_parser = subparsers.add_parser("img", help="Image related operations")
+    img_subparsers = img_parser.add_subparsers(help="Image commands", dest="image_command")
+    image_info__parser = img_subparsers.add_parser(
+        "info",
+        help="Create GIF from video",
+    )
 
-    # Create a parser for the "resize" command under "img resize"
     resize_parser = img_subparsers.add_parser("resize", help="Resize an image")
     resize_parser.add_argument("--width", type=int, required=True)
     resize_parser.add_argument("--height", type=int, required=False)
 
+    # image_parser.
+
     return main_parser.parse_args()
 
 
-def log_parser(arguments):
+def log_parser(arguments: argparse.Namespace):
     pass
 
 
-def image_parser(arguments):
+def dir_parser(arguments: argparse.Namespace) -> int:
+    return 1
+
+
+def image_parser(arguments: argparse.Namespace):
     pass
 
 
-def video_parser(arguments) -> int:
+def video_parser(arguments: argparse.Namespace) -> int:
     specs = {
         "codec": Video(arguments.file).codec,
         "dimensions": Video(arguments.file).dimentions,
