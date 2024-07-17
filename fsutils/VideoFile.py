@@ -232,6 +232,9 @@ class Video(File):
             **vars(self)
         )
 
+    # def __repr__(self) -> str:
+    #     return super().__repr__()
+
 
 # Run as script
 if __name__ == "__main__":

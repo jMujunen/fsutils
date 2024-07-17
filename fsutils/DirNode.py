@@ -3,6 +3,7 @@
 import os
 import datetime
 import re
+from collections import defaultdict
 from typing import List, Iterator
 from fsutils import File, Log, Exe, Video, Img
 from size import Converter
@@ -23,11 +24,11 @@ class Dir(File):
     ----------
         file_info (file_name): Returns information about a specific file in the directory
         objects (): Convert each file in self to an appropriate type of object inheriting from FileObject
+        getinfo (): Returns a list of extentions and their count
         __eq__ (other): Compare properties of two DirectoryObjects
         __contains__ (other): Check if an item is present in two DirectoryObjects
         __len__ (): Return the number of items in the object
         __iter__ (): Define an iterator which yields the appropriate instance of FileObject
-
     Properties:
     ----------
         files       : A read-only property returning a list of file names
@@ -133,6 +134,10 @@ class Dir(File):
         """Return a list of DirectoryObject instances found in the directory."""
         return [item for item in self if isinstance(item, Dir)]
 
+    def getinfo(self, path: str) -> dict:
+        """Return information about a file or directory."""
+        return count_file_types(path)
+
     def sort(self, spec="mtime", reversed=True) -> None:
         """Sort the files and directories by the specifying attribute."""
         specs = {
@@ -180,18 +185,7 @@ class Dir(File):
         return len([i for i in self.objects()])
 
     def __iter__(self) -> Iterator[File]:
-        """
-        Yield a sequence of File instances for each item in self
-
-        Yields:
-        -------
-            any (File): The appropriate instance of File
-        """
-        # for file_path in chain(
-        #     os.walk(self.path),
-        #     [f"{directory}" for directory, _, _ in os.walk(self.path)],
-        # ):
-        #     yield obj(str(file_path))
+        """Yield a sequence of File instances for each item in self"""
         for root, _, files in os.walk(self.path):
             for file in files:
                 path = os.path.join(root, file)  # full path of the file
@@ -202,7 +196,7 @@ class Dir(File):
             for directory in _:
                 yield Dir(os.path.join(root, directory))
 
-    def __eq__(self, other: File) -> bool:
+    def __eq__(self, other: "Dir") -> bool:
         """Compare the contents of Dirs
 
         Parameters:
@@ -213,8 +207,6 @@ class Dir(File):
         ----------
             bool: True if the path of the two instances are equal, False otherwise.
         """
-        if not isinstance(other, (Dir, File)):
-            return False
         return self.content == other.content
 
     def fmt(self, *args) -> str:

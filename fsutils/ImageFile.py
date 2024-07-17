@@ -183,7 +183,11 @@ class Img(File):
         pass
 
     def resize(
-        self, width: int = 320, height: int = 320, overwrite=False, file_path: str | None = None
+        self,
+        width: int = 320,
+        height: int = 320,
+        overwrite=False,
+        file_path: str | None = None,
     ):
         """Resize the image to specified width and height
 
@@ -207,10 +211,6 @@ class Img(File):
         except OSError as e:
             print(f"An error occurred while saving resized image:\n{str(e)}")
         finally:
-            # buffered = BytesIO()
-            # resized_img.save(buffered, format="JPEG")
-            # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-
             return self.__class__(saved_image_path)
 
     def compress(self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False):
