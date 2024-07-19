@@ -64,7 +64,7 @@ class Log(File):
 
     def sanitize(self) -> str:
         """
-        Sanatize the log file by removing any empty lines, spaces, and trailing delimiters
+        Sanitize the log file by removing any empty lines, spaces, and trailing delimiters
         from the header and footer. Also remove the last 2 lines
 
         Returns:
@@ -114,7 +114,7 @@ class Log(File):
             other (LogFile): Another LogFile instance to compare against.
         """
 
-        def round_values(val: float | int) -> float |:
+        def round_values(val: float | int) -> float:
             try:
                 val = float(val)
                 if val < 5:

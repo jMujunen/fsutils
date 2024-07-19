@@ -6,5 +6,6 @@ from .ScriptFile import Exe
 from .DirNode import Dir
 from .ffprobe import FFProbe
 from .decorators import auto_repr
+from .GitObject import Git
 
-all = ["File", "Img", "Video", "Log", "Exe", "Dir"]
+all = ["File", "Img", "Video", "Log", "Exe", "Dir", "FFProbe", "auto_repr"]

@@ -3,8 +3,14 @@
 import os
 import datetime
 import re
-from typing import List, Iterator, Any
-from fsutils import File, Log, Exe, Video, Img
+from typing import List, Iterator, Any, Union
+# from fsutils import File, Log, Exe, Video, Img
+from .GenericFile import File
+from .LogFile import Log
+from .ScriptFile import Exe
+from .VideoFile import Video
+from .ImageFile import Img
+from .GitObject import Git
 from size import Converter
 
 
@@ -37,17 +43,21 @@ class Dir(File):
     """
 
     def __init__(self, path: str):
-        self._files = None
-        self._directories = None
-        self._objects = None
+        self._files = []
+        self._directories = []
+        self._objects = []
         super().__init__(path)
 
     @property
     def files(self) -> List[str]:
         """Return a list of file names in the directory represented by this object."""
-        # return [file for file in self if isinstance(file, (File, Video, Img, Exe, Log))]
         return [f.basename for f in self if not os.path.isdir(f.path)]
 
+    @property
+    def file_objects(self) -> List[Union[File, Exe, Log, Img, Video, Git]]:
+        return [item for item in self if isinstance(item,
+                                                    (File, Exe, Log, Img, Video, Git)
+            )]
     @property
     def content(self) -> List[Any] | None:
         try:
@@ -65,8 +75,8 @@ class Dir(File):
         """Return a list of subdirectory paths relative to the directory represented by this object"""
         return [f".{folder.path.replace(self.path, "")}" for folder in self.dirs]
 
-    def objects(self) -> List[File]:
-        """Convert each file in self to an appropriate type of object inheriting from File."""
+    def objects(self) -> List[File | Exe | Log | Img | Video | Git]:
+        """Return a list of fsutil objects inside self"""
         if self._objects is None:
             self._objects = [file for file in self]
         return self._objects
@@ -184,7 +194,7 @@ class Dir(File):
         """Return the number of items in the object"""
         return len([i for i in self.objects()])
 
-    def __iter__(self) -> Iterator:
+    def __iter__(self) -> Iterator[File | Exe | Log | Img | Video | Git]:
         """Yield a sequence of File instances for each item in self"""
         for root, _, files in os.walk(self.path):
             for file in files:
@@ -268,8 +278,10 @@ def obj(path: str) -> File:
         # Directories
         "": Dir,
     }
-
-    others = {re.compile(r"(\d+mhz|\d\.\d+v)"): Log}
+    others = {
+        re.compile(r"(\d+mhz|\d\.\d+v)"): Log,
+        re.compile(r"([a-f0-9]{37,41})"): Git
+    }
 
     cls = classes.get(ext)
     if not cls:

@@ -73,11 +73,12 @@ class File:
             list: The first n lines of the file
         """
         # if isinstance(self, (File, Exe, Log)):
-        try:
-            return self.content[:n]
-        except Exception as e:
-            raise TypeError(f"P{e}: The object must be a File or an Exe instance")
-
+        if self.content is not None:
+            try:
+                return self.content[:n]
+            except Exception as e:
+                raise TypeError(f"P{e}: The object must be a File or an Exe instance")
+        return []
     def tail(self, n=5) -> list:
         """
         Return the last n lines of the file
@@ -91,10 +92,12 @@ class File:
             list: The last n lines of the file
         """
         # if isinstance(self, (File, Exe)):
-        try:
-            return self.content[-n:]
-        except Exception as e:
-            raise TypeError(f"{e}: The object must be a FileObject or an ExecutableObject")
+        if self.content is not None:
+            try:
+                return self.content[-n:]
+            except Exception as e:
+                raise TypeError(f"{e}: The object must be a FileObject or an ExecutableObject")
+        return []
 
     @property
     def is_link(self) -> bool:
@@ -145,8 +148,7 @@ class File:
         return self._content
 
     def read(self, **kwargs) -> List[Any]:
-        """
-        Method for reading the content of a file.
+        """Method for reading the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
         practice to override this method in subclasses that deal with binary files.
@@ -194,7 +196,7 @@ class File:
 
     @property
     def is_executable(self) -> bool:
-        """Check if the file is executable"""
+        """Check if the file has the executable bit set"""
         return os.access(self.path, os.X_OK)
 
     @property
@@ -225,7 +227,7 @@ class File:
 
     def unixify(self) -> List[str]:
         """Convert DOS line endings to UNIX - \\r\\n -> \\n"""
-        self._content = "".split(re.sub("\r\n$|\r$", "\n", "".join(self.content)))
+        self._content = "".split(re.sub(r"\r\n$|\r$", "\n", "".join(self.content)))
         return self._content
 
     def __iter__(self) -> Iterator[str]:
@@ -235,12 +237,13 @@ class File:
         --------
             str: A line from the file
         """
-        try:
-            for line in self.content:
-                yield (str(line).strip())
-        except TypeError as e:
-            # else:
-            raise TypeError(f"Object of type {type(self)} is not iterable: {e}")
+        if self.content is not None:
+            try:
+                for line in self.content:
+                    yield (str(line).strip())
+            except TypeError as e:
+                # else:
+                raise TypeError(f"Object of type {type(self)} is not iterable: {e}")
 
     def __len__(self) -> int:
         """Get the number of lines in a file."""
@@ -250,16 +253,12 @@ class File:
             raise TypeError(f"Object of type {type(self)} does not support len(): {e}")
 
     def __contains__(self, item: Any) -> bool:
-        """
-        Check if a line exists in the file.
+        """Check if a line exists in the file.
 
         Parameters:
         ----------
             item (str): The line to check for
 
-        Returns:
-        -------
-            bool: True if the line is found, False otherwise
         """
         return any(item in line for line in self) or any(
             item in word for word in item.split(" ") for line in self
@@ -287,7 +286,6 @@ class File:
     def __setattr__(self, name: str, value: Any, /) -> None:
         """Set an attribute for the FileObject."""
         if name == "_File__path":
-            raise AttributeError("Cannot change file path.")
             raise AttributeError("Cannot change file path.")
         self.__dict__[name] = value
 

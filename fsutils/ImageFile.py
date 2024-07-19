@@ -15,7 +15,7 @@ from PIL.ExifTags import TAGS
 import ollama
 import imagehash
 
-from fsutils import File
+from .GenericFile import File
 
 # from .GenericFile import File
 from size import Converter
