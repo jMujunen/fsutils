@@ -138,7 +138,7 @@ class File:
         return 0
 
     @property
-    def content(self) -> List[Any]:
+    def content(self) -> List[Any] | None:
         """Helper for self.read()"""
         if not self._content:
             self._content = self.read()
@@ -162,7 +162,7 @@ class File:
         if not self._content or kwargs.get("refresh", False):
             try:
                 with open(self.path, "rb") as f:
-                    lines = f.read.decode(self.encoding)
+                    lines = f.read().decode(self.encoding)
                     content = list(
                         lines.split("\n")[kwargs.get("a", 0) : kwargs.get("b", len(self._content))]
                     )

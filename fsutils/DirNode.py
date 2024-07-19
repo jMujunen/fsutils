@@ -3,8 +3,7 @@
 import os
 import datetime
 import re
-from collections import defaultdict
-from typing import List, Iterator
+from typing import List, Iterator, Any
 from fsutils import File, Log, Exe, Video, Img
 from size import Converter
 
@@ -50,7 +49,7 @@ class Dir(File):
         return [f.basename for f in self if not os.path.isdir(f.path)]
 
     @property
-    def content(self) -> List[str] | None:
+    def content(self) -> List[Any] | None:
         try:
             return os.listdir(self.path)
         except NotADirectoryError:
@@ -136,7 +135,8 @@ class Dir(File):
 
     def getinfo(self, path: str) -> dict:
         """Return information about a file or directory."""
-        return count_file_types(path)
+        raise NotImplementedError("Not implemented yet")
+        return {}
 
     def sort(self, spec="mtime", reversed=True) -> None:
         """Sort the files and directories by the specifying attribute."""
@@ -184,7 +184,7 @@ class Dir(File):
         """Return the number of items in the object"""
         return len([i for i in self.objects()])
 
-    def __iter__(self) -> Iterator[File]:
+    def __iter__(self) -> Iterator:
         """Yield a sequence of File instances for each item in self"""
         for root, _, files in os.walk(self.path):
             for file in files:

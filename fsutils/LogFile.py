@@ -5,7 +5,7 @@ from pandas import Series
 import re
 import pandas as pd
 from .GenericFile import File
-from typing import List, Union
+from typing import List, Union, Any
 
 
 class Log(File):
@@ -62,36 +62,36 @@ class Log(File):
 
         return pd.DataFrame(self.content, columns=self.columns)
 
-    def sanatize(self) -> str:
+    def sanitize(self) -> str:
         """
         Sanatize the log file by removing any empty lines, spaces, and trailing delimiters
         from the header and footer. Also remove the last 2 lines
 
         Returns:
         -------
-            str: The sanatized content
+            str: The sanitized content
         """
         pattern = re.compile(
             r"(GPU2.\w+\(.*\)|NaN|N\/A|Fan2|°|Â|\*|,,+|\s\[[^\s]+\]|\"|\+|\s\[..TDP\]|\s\[\]|\s\([^\s]\))"
         )
         # pattern = re.compile(r"(,\s+|\s+,)")
 
-        sanatized_content = []
+        sanitized_content = []
         lines = len(self)
         for i, line in enumerate(self):
             if i == lines - 2:
                 break
-            sanatized_line = re.sub(pattern, "", line).strip().strip(self.spec)
-            if sanatized_line:
-                sanatized_line = re.sub(pattern, ",", sanatized_line)
-                sanatized_line = re.sub(r"(\w+)\s+(\w+)", r"\1_\2", sanatized_line)
-                sanatized_content.append(sanatized_line)
+            sanitized_line = re.sub(pattern, "", line).strip().strip(self.spec)
+            if sanitized_line:
+                sanitized_line = re.sub(pattern, ",", sanitized_line)
+                sanitized_line = re.sub(r"(\w+)\s+(\w+)", r"\1_\2", sanitized_line)
+                sanitized_content.append(sanitized_line)
 
-        self._content = "\n".join(sanatized_content)
+        self._content = "\n".join(sanitized_content)
         return self._content
 
     @property
-    def stats(self) -> Series | float:
+    def stats(self) -> Any:
         """
         Calculate basic statistical information for the data in a DataFrame.
 
@@ -102,7 +102,7 @@ class Log(File):
         try:
             df = pd.read_csv(self.path)
         except UnicodeDecodeError:
-            df = pd.read_csv(self.sanatize())
+            df = pd.read_csv(self.sanitize())
         return df.mean()
 
     def compare(self, other) -> None:
@@ -114,7 +114,7 @@ class Log(File):
             other (LogFile): Another LogFile instance to compare against.
         """
 
-        def round_values(val: Union[str, float]) -> Union[int, float]:
+        def round_values(val: float | int) -> float |:
             try:
                 val = float(val)
                 if val < 5:
@@ -127,7 +127,7 @@ class Log(File):
                 print(f"\033[31m Error rounding value: {e}\033[0m")
                 return val
 
-        def compare_values(num1: Union[str, float], num2: Union[str, float]) -> tuple:
+        def compare_values(num1: float | int, num2: float | int) -> tuple:
             num1 = round_values(num1)
             num2 = round_values(num2)
             if num1 == num2:
