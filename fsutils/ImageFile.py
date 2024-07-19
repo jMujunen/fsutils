@@ -23,7 +23,6 @@ from size import Converter
 
 class Img(File):
     """A class representing information about an image
-
     Attributes:
     ----------
         path (str): The absolute path to the file.
