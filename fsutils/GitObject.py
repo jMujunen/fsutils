@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Represents a git object"""
 
-from typing import List, Tuple, Union, Any
+from typing import Any, List, Tuple, Union
 
 from .GenericFile import File
+
 
 class Git(File):
     """Represents a git object"""

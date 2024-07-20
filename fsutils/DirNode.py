@@ -1,17 +1,19 @@
 """DirNode.Dir -  Represents a directory. Contains methods to list objects inside this directory."""
 
-import os
 import datetime
+import os
 import re
-from typing import List, Iterator, Any, Union
+from typing import Any, Iterator, List, Union
+
+from size import Converter
+
 # from fsutils import File, Log, Exe, Video, Img
 from .GenericFile import File
+from .GitObject import Git
+from .ImageFile import Img
 from .LogFile import Log
 from .ScriptFile import Exe
 from .VideoFile import Video
-from .ImageFile import Img
-from .GitObject import Git
-from size import Converter
 
 
 class Dir(File):
@@ -55,9 +57,8 @@ class Dir(File):
 
     @property
     def file_objects(self) -> List[Union[File, Exe, Log, Img, Video, Git]]:
-        return [item for item in self if isinstance(item,
-                                                    (File, Exe, Log, Img, Video, Git)
-            )]
+        return [item for item in self if isinstance(
+                    item, (File, Exe, Log, Img, Video, Git)) and not os.path.isdir(item.path)]
     @property
     def content(self) -> List[Any] | None:
         try:
@@ -77,7 +78,7 @@ class Dir(File):
 
     def objects(self) -> List[File | Exe | Log | Img | Video | Git]:
         """Return a list of fsutil objects inside self"""
-        if self._objects is None:
+        if not self._objects:
             self._objects = [file for file in self]
         return self._objects
 
@@ -275,8 +276,6 @@ def obj(path: str) -> File:
         ".py": Exe,
         ".bat": Exe,
         ".sh": Exe,
-        # Directories
-        "": Dir,
     }
     others = {
         re.compile(r"(\d+mhz|\d\.\d+v)"): Log,
@@ -288,6 +287,8 @@ def obj(path: str) -> File:
         for k, v in others.items():
             if k.match(path.split(os.sep)[-1]):
                 return v(path)
+        if os.path.isdir(path):
+            return Dir(path)
         return File(path)
     return cls(path)
 

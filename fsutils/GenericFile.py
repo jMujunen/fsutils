@@ -3,9 +3,11 @@
 import os
 import re
 import shutil
+from typing import Any, Iterator, List
+
 import chardet
-from typing import Iterator, List, Any
-from fsutils.mimecfg import FILE_TYPES
+
+from .mimecfg import FILE_TYPES
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
@@ -164,12 +166,12 @@ class File:
         if not self._content or kwargs.get("refresh", False):
             try:
                 with open(self.path, "rb") as f:
-                    lines = f.read().decode(self.encoding)
+                    lines = f.read().decode(self.encoding).split('\n')
                     content = list(
-                        lines.split("\n")[kwargs.get("a", 0) : kwargs.get("b", len(self._content))]
+                        lines[kwargs.get("a", 0) : kwargs.get("b", len(lines))]
                     )
             except Exception as e:
-                # print(e)
+                print(e)
                 try:
                     with open(self.path, "r", encoding=self.encoding) as f:
                         content = f.readlines()
@@ -180,7 +182,7 @@ class File:
                             content = f.readlines()
                     except Exception as e:
                         raise TypeError(f"Reading {type(self)} is unsupported")
-            self._content = content
+            self._content = content or self._content
         return (
             self._content[kwargs.get("a", 0) : kwargs.get("b", len(self._content))]
             if kwargs
@@ -225,10 +227,10 @@ class File:
             encoding = chardet.detect(f.read())["encoding"]
         return encoding
 
-    def unixify(self) -> List[str]:
-        """Convert DOS line endings to UNIX - \\r\\n -> \\n"""
-        self._content = "".split(re.sub(r"\r\n$|\r$", "\n", "".join(self.content)))
-        return self._content
+    # def unixify(self) -> List[str]:
+    #     """Convert DOS line endings to UNIX - \\r\\n -> \\n"""
+    #     self._content = "".split(re.sub(r"\r\n$|\r$", "\n", "".join(self.content)))
+    #     return self._content
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file.

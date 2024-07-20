@@ -1,24 +1,21 @@
 """Represents an image"""
 
-import subprocess
-import os
-from datetime import datetime
-from io import BytesIO
-import time
 import base64
 import errno
+import os
+import subprocess
+import time
+from datetime import datetime
+from io import BytesIO
 
 import cv2
+import imagehash
+import ollama
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
-
-import ollama
-import imagehash
+from size import Converter
 
 from .GenericFile import File
-
-# from .GenericFile import File
-from size import Converter
 
 
 class Img(File):
@@ -311,7 +308,7 @@ class Img(File):
         """Convert the image to grayscale and save it to the specified output path.
 
         Paramaters:
-        ------------
+        ----------
             output (str): The path where the grayscale image will be saved.
         """
 

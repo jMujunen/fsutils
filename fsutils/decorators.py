@@ -17,3 +17,4 @@ def auto_repr(cls):
         lambda self: f"{self.__class__.__name__}({', '.join(f'{k}={getattr(self, k)}' for k in self.__dict__.keys())})"
     )
     return cls
+
