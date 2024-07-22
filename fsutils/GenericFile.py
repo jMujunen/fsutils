@@ -81,6 +81,7 @@ class File:
             except Exception as e:
                 raise TypeError(f"P{e}: The object must be a File or an Exe instance")
         return []
+
     def tail(self, n=5) -> list:
         """
         Return the last n lines of the file
@@ -98,7 +99,9 @@ class File:
             try:
                 return self.content[-n:]
             except Exception as e:
-                raise TypeError(f"{e}: The object must be a FileObject or an ExecutableObject")
+                raise TypeError(
+                    f"{e}: The object must be a FileObject or an ExecutableObject"
+                )
         return []
 
     @property
@@ -166,17 +169,15 @@ class File:
         if not self._content or kwargs.get("refresh", False):
             try:
                 with open(self.path, "rb") as f:
-                    lines = f.read().decode(self.encoding).split('\n')
+                    lines = f.read().decode(self.encoding).split("\n")
                     content = list(
                         lines[kwargs.get("a", 0) : kwargs.get("b", len(lines))]
                     )
             except Exception as e:
-                print(e)
                 try:
                     with open(self.path, "r", encoding=self.encoding) as f:
                         content = f.readlines()
                 except Exception as e:
-                    print(e)
                     try:
                         with open(self.path, "rb") as f:
                             content = f.readlines()
@@ -220,6 +221,12 @@ class File:
     def is_image(self) -> bool:
         """Check if the file is an image"""
         return self.extension.lower() in FILE_TYPES["img"]
+    # @property
+    # def relative_dir(self, other: 'File') -> str:
+    #     """Get directory of the file relative to another file"""
+    #     if not self.is_file or not other.is_dir:
+    #         raise ValueError("Both the file and directory must exist")
+    #     return os.path.relpath(self.dirname, other.dirname)
 
     def detect_encoding(self) -> str | None:
         """Detects encoding of the file"""

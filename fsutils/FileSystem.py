@@ -28,7 +28,7 @@ class FileTreeNode:
         self.parent = parent
         self.children = []
 
-    def add_child(self, child: 'FileTreeNode'):
+    def add_child(self, child: "FileTreeNode"):
         """
         Add a child node to this node.
 
@@ -71,7 +71,7 @@ class FileTree:
         """
         self.root = None
 
-    def add_node(self, node: 'FileTreeNode'):
+    def add_node(self, node: "FileTreeNode"):
         """
         Add a node to the tree.
 
@@ -104,7 +104,7 @@ class FileTree:
             FileTreeNode: Each node in the file tree.
         """
 
-        def recursive_traversal(node: 'FileTreeNode') -> iter:
+        def recursive_traversal(node: "FileTreeNode") -> iter:
             yield node
             for child in node.children:
                 yield from recursive_traversal(child)
@@ -134,7 +134,9 @@ def create_file_tree(directory_object, file_tree):
                 if not ext:  # ignore directories with no extension (like .git)
                     continue
                 file_node = FileTreeNode(
-                    os.path.basename(root) + '/' + file_name, os.path.join(root, file), parent=dir_node
+                    os.path.basename(root) + "/" + file_name,
+                    os.path.join(root, file),
+                    parent=dir_node,
                 )
                 try:
                     dir_node.add_child(file_node)

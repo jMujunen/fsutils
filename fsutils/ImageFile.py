@@ -1,10 +1,8 @@
 """Represents an image"""
 
 import base64
-import errno
 import os
 import subprocess
-import time
 from datetime import datetime
 from io import BytesIO
 
@@ -72,7 +70,11 @@ class Img(File):
         except UnidentifiedImageError as e:
             file = Img(self.path)
             if file.is_corrupt:
-                print(f"\033[1;31m{self.path} is corrupt\033[0m", end=f"{' '*80}\r", flush=True)
+                print(
+                    f"\033[1;31m{self.path} is corrupt\033[0m",
+                    end=f"{' '*80}\r",
+                    flush=True,
+                )
 
             print(f"Error calculating hash: {e}")
 
@@ -133,7 +135,9 @@ class Img(File):
                     continue
         else:
             self.__dict__.get("capture_date")
-        date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
+        date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[
+            0
+        ]
         return datetime.fromisoformat(date_str)
 
     def generate_title(self) -> str | None:
@@ -191,7 +195,9 @@ class Img(File):
         ---------
             saved_image_path (str): Path to the new image
         """
-        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename.strip('resized_')}")
+        saved_image_path = os.path.join(
+            self.dir_name, f"resized_{self.basename.strip('resized_')}"
+        )
         if file_path is not None:
             saved_image_path = file_path
         if (
@@ -209,7 +215,9 @@ class Img(File):
         finally:
             return self.__class__(saved_image_path)
 
-    def compress(self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False):
+    def compress(
+        self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False
+    ):
         """Compresses an image
 
         Paramaters:
@@ -245,7 +253,10 @@ class Img(File):
             if new_size_ratio < 1.0:
                 # if resizing ratio is below 1.0, then multiply width & height with this ratio to reduce image size
                 img = img.resize(
-                    (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio))
+                    (
+                        int(img.size[0] * new_size_ratio),
+                        int(img.size[1] * new_size_ratio),
+                    )
                 )
                 # print new image shape
                 print("\t[+] New Image shape:", img.size)
@@ -281,7 +292,7 @@ class Img(File):
                 saving_diff/self.size*100:.2f}% of the original image size.")
             print(f"{"="*60}")
 
-    def to_base64(self) -> str:
+    def encode(self) -> str:
         resized = self.resize()
         with Image.open(resized.path) as img:
             try:
@@ -294,24 +305,23 @@ class Img(File):
                 return str(e)
         return img_str
 
-    def encode(self) -> str | None:
-        while True:
-            try:
-                with open(self.path, "rb") as image:
-                    return base64.b64decode(image.read()).decode("utf-8")
-            except IOError as e:
-                if e.errno != errno.EACCES:
-                    raise
-                time.sleep(0.1)
+    # def encode(self) -> str | None:
+    #     while True:
+    #         try:
+    #             with open(self.path, "rb") as image:
+    #                 return base64.b64decode(image.read()).decode("utf-8")
+    #         except IOError as e:
+    #             if e.errno != errno.EACCES:
+    #                 raise
+    #             time.sleep(0.1)
 
-    def grayscale(self, output: str) -> File:
+    def grayscale(self, output: str) -> "Img":
         """Convert the image to grayscale and save it to the specified output path.
 
         Paramaters:
         ----------
             output (str): The path where the grayscale image will be saved.
         """
-
         img = cv2.imread(self.path)
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         cv2.imwrite(output, gray_img)
@@ -363,4 +373,4 @@ class Img(File):
 if __name__ == "__main__":
     img = Img("/tmp/pics/resized_os_crash.meme.jpg")
     print(img.dimensions)
-    print(img.to_base64())
+    print(img.encode())

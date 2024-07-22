@@ -57,8 +57,13 @@ class Dir(File):
 
     @property
     def file_objects(self) -> List[Union[File, Exe, Log, Img, Video, Git]]:
-        return [item for item in self if isinstance(
-                    item, (File, Exe, Log, Img, Video, Git)) and not os.path.isdir(item.path)]
+        return [
+            item
+            for item in self
+            if isinstance(item, (File, Exe, Log, Img, Video, Git))
+            and not os.path.isdir(item.path)
+        ]
+
     @property
     def content(self) -> List[Any] | None:
         try:
@@ -279,7 +284,7 @@ def obj(path: str) -> File:
     }
     others = {
         re.compile(r"(\d+mhz|\d\.\d+v)"): Log,
-        re.compile(r"([a-f0-9]{37,41})"): Git
+        re.compile(r"([a-f0-9]{37,41})"): Git,
     }
 
     cls = classes.get(ext)

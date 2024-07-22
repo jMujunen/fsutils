@@ -48,7 +48,9 @@ def parse_args():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("file_path", type=str, help="File path")
-    parser.add_argument("--directory", "-d", action="store_true", help="Enable directory mode")
+    parser.add_argument(
+        "--directory", "-d", action="store_true", help="Enable directory mode"
+    )
     return parser.parse_args()
 
 

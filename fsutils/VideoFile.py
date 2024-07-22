@@ -6,11 +6,10 @@ import os
 import json
 import cv2
 import sys
-from typing import Any, Optional, Tuple, List, Dict
+from typing import Optional, Dict
 
 from pathlib import Path
 
-from .exceptions import DurationError
 from .GenericFile import File
 from .ffprobe import FFProbe, FFStream
 
@@ -50,12 +49,14 @@ class Video(File):
                 self.path,
             ]
             try:
-                result = subprocess.run(ffprobe_cmd, check=True, capture_output=True, text=True)
+                result = subprocess.run(
+                    ffprobe_cmd, check=True, capture_output=True, text=True
+                )
                 ffprobe_output = result.stdout
                 if ffprobe_output is None:
                     return {}
                 self._metadata = json.loads(ffprobe_output).get("format")
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 print(f"Failed to run ffprobe on {self.path}.", file=sys.stderr)
                 self._metadata = {}
         return self._metadata
@@ -82,7 +83,8 @@ class Video(File):
     @property
     def capture_date(self) -> datetime:
         capture_date = str(
-            self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getmtime(self.path))
+            self.tags.get("creation_time")
+            or datetime.fromtimestamp(os.path.getmtime(self.path))
         ).split(".")[0]
         return datetime.fromisoformat(capture_date)
 
@@ -169,7 +171,9 @@ class Video(File):
             ],
         )
 
-    def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
+    def trim(
+        self, start_: int = 0, end_: int = 100, output: str | Path | None = None
+    ) -> int:
         """Trim the video from start to end time (seconds).
 
         Parameters:
@@ -183,7 +187,9 @@ class Video(File):
             int : subprocess return code
         """
 
-        output_path = output if output else self.path[:-4] + f"_trimmed.{self.extension}"
+        output_path = (
+            output if output else self.path[:-4] + f"_trimmed.{self.extension}"
+        )
         return subprocess.call(
             f"ffmpeg -ss mm:ss -to mm2:ss2 -i {self.path} -codec copy {output_path}"
         )

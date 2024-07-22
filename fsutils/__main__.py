@@ -2,7 +2,7 @@
 import argparse
 
 from fsutils import Video  # , File, Dir, obj, Exe
-from Color import cprint, fg, style
+from Color import cprint, style
 
 
 def parse_args():
@@ -14,7 +14,9 @@ def parse_args():
 
     # Create the parser for the "video" command
     video_parser = subparsers.add_parser("video", help="Video related operations")
-    video_subparsers = video_parser.add_subparsers(help="video commands", dest="video_command")
+    video_subparsers = video_parser.add_subparsers(
+        help="video commands", dest="video_command"
+    )
     # Create a parser for the "makegif" command under "video"
     makegif_parser = video_subparsers.add_parser(
         "makegif",
@@ -85,7 +87,9 @@ def parse_args():
     )
 
     img_parser = subparsers.add_parser("img", help="Image related operations")
-    img_subparsers = img_parser.add_subparsers(help="Image commands", dest="image_command")
+    img_subparsers = img_parser.add_subparsers(
+        help="Image commands", dest="image_command"
+    )
     image_info__parser = img_subparsers.add_parser(
         "info",
         help="Create GIF from video",
@@ -123,7 +127,9 @@ def video_parser(arguments: argparse.Namespace) -> int:
         "info": Video(arguments.file).info,
     }
     if arguments.video_command == "makegif":
-        return Video(arguments.file).make_gif(arguments.scale, arguments.fps, arguments.output)
+        return Video(arguments.file).make_gif(
+            arguments.scale, arguments.fps, arguments.output
+        )
     elif arguments.video_command == "info":
         print(Video(arguments.file).info)
         for arg, value in arguments.__dict__.items():
