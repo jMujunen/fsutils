@@ -1,17 +1,18 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
-from datetime import datetime
-import subprocess
-import os
 import json
-import cv2
+import os
+import subprocess
 import sys
-from typing import Optional, Dict
-
+from datetime import datetime
 from pathlib import Path
+from typing import Dict, Optional
 
-from .GenericFile import File
+import cv2
+from size import Converter
+
 from .ffprobe import FFProbe, FFStream
+from .GenericFile import File
 
 
 class Video(File):
@@ -49,9 +50,7 @@ class Video(File):
                 self.path,
             ]
             try:
-                result = subprocess.run(
-                    ffprobe_cmd, check=True, capture_output=True, text=True
-                )
+                result = subprocess.run(ffprobe_cmd, check=True, capture_output=True, text=True)
                 ffprobe_output = result.stdout
                 if ffprobe_output is None:
                     return {}
@@ -77,14 +76,19 @@ class Video(File):
             return 0
 
     @property
+    def bitrate_human(self) -> Optional[str]:
+        """Return the bitrate in a human readable format."""
+        if self.bitrate is not None and self.bitrate > 0:
+            return str(Converter(self.bitrate))
+
+    @property
     def duration(self) -> int:
         return round(float(self.metadata.get("duration", 0)))
 
     @property
     def capture_date(self) -> datetime:
         capture_date = str(
-            self.tags.get("creation_time")
-            or datetime.fromtimestamp(os.path.getmtime(self.path))
+            self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getmtime(self.path))
         ).split(".")[0]
         return datetime.fromisoformat(capture_date)
 
@@ -103,11 +107,6 @@ class Video(File):
     @property
     def dimentions(self) -> tuple[int, int] | None:
         return self.info.frame_size() if self.info else None
-
-    # @property
-    # def capture_date(self):
-    #     if not self._metadata:
-    #         self._metadata =
 
     @property
     def is_corrupt(self) -> bool:
@@ -143,14 +142,24 @@ class Video(File):
                 print(f"Error: {e}")
 
     def make_gif(self, scale=500, fps=24, output="./output.gif") -> int:
+        # TODO : Return out output gif as an object
+        # [ ] Add support for more options like duration of gif and color palette.
         """Convert the video to a gif using FFMPEG.
 
         Parameters:
         -----------
             scale : int, optional (default is 500)
             fps   : int, optional (default is 10)
-            **kwargs : dict, define output path here if nessacary
+            output_path: str, optional (default is "./output.gif")
 
+            Breakdown:
+            * FPS: Deault is 24 but the for smaller file sizes, try 6-10
+            * SCALE: is the width of the output gif in pixels.
+                - 500-1000 = high quality but larger file size.
+                - 100-500   = medium quality and smaller file size.
+                - 10-100    = low quality and smaller file size.
+
+            * The default `fps | scale` of `24 | 500` means a decent quality gif.
         Returns:
         --------
             int : subprocess return code
@@ -168,12 +177,10 @@ class Video(File):
                 f"{output}",
                 "-loglevel",
                 "quiet",
-            ],
+            ]
         )
 
-    def trim(
-        self, start_: int = 0, end_: int = 100, output: str | Path | None = None
-    ) -> int:
+    def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
         """Trim the video from start to end time (seconds).
 
         Parameters:
@@ -187,25 +194,28 @@ class Video(File):
             int : subprocess return code
         """
 
-        output_path = (
-            output if output else self.path[:-4] + f"_trimmed.{self.extension}"
-        )
+        output_path = output if output else self.path[:-4] + f"_trimmed.{self.extension}"
         return subprocess.call(
             f"ffmpeg -ss mm:ss -to mm2:ss2 -i {self.path} -codec copy {output_path}"
         )
 
-    def compress(self, output_dir: str) -> int:
-        output_path = f"{output_dir}/{self.basename}"
-        if os.path.exists(output_path):
-            other = Video(output_path)
+    def compress(self, output=None) -> int:
+        file_path = f"./{self.basename[:-4]}_compressed_hevc.mp4"
+        if output is not None:
+            file_path = output
+        # output_path = f"{output_dir}/{self.basename}"
+        if os.path.exists(file_path):
+            other = Video(file_path)
             if not other.is_corrupt:
                 pass
         result = subprocess.run(
-            f'ffmpeg -i "{self.path}" -c:v h264_nvenc -crf 18 -qp 28 "{output_path}"',
+            f'ffmpeg -i "{self.path}" -c:v hevc_nvenc -crf 16 -qp 18 "{file_path}"',
+            # f'ffmpeg -i "{self.path}" -c:v h264_nvenc -crf 18 -qp 28 "{file_path}"',
             shell=True,
             capture_output=True,
             text=True,
         )
+        print(result.stderr, result.stdout)
         return result.returncode
 
     # NOTE:  Untested

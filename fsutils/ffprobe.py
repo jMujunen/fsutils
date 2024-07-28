@@ -34,9 +34,7 @@ class FFProbe:
             else:
                 cmd = ["ffprobe -show_streams " + pipes.quote(self.path_to_video)]
 
-            p = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
-            )
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
             stream = False
             ignoreLine = False
@@ -108,14 +106,10 @@ class FFProbe:
                 elif stream.is_attachment():
                     self.attachment.append(stream)
         else:
-            raise IOError(
-                "No such media file or stream is not responding: " + self.path_to_video
-            )
+            raise IOError("No such media file or stream is not responding: " + self.path_to_video)
 
     def __repr__(self) -> str:
-        return "FFprobe(metadata={metadata}, video={video}, audio={audio})".format(
-            **vars(self)
-        )
+        return "FFprobe(metadata={metadata}, video={video}, audio={audio})".format(**vars(self))
 
 
 class FFStream:
@@ -125,9 +119,7 @@ class FFStream:
 
     def __init__(self, data_lines):
         for line in data_lines:
-            self.__dict__.update(
-                {key: value for key, value, *_ in [line.strip().split("=")]}
-            )
+            self.__dict__.update({key: value for key, value, *_ in [line.strip().split("=")]})
 
             try:
                 self.__dict__["framerate"] = round(
@@ -144,7 +136,9 @@ class FFStream:
 
     def __repr__(self) -> str:
         if self.is_video():
-            template = "Stream: #{index} [{codec_type}] {codec_long_name}, {framerate}, ({width}x{height})"
+            template = (
+                "Stream: #{index} [{codec_type}] {codec_long_name}, {framerate}, ({width}x{height})"
+            )
 
         elif self.is_audio():
             template = (

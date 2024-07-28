@@ -70,11 +70,7 @@ class Img(File):
         except UnidentifiedImageError as e:
             file = Img(self.path)
             if file.is_corrupt:
-                print(
-                    f"\033[1;31m{self.path} is corrupt\033[0m",
-                    end=f"{' '*80}\r",
-                    flush=True,
-                )
+                print(f"\033[1;31m{self.path} is corrupt\033[0m", end=f"{' '*80}\r", flush=True)
 
             print(f"Error calculating hash: {e}")
 
@@ -124,20 +120,13 @@ class Img(File):
                         year, month, day = date.split(":")
                         hour, minute, second = time.split(":")
                         return datetime(
-                            int(year),
-                            int(month),
-                            int(day),
-                            int(hour),
-                            int(minute),
-                            int(second[:2]),
+                            int(year), int(month), int(day), int(hour), int(minute), int(second[:2])
                         )
                 except:
                     continue
         else:
             self.__dict__.get("capture_date")
-        date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[
-            0
-        ]
+        date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
         return datetime.fromisoformat(date_str)
 
     def generate_title(self) -> str | None:
@@ -150,7 +139,7 @@ class Img(File):
                         "role": "user",
                         "content": "Catagorize the image into 1 of the following based on the scene. Cat, Portrait, Car, Nature, Adventure",
                         "images": [self.path],
-                    },
+                    }
                 ],
             )
             return response["message"]["content"]
@@ -183,11 +172,7 @@ class Img(File):
         pass
 
     def resize(
-        self,
-        width: int = 320,
-        height: int = 320,
-        overwrite=False,
-        file_path: str | None = None,
+        self, width: int = 320, height: int = 320, overwrite=False, file_path: str | None = None
     ):
         """Resize the image to specified width and height
 
@@ -195,9 +180,7 @@ class Img(File):
         ---------
             saved_image_path (str): Path to the new image
         """
-        saved_image_path = os.path.join(
-            self.dir_name, f"resized_{self.basename.strip('resized_')}"
-        )
+        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename.strip('resized_')}")
         if file_path is not None:
             saved_image_path = file_path
         if (
@@ -215,9 +198,7 @@ class Img(File):
         finally:
             return self.__class__(saved_image_path)
 
-    def compress(
-        self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False
-    ):
+    def compress(self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False):
         """Compresses an image
 
         Paramaters:
@@ -253,10 +234,7 @@ class Img(File):
             if new_size_ratio < 1.0:
                 # if resizing ratio is below 1.0, then multiply width & height with this ratio to reduce image size
                 img = img.resize(
-                    (
-                        int(img.size[0] * new_size_ratio),
-                        int(img.size[1] * new_size_ratio),
-                    )
+                    (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio))
                 )
                 # print new image shape
                 print("\t[+] New Image shape:", img.size)
@@ -369,8 +347,15 @@ class Img(File):
             **vars(self)
         )
 
+    def some_error(self) -> str:
+        try:
+            return "some_str"
+        except Exception:
+            return None
+
 
 if __name__ == "__main__":
     img = Img("/tmp/pics/resized_os_crash.meme.jpg")
     print(img.dimensions)
+    print(img.encode())
     print(img.encode())

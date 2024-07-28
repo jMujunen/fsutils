@@ -6,6 +6,7 @@ import shutil
 from typing import Any, Iterator, List
 
 import chardet
+from size import Converter
 
 from .mimecfg import FILE_TYPES
 
@@ -83,8 +84,7 @@ class File:
         return []
 
     def tail(self, n=5) -> list:
-        """
-        Return the last n lines of the file
+        """Return the last n lines of the file
 
         Paramaters:
         ----------
@@ -99,15 +99,18 @@ class File:
             try:
                 return self.content[-n:]
             except Exception as e:
-                raise TypeError(
-                    f"{e}: The object must be a FileObject or an ExecutableObject"
-                )
+                raise TypeError(f"{e}: The object must be a FileObject or an ExecutableObject")
         return []
 
     @property
     def is_link(self) -> bool:
         """Check if the path is a symbolic link."""
         return os.path.islink(self.path)
+
+    @property
+    def size_human(self) -> str:
+        """Return the size of the file in human readable format."""
+        return str(Converter(self.size))
 
     @property
     def size(self) -> int:
@@ -170,9 +173,7 @@ class File:
             try:
                 with open(self.path, "rb") as f:
                     lines = f.read().decode(self.encoding).split("\n")
-                    content = list(
-                        lines[kwargs.get("a", 0) : kwargs.get("b", len(lines))]
-                    )
+                    content = list(lines[kwargs.get("a", 0) : kwargs.get("b", len(lines))])
             except Exception as e:
                 try:
                     with open(self.path, "r", encoding=self.encoding) as f:
@@ -221,6 +222,7 @@ class File:
     def is_image(self) -> bool:
         """Check if the file is an image"""
         return self.extension.lower() in FILE_TYPES["img"]
+
     # @property
     # def relative_dir(self, other: 'File') -> str:
     #     """Get directory of the file relative to another file"""
@@ -302,8 +304,3 @@ class File:
         return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
             **vars(self)
         )
-
-
-if __name__ == "__main__":
-    readme = File("~/.dotfiles/README.md")
-    print(readme == readme)

@@ -1,4 +1,4 @@
-"""DirNode.Dir -  Represents a directory. Contains methods to list objects inside this directory."""
+"""Represents a directory. Contains methods to list objects inside this directory."""
 
 import datetime
 import os
@@ -20,25 +20,20 @@ class Dir(File):
     """
     A class representing information about a directory.
 
-    Attributes:
-    ----------
-        path (str): The path to the directory (Required)
-        _files (list): A list of file names in the directory
-        _directories (list): A list containing the paths of subdirectories
-        _objects (list): A list of items in the directory represented by FileObject
+    #### Methods:
 
-    Methods:
+    >>> file_info(other):   # Check for `other` in self and return it as an object of `other`
+        objects():          # Convert each file in self to an appropriate type of object
+        getinfo():          # Returns a list of extentions and their count
+        __eq__(other):      # Compare properties of two Dir objects
+        __contains__(other) # Check if `other` is present in self
+        __len__ ():         # Return the number of objects in self
+        __iter__ ():        # Iterator which yields the appropriate File instance
+
     ----------
-        file_info (file_name): Returns information about a specific file in the directory
-        objects (): Convert each file in self to an appropriate type of object inheriting from FileObject
-        getinfo (): Returns a list of extentions and their count
-        __eq__ (other): Compare properties of two DirectoryObjects
-        __contains__ (other): Check if an item is present in two DirectoryObjects
-        __len__ (): Return the number of items in the object
-        __iter__ (): Define an iterator which yields the appropriate instance of FileObject
-    Properties:
-    ----------
-        files       : A read-only property returning a list of file names
+
+    ####  Properties:
+    >>> files       : A read-only property returning a list of file names
         objects     : A read-only property yielding a sequence of DirectoryObject or FileObject instances
         directories : A read-only property yielding a list of absolute paths for subdirectories
 
@@ -60,8 +55,7 @@ class Dir(File):
         return [
             item
             for item in self
-            if isinstance(item, (File, Exe, Log, Img, Video, Git))
-            and not os.path.isdir(item.path)
+            if isinstance(item, (File, Exe, Log, Img, Video, Git)) and not os.path.isdir(item.path)
         ]
 
     @property
@@ -282,10 +276,7 @@ def obj(path: str) -> File:
         ".bat": Exe,
         ".sh": Exe,
     }
-    others = {
-        re.compile(r"(\d+mhz|\d\.\d+v)"): Log,
-        re.compile(r"([a-f0-9]{37,41})"): Git,
-    }
+    others = {re.compile(r"(\d+mhz|\d\.\d+v)"): Log, re.compile(r"([a-f0-9]{37,41})"): Git}
 
     cls = classes.get(ext)
     if not cls:
@@ -305,4 +296,5 @@ if __name__ == "__main__":
     with ExecutionTimer():
         for item in path:
             if item.is_dir:
+                print(item)
                 print(item)

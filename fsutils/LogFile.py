@@ -1,9 +1,10 @@
 """This module exposes the Log class as a parent of File"""
 
-import re
 import pandas as pd
+import re
+from typing import Any, List
+
 from .GenericFile import File
-from typing import List, Any
 
 
 class Log(File):

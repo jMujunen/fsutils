@@ -2,6 +2,7 @@
 """get_original_capture_date.py - Extracting EXIF data from a photo."""
 
 import argparse
+
 from PIL import Image
 from PIL.ExifTags import TAGS
 
@@ -48,9 +49,7 @@ def parse_args():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("file_path", type=str, help="File path")
-    parser.add_argument(
-        "--directory", "-d", action="store_true", help="Enable directory mode"
-    )
+    parser.add_argument("--directory", "-d", action="store_true", help="Enable directory mode")
     return parser.parse_args()
 
 
@@ -65,4 +64,5 @@ if __name__ == "__main__":
     print("month: ", format(exif, "month"))
     print("day: ", format(exif, "day"))
     print("\n")
+    print("full date time: ", exif)
     print("full date time: ", exif)

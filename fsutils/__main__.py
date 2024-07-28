@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import argparse
 
-from fsutils import Video  # , File, Dir, obj, Exe
 from Color import cprint, style
+
+from fsutils import Video  # , File, Dir, obj, Exe
 
 
 def parse_args():
@@ -14,9 +15,7 @@ def parse_args():
 
     # Create the parser for the "video" command
     video_parser = subparsers.add_parser("video", help="Video related operations")
-    video_subparsers = video_parser.add_subparsers(
-        help="video commands", dest="video_command"
-    )
+    video_subparsers = video_parser.add_subparsers(help="video commands", dest="video_command")
     # Create a parser for the "makegif" command under "video"
     makegif_parser = video_subparsers.add_parser(
         "makegif",
@@ -85,11 +84,14 @@ def parse_args():
         help="Display capture date of video",
         action="store_true",
     )
+    video_info.add_argument(
+        "--all",
+        help="Display all information about a video",
+        action="store_true",
+    )
 
     img_parser = subparsers.add_parser("img", help="Image related operations")
-    img_subparsers = img_parser.add_subparsers(
-        help="Image commands", dest="image_command"
-    )
+    img_subparsers = img_parser.add_subparsers(help="Image commands", dest="image_command")
     image_info__parser = img_subparsers.add_parser(
         "info",
         help="Create GIF from video",
@@ -116,6 +118,16 @@ def image_parser(arguments: argparse.Namespace):
     pass
 
 
+def video_info_all(video: Video) -> str:
+    return f"""
+        Codec: {video.codec}
+        Dimensions: {video.dimentions}
+        Duration: {video.duration}
+        Bitrate: {video.bitrate_human}
+        Size: {video.size_human}
+    """
+
+
 def video_parser(arguments: argparse.Namespace) -> int:
     specs = {
         "codec": Video(arguments.file).codec,
@@ -125,11 +137,10 @@ def video_parser(arguments: argparse.Namespace) -> int:
         "size": Video(arguments.file).size,
         "capture_date": Video(arguments.file).capture_date,
         "info": Video(arguments.file).info,
+        "all": video_info_all(Video(arguments.file)),
     }
     if arguments.video_command == "makegif":
-        return Video(arguments.file).make_gif(
-            arguments.scale, arguments.fps, arguments.output
-        )
+        return Video(arguments.file).make_gif(arguments.scale, arguments.fps, arguments.output)
     elif arguments.video_command == "info":
         print(Video(arguments.file).info)
         for arg, value in arguments.__dict__.items():
