@@ -16,6 +16,7 @@ opencv-python = "^4.10.0.84"
 pip = "^24.1.1"
 ipykernel = "^6.29.5"
 ruff = "^0.5.3"
+sphinx = "^7.4.7"
 
 
 [build-system]
