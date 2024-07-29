@@ -10,13 +10,14 @@ import platform
 import re
 import subprocess
 from typing import Tuple
+
 from .exceptions import FFProbeError
 
 
 class FFProbe:
     """
     FFProbe wraps the ffprobe command and pulls the data into an object form::
-        metadata=FFProbe('multimedia-file.mov')
+        metadata = FFProbe("multimedia-file.mov")
     """
 
     def __init__(self, path_to_video: str) -> None:
@@ -270,3 +271,14 @@ class FFStream:
             return int(self.__dict__.get("bit_rate", ""))
         except ValueError:
             raise FFProbeError("None integer bit_rate")
+
+    def frame_rate(self) -> int | None:
+        """Returns the frames per second as an integer"""
+        try:
+            return int(self.__dict__.get("r_frame_rate", "").split("/")[0])
+        except ValueError:
+            raise FFProbeError("None numeric frame rate")
+
+    def aspect_ratio(self) -> str | None:
+        """Returns the stream's display aspect ratio."""
+        return self.__dict__.get("display_aspect_ratio", None)

@@ -1,8 +1,6 @@
 from .GenericFile import File
-from .decorators import auto_repr
 
 
-@auto_repr
 class Exe(File):
     """
     A class representing information about an executable file
@@ -17,41 +15,25 @@ class Exe(File):
         shebang.setter (str): Set a new shebang
     """
 
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         self._shebang = None
         super().__init__(path)
 
     @property
-    def shebang(self):
-        """
-        Get the shebang line of the file.
-
-        Returns:
-        ----------
-            str: The shebang line of the file
-        """
+    def shebang(self) -> str:
+        """Return the shebang line of the file if it exists."""
         if self._shebang is None:
-            self._shebang = self.head(1).strip()
+            self._shebang = self.head(1)[0].strip() or ""
         return self._shebang
 
     @shebang.setter
-    def shebang(self, shebang):
-        """
-        Set a new shebang line for the file.
-
-        Paramaters:
-        ----------
-            shebang (str): The new shebang line
-
-        Returns:
-        ----------
-            str: The content of the file after updating the shebang line
-        """
-        self._content = shebang + self.read()[len(self.shebang.strip()) :]
+    def shebang(self, shebang: str) -> str | None:
+        """Shebang setter"""
+        self._content = [shebang].extend(self.read()[len(self.shebang.strip()) :])
         try:
             with open(self.path, "w", encoding="utf-8") as f:
                 f.seek(0)
-                f.write(self._content)
+                f.write("\n".join(self._content))
 
             print(f"{self.basename}\n{self.shebang} -> {shebang}")
             print(self.tail(2))
@@ -59,4 +41,5 @@ class Exe(File):
             return self._content
         except PermissionError:
             print(f"Permission denied: {self.path}")
+            pass
             pass

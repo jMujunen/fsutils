@@ -33,9 +33,9 @@ class Dir(File):
     ----------
 
     ####  Properties:
-    >>> files       : A read-only property returning a list of file names
-        objects     : A read-only property yielding a sequence of DirectoryObject or FileObject instances
-        directories : A read-only property yielding a list of absolute paths for subdirectories
+        - `files`       : A read-only property returning a list of file names
+        - `objects`     : A read-only property yielding a sequence of DirectoryObject or FileObject instances
+        - `directories` : A read-only property yielding a list of absolute paths for subdirectories
 
     """
 
@@ -52,6 +52,15 @@ class Dir(File):
 
     @property
     def file_objects(self) -> List[Union[File, Exe, Log, Img, Video, Git]]:
+        """Return a list of objects contained in the directory.
+
+        This property iterates over all items in the directory and filters out those that are instances
+        of File, Exe, Log, Img, Video, or Git, excluding directories.
+
+        Returns:
+        -------
+            List[Union[File, Exe, Log, Img, Video, Git]]: A list of file objects.
+        """
         return [
             item
             for item in self
@@ -60,15 +69,11 @@ class Dir(File):
 
     @property
     def content(self) -> List[Any] | None:
+        """List the the contents of the toplevel directory."""
         try:
             return os.listdir(self.path)
         except NotADirectoryError:
             pass
-
-    # @property
-    # def directories(self) -> List[str]:
-    #     """Return a list of subdirectory paths in the directory represented by this object."""
-    #     raise NotImplementedError("Depreciated method!")
 
     @property
     def rel_directories(self) -> List[str]:
@@ -111,6 +116,7 @@ class Dir(File):
 
     @property
     def is_dir(self) -> bool:
+        """Is the object a directory?"""
         return os.path.isdir(self.path)
 
     @property
@@ -250,8 +256,8 @@ def obj(path: str) -> File:
     if not path or not isinstance(path, str):
         raise ValueError("Path cannot be None")
     if not os.path.exists(path):
-        # pass
-        raise FileNotFoundError(path, " does not exist")
+        pass
+        # raise FileNotFoundError(path, " does not exist")
     ext = os.path.splitext(path)[1].lower()
     classes = {
         # Images
@@ -276,7 +282,10 @@ def obj(path: str) -> File:
         ".bat": Exe,
         ".sh": Exe,
     }
-    others = {re.compile(r"(\d+mhz|\d\.\d+v)"): Log, re.compile(r"([a-f0-9]{37,41})"): Git}
+    others = {
+        re.compile(r"(\d+mhz|\d\.\d+v)"): Log,
+        re.compile(r"([a-f0-9]{37,41})"): Git,
+    }
 
     cls = classes.get(ext)
     if not cls:

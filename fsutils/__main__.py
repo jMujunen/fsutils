@@ -85,6 +85,11 @@ def parse_args():
         action="store_true",
     )
     video_info.add_argument(
+        "--fps",
+        help="Display frames per second of video",
+        action="store_true",
+    )
+    video_info.add_argument(
         "--all",
         help="Display all information about a video",
         action="store_true",
@@ -121,22 +126,26 @@ def image_parser(arguments: argparse.Namespace):
 def video_info_all(video: Video) -> str:
     return f"""
         Codec: {video.codec}
-        Dimensions: {video.dimentions}
+        Dimensions: {video.dimensions}
         Duration: {video.duration}
         Bitrate: {video.bitrate_human}
         Size: {video.size_human}
+        Frame rate: {video.ffprobe().frame_rate()}
+        Aspect ratio: {video.ffprobe().aspect_ratio()}
+        Capture date: {video.capture_date}
     """
 
 
 def video_parser(arguments: argparse.Namespace) -> int:
     specs = {
         "codec": Video(arguments.file).codec,
-        "dimensions": Video(arguments.file).dimentions,
+        "dimensions": Video(arguments.file).dimensions,
         "duration": Video(arguments.file).duration,
         "bitrate": Video(arguments.file).bitrate,
         "size": Video(arguments.file).size,
         "capture_date": Video(arguments.file).capture_date,
         "info": Video(arguments.file).info,
+        "fps": Video(arguments.file).ffprobe().frame_rate(),
         "all": video_info_all(Video(arguments.file)),
     }
     if arguments.video_command == "makegif":

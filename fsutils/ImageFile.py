@@ -8,7 +8,6 @@ from io import BytesIO
 
 import cv2
 import imagehash
-import ollama
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
 from size import Converter
@@ -101,6 +100,18 @@ class Img(File):
             print(e)
 
     @property
+    def tags(self):
+        """Extract metadata from image files"""
+        for tag_id in self.exif:
+            tags = TAGS.get(tag_id, tag_id)
+            data = self.exif.get(tag_id)
+            if isinstance(data, bytes):
+                data = data.decode()
+            if tags == "XMLPacket":
+                continue  # Skip 'XMLPacket'
+            yield tags, data
+
+    @property
     def capture_date(self) -> datetime:
         """Return the capture date of the image if it exists in the EXIF data."""
         # if self.exif is not None:
@@ -129,33 +140,34 @@ class Img(File):
         date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
         return datetime.fromisoformat(date_str)
 
-    def generate_title(self) -> str | None:
-        """Generate a title for the image using ollama"""
-        try:
-            response = ollama.chat(
-                model="llava",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": "Catagorize the image into 1 of the following based on the scene. Cat, Portrait, Car, Nature, Adventure",
-                        "images": [self.path],
-                    }
-                ],
-            )
-            return response["message"]["content"]
-        except Exception as e:
-            print(f"An error occurred while generating a title:\n{str(e)}")
+    # def generate_title(self) -> str | None:
+    #     """Generate a title for the image using ollama"""
+    #     try:
+    #         response = ollama.chat(
+    #             model="llava",
+    #             messages=[
+    #                 {
+    #                     "role": "user",
+    #                     "content": "Catagorize the image into 1 of the following based on the scene. Cat, Portrait, Car, Nature, Adventure",
+    #                     "images": [self.path],
+    #                 }
+    #             ],
+    #         )
+    #         return response["message"]["content"]
+    #     except Exception as e:
+    #         print(f"An error occurred while generating a title:\n{str(e)}")
 
-    def render(self, render_size=320):
+    def render(self, render_size=320) -> int:
         """Render the image in the terminal using kitty terminal"""
         try:
-            subprocess.run(
+            return subprocess.run(
                 f'kitten icat --use-window-size 100,100,{render_size},100 "{self.path}"',
                 shell=True,
                 check=False,
-            )
+            ).returncode
         except Exception as e:
             print(f"An error occurred while rendering the image:\n{str(e)}")
+            return 1
 
     def open(self) -> int:
         """Open the image in the OS default image viewer"""
@@ -167,19 +179,14 @@ class Img(File):
             print(e)
         return 1
 
-    def save(self, path):
+    def save(self, path: str) -> "Img":
         """Save the image to a specified location"""
-        pass
+        return self
 
     def resize(
         self, width: int = 320, height: int = 320, overwrite=False, file_path: str | None = None
-    ):
-        """Resize the image to specified width and height
-
-        Returns:
-        ---------
-            saved_image_path (str): Path to the new image
-        """
+    ) -> "Img":
+        """Resize the image to specified width and height"""
         saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename.strip('resized_')}")
         if file_path is not None:
             saved_image_path = file_path
@@ -195,30 +202,29 @@ class Img(File):
             resized_img.save(saved_image_path)
         except OSError as e:
             print(f"An error occurred while saving resized image:\n{str(e)}")
-        finally:
-            return self.__class__(saved_image_path)
+        return self.__class__(saved_image_path)
 
     def compress(self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False):
         """Compresses an image
 
         Paramaters:
         ---------
-            new_size_ratio (float): The new size ratio of the image after compression
-            quality (int): The quality of the compression from 0-100, where 100 is best quality and highest file size
-            width (int): The new width of the image after resizing
-            height (int): The new height of the image after resizing
-            to_jpg (bool): Convert the image to jpg format if True, else keep it in its original format
+            - `new_size_ratio` (float): The new size ratio of the image after compression
+            - `quality` (int): The quality of the compression from 0-100, where 100 is best quality and highest file size
+            - `width` (int): The new width of the image after resizing
+            - `height` (int): The new height of the image after resizing
+            - `to_jpg` (bool): Convert the image to jpg format if True, else keep it in its original format
 
         Returns:
         ---------
-            str: The path to the compressed image file if successful, else an error message
+            `str` : The path to the compressed image file if successful, else an error message
             if an error occurred during saving the compressed image file to disk
 
         Raises:
         --------
-            OSError: If an error occurred while saving the compressed image file to disk
-            IOError: If an error occurred while opening the image file from disk
-            ValueError: If an invalid value was passed for width, height or new_size_ratio parameters
+            - `OSError` : If an error occurred while saving the compressed image file to disk
+            - `IOError` : If an error occurred while opening the image file from disk
+            - `ValueError` : If an invalid value was passed for width, height or new_size_ratio parameters
         """
         # load the image to memory
         with Image.open(self.path) as img:
@@ -343,19 +349,6 @@ class Img(File):
         )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date}".format(
+        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
             **vars(self)
         )
-
-    def some_error(self) -> str:
-        try:
-            return "some_str"
-        except Exception:
-            return None
-
-
-if __name__ == "__main__":
-    img = Img("/tmp/pics/resized_os_crash.meme.jpg")
-    print(img.dimensions)
-    print(img.encode())
-    print(img.encode())

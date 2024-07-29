@@ -21,15 +21,25 @@ class Video(File):
 
     Attributes:
     ----------
-        path (str): The absolute path to the file.
+        - `path (str):` The absolute path to the file.
 
     Methods:
     ----------
-        metadata (dict): Extract metadata from the video including duration,
-                        dimensions, fps, and aspect ratio.
-        bitrate (int): Extract the bitrate of the video from the ffprobe output.
-        is_corrupt (bool): Check integrity of the video.
+        - `metadata()` : Extract video metadata
+        - `compress(output=./output.mp4)` : Compress the video using ffmpeg
+        - `make_gif(scale, fps, output)` : Create a gif from the video
+        - `extract_frames()` : Extract frames from the video
+        - `render()` : Render the video using ffmpeg
+        - `trim()` : Trim the video using ffmpeg
 
+    Properties:
+    -----------
+        - `is_corrupt` : Check if the video is corrupt or not.
+        - `duration`
+        - `size`
+        - `codec`
+        - `dimensions`
+        - `bitrate`
     """
 
     def __init__(self, path: str) -> None:
@@ -68,7 +78,7 @@ class Video(File):
     def bitrate(self) -> Optional[int]:
         """Extract the bitrate/s with ffprobe."""
         try:
-            bitrate = round(int(self.metadata.get("bit_rate", -1)) / self.duration)
+            bitrate = round(int(self.metadata.get("bit_rate", -1)))
             return bitrate
         except ZeroDivisionError:
             if self.is_corrupt:
@@ -87,6 +97,7 @@ class Video(File):
 
     @property
     def capture_date(self) -> datetime:
+        """Return the capture date of the file."""
         capture_date = str(
             self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getmtime(self.path))
         ).split(".")[0]
@@ -102,21 +113,17 @@ class Video(File):
 
     @property
     def codec(self) -> str | None:
+        """Codec eg `H264` | `H265`"""
         return self.info.codec() if self.info else None
 
     @property
-    def dimentions(self) -> tuple[int, int] | None:
+    def dimensions(self) -> tuple[int, int] | None:
+        """Return width and height of the video `(1920x1080)`."""
         return self.info.frame_size() if self.info else None
 
     @property
     def is_corrupt(self) -> bool:
-        """
-        Check if the video is corrupt.
-
-        Returns:
-        ----------
-            bool: True if the video is corrupt, False otherwise.
-        """
+        """Check if the video is corrupt."""
         try:
             cap = cv2.VideoCapture(self.path)
             if not cap.isOpened():
@@ -127,6 +134,10 @@ class Video(File):
             return True  # Video is corrupt
         except KeyboardInterrupt:
             sys.exit(0)
+
+    def ffprobe(self) -> FFStream:
+        """Return FFProbe data."""
+        return [stream for stream in FFProbe(self.path).streams if stream.is_video()][0]
 
     def render(self) -> None:
         """Render the video using in the shell using kitty protocols."""
@@ -148,9 +159,9 @@ class Video(File):
 
         Parameters:
         -----------
-            scale : int, optional (default is 500)
-            fps   : int, optional (default is 10)
-            output_path: str, optional (default is "./output.gif")
+            `scale`: int, optional (default is 500)
+            `fps`   : int, optional (default is 10)
+            `output_path` : str, optional (default is "./output.gif")
 
             Breakdown:
             * FPS: Deault is 24 but the for smaller file sizes, try 6-10
@@ -200,20 +211,24 @@ class Video(File):
         )
 
     def compress(self, output=None) -> int:
-        file_path = f"./{self.basename[:-4]}_compressed_hevc.mp4"
-        if output is not None:
-            file_path = output
-        # output_path = f"{output_dir}/{self.basename}"
-        if os.path.exists(file_path):
-            other = Video(file_path)
-            if not other.is_corrupt:
-                pass
+        """Compress video using x264 codec with crf 28 (default)."""
+        output = output or os.path.join(
+            self.dir_name, f"{self.basename[:-4]}_compressed.{self.extension}"
+        )
+        if os.path.exists(output):
+            other = Video(output)
+            # Check if the file is corrupted, possibly from previous terminated compression attempt
+            if other.is_corrupt:
+                os.remove(other.path)
+            else:
+                return -1
         result = subprocess.run(
-            f'ffmpeg -i "{self.path}" -c:v hevc_nvenc -crf 16 -qp 18 "{file_path}"',
+            f'ffmpeg -i "{self.path}" -c:v hevc_nvenc -crf 16 -qp 18 "{output}"',
             # f'ffmpeg -i "{self.path}" -c:v h264_nvenc -crf 18 -qp 28 "{file_path}"',
             shell=True,
             capture_output=True,
             text=True,
+            check=False,
         )
         print(result.stderr, result.stdout)
         return result.returncode
@@ -244,15 +259,7 @@ class Video(File):
         return subprocess.call(f"ffmpeg  -i {self.path}  image%03d.jpg", shell=True)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimentions}, info={self.info}".format(
+        """Return a string representation of the file."""
+        return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimensions}, info={self.info}".format(
             **vars(self)
         )
-
-    # def __repr__(self) -> str:
-    #     return super().__repr__()
-
-
-# Run as script
-if __name__ == "__main__":
-    path = sys.argv[1] or "~/mnt/ssd/OBS/Joona/PUBG/"
-    vid = Video(path)
