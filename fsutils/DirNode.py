@@ -3,6 +3,7 @@
 import datetime
 import os
 import re
+from collections import defaultdict
 from typing import Any, Iterator, List, Union
 
 from size import Converter
@@ -16,7 +17,7 @@ from .ScriptFile import Exe
 from .VideoFile import Video
 
 
-class Dir(File):
+class FileManager(File):
     """
     A class representing information about a directory.
 
@@ -43,6 +44,7 @@ class Dir(File):
         self._files = []
         self._directories = []
         self._objects = []
+        self._metadata = {}
         super().__init__(path)
 
     @property
@@ -147,12 +149,21 @@ class Dir(File):
     @property
     def dirs(self) -> List[File]:
         """Return a list of DirectoryObject instances found in the directory."""
-        return [item for item in self if isinstance(item, Dir)]
+        return [item for item in self if isinstance(item, FileManager)]
 
-    def getinfo(self, path: str) -> dict:
-        """Return information about a file or directory."""
-        raise NotImplementedError("Not implemented yet")
-        return {}
+    @property
+    def stat(self) -> None:
+        """Print a formatted table of each file extention and their count."""
+        if not self._metadata:
+            self._metadata = defaultdict(int)
+            for item in self.file_objects:
+                ext = item.extension or ""
+                self._metadata[ext[1:]] += 1  # Remove the dot from extention
+        sorted_stat = dict(sorted(self._metadata.items(), key=lambda x: x[1]))
+        # Print the sorted table
+        max_key_length = max([len(k) for k in sorted_stat.keys()])
+        for key, value in sorted_stat.items():
+            print(f"{key: <{max_key_length}} {value}")
 
     def sort(self, spec="mtime", reversed=True) -> None:
         """Sort the files and directories by the specifying attribute."""
@@ -192,27 +203,30 @@ class Dir(File):
         ----------
             bool: True if the item is present, False otherwise.
         """
-        if isinstance(item, (File, Video, Img, Exe, Dir)):
+        if isinstance(item, (File, Video, Img, Exe, FileManager)):
             return item.basename in self.files
         return item in self.files
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the number of items in the object"""
-        return len([i for i in self.objects()])
+        return len(self.objects())
 
     def __iter__(self) -> Iterator[File | Exe | Log | Img | Video | Git]:
         """Yield a sequence of File instances for each item in self"""
         for root, _, files in os.walk(self.path):
+            # Yield directories first to avoid unnecessary checks inside the loop
+            for directory in _:
+                yield FileManager(os.path.join(root, directory))
+
             for file in files:
                 path = os.path.join(root, file)  # full path of the file
-                if os.path.isdir(path):
-                    yield Dir(path)
-                else:
-                    yield obj(path)
-            for directory in _:
-                yield Dir(os.path.join(root, directory))
+                yield obj(path)
 
-    def __eq__(self, other: "Dir") -> bool:
+    def detect_duplicates(self):
+        """Detect duplicate files in a directory and its subdirectories"""
+        pass
+
+    def __eq__(self, other: "FileManager") -> bool:
         """Compare the contents of Dirs
 
         Parameters:
@@ -236,8 +250,7 @@ class Dir(File):
 
 
 def obj(path: str) -> File:
-    """
-    Create an object of the appropriate class, based on the extension of the file.
+    """Returns the appropriate subclass if File
 
     Parameters:
     ----------
@@ -245,7 +258,7 @@ def obj(path: str) -> File:
 
     Returns:
     ---------
-        A subclass of `File`, which can be one of the following classes - Img, Log, Video, Exe, Dir.
+        A subclass of `File`, which can be one of the following classes - `Img, Log, Video, Exe, Dir, Git`.
 
     Raises:
     -------
@@ -293,13 +306,13 @@ def obj(path: str) -> File:
             if k.match(path.split(os.sep)[-1]):
                 return v(path)
         if os.path.isdir(path):
-            return Dir(path)
+            return FileManager(path)
         return File(path)
     return cls(path)
 
 
 if __name__ == "__main__":
-    path = Dir("/home/joona/.dotfiles")
+    path = FileManager("/home/joona/.dotfiles")
     from ExecutionTimer import ExecutionTimer
 
     with ExecutionTimer():

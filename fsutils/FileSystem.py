@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#!/usr/bin/env python3
+
 
 # FileSystem.py - A file system implemented as a tree of nodes.
 # Examples:
@@ -7,6 +7,8 @@
 #       FileTreeNode('file1', '/path/to/file1')                      -> Create a new file node.
 #       FileTree().add_node(FileTreeNode('file2', '/path/to/file2')) -> Add a file to the tree.
 #       FileTree().traverse()                                        -> Iterate over all nodes in the tree.
+
+import os
 
 
 class FileTreeNode:

@@ -38,6 +38,7 @@ class Img(File):
 
     def __init__(self, path: str):
         self._exif = None
+        self._tags = []
         # self._capture_date = self._exif.
         super().__init__(path)
 
@@ -103,13 +104,20 @@ class Img(File):
     def tags(self):
         """Extract metadata from image files"""
         for tag_id in self.exif:
-            tags = TAGS.get(tag_id, tag_id)
-            data = self.exif.get(tag_id)
-            if isinstance(data, bytes):
-                data = data.decode()
-            if tags == "XMLPacket":
-                continue  # Skip 'XMLPacket'
-            yield tags, data
+            try:
+                tags = TAGS.get(tag_id, tag_id)
+                data = self.exif.get(tag_id)
+                if isinstance(data, bytes):
+                    data = data.decode()
+                if tags == "XMLPacket":
+                    continue  # Skip 'XMLPacket'
+                tag = (tags, data)
+                if tag not in self._tags:
+                    self._tags.append(tag)
+                yield tag
+            except Exception as e:
+                print(f"Error extracting tag {tag_id}: {e}")
+                continue
 
     @property
     def capture_date(self) -> datetime:
