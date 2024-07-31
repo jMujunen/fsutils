@@ -193,7 +193,7 @@ class FFStream:
                 try:
                     size = (int(width), int(height))
                 except ValueError:
-                    raise FFProbeError("None integer size {}:{}".format(width, height))
+                    raise FFProbeError(f"None integer size {width}:{height}")
         else:
             return None
 

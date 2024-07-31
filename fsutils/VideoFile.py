@@ -13,6 +13,7 @@ from size import Converter
 
 from .ffprobe import FFProbe, FFStream
 from .GenericFile import File
+from .ImageFile import Img
 
 
 class Video(File):
@@ -152,20 +153,20 @@ class Video(File):
             except Exception as e:
                 print(f"Error: {e}")
 
-    def make_gif(self, scale=500, fps=24, output="./output.gif") -> int:
+    def make_gif(self, scale=500, fps=24, output="./output.gif") -> Img:
         # TODO : Return out output gif as an object
         # [ ] Add support for more options like duration of gif and color palette.
         """Convert the video to a gif using FFMPEG.
 
         Parameters:
         -----------
-            `scale`: int, optional (default is 500)
+            `scale` : int, optional (default is 500)
             `fps`   : int, optional (default is 10)
             `output_path` : str, optional (default is "./output.gif")
 
             Breakdown:
-            * FPS: Deault is 24 but the for smaller file sizes, try 6-10
-            * SCALE: is the width of the output gif in pixels.
+            * `FPS` : Deault is 24 but the for smaller file sizes, try 6-10
+            * `SCALE`  is the width of the output gif in pixels.
                 - 500-1000 = high quality but larger file size.
                 - 100-500   = medium quality and smaller file size.
                 - 10-100    = low quality and smaller file size.
@@ -176,7 +177,7 @@ class Video(File):
             int : subprocess return code
         """
         output = output or os.path.join(self.dir_name, self.basename[:-4] + ".gif")
-        return subprocess.call(
+        result = subprocess.run(
             [
                 "ffmpeg",
                 "-i",
@@ -188,8 +189,14 @@ class Video(File):
                 f"{output}",
                 "-loglevel",
                 "quiet",
-            ]
+            ],
+            shell=True,
+            text=True,
+            capture_output=True,
+            check=False,
         )
+
+        stdout, stderr, return_code = result
 
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
         """Trim the video from start to end time (seconds).

@@ -131,7 +131,7 @@ def create_file_tree(directory_object, file_tree):
         dir_node = FileTreeNode(os.path.basename(directory), directory)
         file_tree.add_node(dir_node)
 
-        for root, dirs, files in os.walk(directory):
+        for root, _dirs, files in os.walk(directory):
             for file in files:
                 file_name, ext = os.path.splitext(file)
                 if not ext:  # ignore directories with no extension (like .git)

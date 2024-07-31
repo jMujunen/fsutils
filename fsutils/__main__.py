@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 
-from Color import cprint, style
-
 from fsutils import Video  # , File, Dir, obj, Exe
 
 
@@ -51,6 +49,7 @@ def parse_args():
     )
     video_info.add_argument(
         "file",
+        nargs="+",
         type=str,
         help="Input Video File",
     )
@@ -97,7 +96,7 @@ def parse_args():
 
     img_parser = subparsers.add_parser("img", help="Image related operations")
     img_subparsers = img_parser.add_subparsers(help="Image commands", dest="image_command")
-    image_info__parser = img_subparsers.add_parser(
+    img_subparsers.add_parser(
         "info",
         help="Create GIF from video",
     )
@@ -138,29 +137,35 @@ def video_info_all(video: Video) -> str:
 
 def video_parser(arguments: argparse.Namespace) -> int:
     specs = {
-        "codec": Video(arguments.file).codec,
-        "dimensions": Video(arguments.file).dimensions,
-        "duration": Video(arguments.file).duration,
-        "bitrate": Video(arguments.file).bitrate,
-        "size": Video(arguments.file).size,
-        "capture_date": Video(arguments.file).capture_date,
-        "info": Video(arguments.file).info,
-        "fps": Video(arguments.file).ffprobe().frame_rate(),
-        "all": video_info_all(Video(arguments.file)),
+        "codec": lambda file: Video(file).codec,
+        "dimensions": lambda file: Video(file).dimensions,
+        "duration": lambda file: Video(file).duration,
+        "bitrate": lambda file: Video(file).bitrate,
+        "size": lambda file: Video(file).size,
+        "capture_date": lambda file: (file).capture_date,
+        "info": lambda file: Video(file).info,
+        "fps": lambda file: Video(file).ffprobe().frame_rate(),
+        "all": lambda file: video_info_all(Video(file)),
     }
     if arguments.video_command == "makegif":
         return Video(arguments.file).make_gif(arguments.scale, arguments.fps, arguments.output)
     elif arguments.video_command == "info":
-        print(Video(arguments.file).info)
-        for arg, value in arguments.__dict__.items():
-            if arg in specs.keys() and value:
-                print(f"{arg}: {specs[arg]}")
+        if isinstance(arguments.file, str):
+            files = [arguments.file]
+        else:
+            files = arguments.file
+        for file in files:
+            for arg, value in arguments.__dict__.items():
+                if arg in specs.keys() and value:
+                    print(f"{arg}: {specs[arg](file)}")
         return 0
     return 1
 
 
 if __name__ == "__main__":
     args = parse_args()
-    cprint(args, style.bold)
+    if args.command is None:
+        args.print_help()
+        exit(1)
     if args.command == "video":
         video_parser(args)

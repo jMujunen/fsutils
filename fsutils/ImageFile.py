@@ -1,4 +1,4 @@
-"""Represents an image"""
+"""Represents an image."""
 
 import base64
 import os
@@ -17,12 +17,13 @@ from .GenericFile import File
 
 class Img(File):
     """A class representing information about an image
-    Attributes:
+
+    Attributes
     ----------
         path (str): The absolute path to the file.
 
-    Methods:
-    ----------
+    Methods
+    -------
         calculate_hash(self): Calculate the hash value of the image
         render(self, size=None): Render an image using kitty at a specified size (optional)
         generate_title(): EXPERIMENTAL! - Generate a title for the image using ollama
@@ -34,6 +35,7 @@ class Img(File):
         dimensions (tuple or None): Return a tuple containing the width and height of the image
         exif (dict or None): Return a dictionary containing EXIF data about the image if available
         is_corrupted (bool): Return True if the file is corrupted, False otherwise
+
     """
 
     def __init__(self, path: str):
@@ -49,10 +51,11 @@ class Img(File):
         ---------
             spec (str): The specification for the hashing algorithm to use.
 
-        Returns:
-        ----------
+        Returns
+        -------
             hash_table (array)  : The calculated hash of the image.
             None (None)         : NoneType if an error occurs while calculating the hash
+
         """
         specs = {
             "avg": lambda x: imagehash.average_hash(x),
@@ -70,18 +73,18 @@ class Img(File):
         except UnidentifiedImageError as e:
             file = Img(self.path)
             if file.is_corrupt:
-                print(f"\033[1;31m{self.path} is corrupt\033[0m", end=f"{' '*80}\r", flush=True)
+                print(f"\033[1;31m{self.path} is corrupt\033[0m", end=f"{" " * 80}\r", flush=True)
 
             print(f"Error calculating hash: {e}")
 
     @property
     def dimensions(self) -> tuple[int, int]:
-        """
-        Extract the dimensions of the image
+        """Extract the dimensions of the image
 
-        Returns:
-        ----------
+        Returns
+        -------
             Tuple(int, int): width x height of the image in pixels.
+
         """
         with Image.open(self.path) as img:
             width, height = img.size
@@ -139,7 +142,12 @@ class Img(File):
                         year, month, day = date.split(":")
                         hour, minute, second = time.split(":")
                         return datetime(
-                            int(year), int(month), int(day), int(hour), int(minute), int(second[:2])
+                            int(year),
+                            int(month),
+                            int(day),
+                            int(hour),
+                            int(minute),
+                            int(second[:2]),
                         )
                 except:
                     continue
@@ -174,7 +182,7 @@ class Img(File):
                 check=False,
             ).returncode
         except Exception as e:
-            print(f"An error occurred while rendering the image:\n{str(e)}")
+            print(f"An error occurred while rendering the image:\n{e!s}")
             return 1
 
     def open(self) -> int:
@@ -192,10 +200,14 @@ class Img(File):
         return self
 
     def resize(
-        self, width: int = 320, height: int = 320, overwrite=False, file_path: str | None = None
+        self,
+        width: int = 320,
+        height: int = 320,
+        overwrite=False,
+        file_path: str | None = None,
     ) -> "Img":
         """Resize the image to specified width and height"""
-        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename.strip('resized_')}")
+        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename.strip("resized_")}")
         if file_path is not None:
             saved_image_path = file_path
         if (
@@ -209,11 +221,18 @@ class Img(File):
         try:
             resized_img.save(saved_image_path)
         except OSError as e:
-            print(f"An error occurred while saving resized image:\n{str(e)}")
+            print(f"An error occurred while saving resized image:\n{e!s}")
         return self.__class__(saved_image_path)
 
-    def compress(self, new_size_ratio=1, quality=90, width=None, height=None, to_jpg=False):
-        """Compresses an image
+    def compress(
+        self,
+        new_size_ratio: int = 1,
+        quality: int = 90,
+        width: int | None = None,
+        height: int | None = None,
+        to_jpg=False,
+    ):
+        """Compresses an image.
 
         Paramaters:
         ---------
@@ -223,16 +242,17 @@ class Img(File):
             - `height` (int): The new height of the image after resizing
             - `to_jpg` (bool): Convert the image to jpg format if True, else keep it in its original format
 
-        Returns:
-        ---------
+        Returns
+        -------
             `str` : The path to the compressed image file if successful, else an error message
             if an error occurred during saving the compressed image file to disk
 
-        Raises:
-        --------
+        Raises
+        ------
             - `OSError` : If an error occurred while saving the compressed image file to disk
             - `IOError` : If an error occurred while opening the image file from disk
             - `ValueError` : If an invalid value was passed for width, height or new_size_ratio parameters
+
         """
         # load the image to memory
         with Image.open(self.path) as img:
@@ -248,7 +268,7 @@ class Img(File):
             if new_size_ratio < 1.0:
                 # if resizing ratio is below 1.0, then multiply width & height with this ratio to reduce image size
                 img = img.resize(
-                    (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio))
+                    (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio)),
                 )
                 # print new image shape
                 print("\t[+] New Image shape:", img.size)
@@ -281,10 +301,12 @@ class Img(File):
             saving_diff = float(new_image_size) - self.size
             # print the saving percentage
             print(f"\t[+] Image size change: {
-                saving_diff/self.size*100:.2f}% of the original image size.")
-            print(f"{"="*60}")
+                saving_diff / self.size * 100:.2f
+            }% of the original image size.")
+            print(f"{"=" * 60}")
 
     def encode(self) -> str:
+        """Base64 encode the image for LLM prococessing."""
         resized = self.resize()
         with Image.open(resized.path) as img:
             try:
@@ -296,16 +318,6 @@ class Img(File):
                 print("OSError  while converting to base64:")
                 return str(e)
         return img_str
-
-    # def encode(self) -> str | None:
-    #     while True:
-    #         try:
-    #             with open(self.path, "rb") as image:
-    #                 return base64.b64decode(image.read()).decode("utf-8")
-    #         except IOError as e:
-    #             if e.errno != errno.EACCES:
-    #                 raise
-    #             time.sleep(0.1)
 
     def grayscale(self, output: str) -> "Img":
         """Convert the image to grayscale and save it to the specified output path.
@@ -321,12 +333,12 @@ class Img(File):
 
     @property
     def is_corrupt(self) -> bool:
-        """
-        Check if the image is corrupt
+        """Check if the image is corrupt.
 
-        Returns:
-        ----------
+        Returns
+        -------
             bool: True if the image is corrupt, False otherwise
+
         """
         # If the file is a HEIC image, it cannot be verified
         if self.extension == ".heic":
@@ -338,7 +350,7 @@ class Img(File):
                 f.verify()
             return False
         # If an IOError or SyntaxError is raised, the image is corrupt
-        except (IOError, SyntaxError):
+        except (OSError, SyntaxError):
             return True
         except KeyboardInterrupt:
             return False
@@ -358,5 +370,5 @@ class Img(File):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
-            **vars(self)
+            **vars(self),
         )
