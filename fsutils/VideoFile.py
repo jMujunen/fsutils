@@ -6,7 +6,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import cv2
 from size import Converter
@@ -49,7 +49,7 @@ class Video(File):
         super().__init__(path)
 
     @property
-    def metadata(self) -> Dict:
+    def metadata(self) -> dict:
         if not self._metadata:
             ffprobe_cmd = [
                 "ffprobe",
@@ -72,11 +72,11 @@ class Video(File):
         return self._metadata
 
     @property
-    def tags(self) -> Optional[Dict]:
+    def tags(self) -> dict:
         return self.metadata.get("tags", {}) if self.metadata else {}
 
     @property
-    def bitrate(self) -> Optional[int]:
+    def bitrate(self) -> int:
         """Extract the bitrate/s with ffprobe."""
         try:
             bitrate = round(int(self.metadata.get("bit_rate", -1)))
@@ -87,7 +87,7 @@ class Video(File):
             return 0
 
     @property
-    def bitrate_human(self) -> Optional[str]:
+    def bitrate_human(self) -> str | None:
         """Return the bitrate in a human readable format."""
         if self.bitrate is not None and self.bitrate > 0:
             return str(Converter(self.bitrate))
@@ -131,7 +131,7 @@ class Video(File):
                 return True  # Video is corrupt
             else:
                 return False  # Video is not corrupt
-        except (IOError, SyntaxError):
+        except (OSError, SyntaxError):
             return True  # Video is corrupt
         except KeyboardInterrupt:
             sys.exit(0)
@@ -176,8 +176,10 @@ class Video(File):
         --------
             int : subprocess return code
         """
-        output = output or os.path.join(self.dir_name, self.basename[:-4] + ".gif")
-        result = subprocess.run(
+        output = os.path.join(self.dir_name, output) or os.path.join(
+            self.dir_name, self.basename[:-4] + ".gif"
+        )
+        subprocess.check_output(
             [
                 "ffmpeg",
                 "-i",
@@ -189,14 +191,9 @@ class Video(File):
                 f"{output}",
                 "-loglevel",
                 "quiet",
-            ],
-            shell=True,
-            text=True,
-            capture_output=True,
-            check=False,
+            ]
         )
-
-        stdout, stderr, return_code = result
+        return Img(output)
 
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
         """Trim the video from start to end time (seconds).
@@ -217,28 +214,42 @@ class Video(File):
             f"ffmpeg -ss mm:ss -to mm2:ss2 -i {self.path} -codec copy {output_path}"
         )
 
-    def compress(self, output=None) -> int:
-        """Compress video using x264 codec with crf 28 (default)."""
-        output = output or os.path.join(
-            self.dir_name, f"{self.basename[:-4]}_compressed.{self.extension}"
+    def compress(self, **kwargs: Any) -> "Video":
+        """Compress video using x266 codec with crf 18.
+
+        Keyword Arguments:
+        ----------------
+            - `output` : Save compressed video to this path
+
+        Examples
+        --------
+        >>> compress(output="~/Videos/compressed_video.mp4")
+        """
+        output_path = os.path.join(
+            self.dir_name, self.basename[:-4] + "_compressed." + self.extension
         )
-        if os.path.exists(output):
-            other = Video(output)
-            # Check if the file is corrupted, possibly from previous terminated compression attempt
-            if other.is_corrupt:
-                os.remove(other.path)
-            else:
-                return -1
-        result = subprocess.run(
-            f'ffmpeg -i "{self.path}" -c:v hevc_nvenc -crf 16 -qp 18 "{output}"',
-            # f'ffmpeg -i "{self.path}" -c:v h264_nvenc -crf 18 -qp 28 "{file_path}"',
-            shell=True,
-            capture_output=True,
-            text=True,
-            check=False,
+        output_path = kwargs.get("output", output_path)
+        if os.path.exists(output_path):
+            raise FileExistsError(f"File {output_path} already exists.")
+        subprocess.check_output(
+            [
+                "ffmpeg",
+                "-i",
+                self.path,
+                "-c:v",
+                "hevc_nvenc",
+                "-crf",
+                "18",
+                "-qp",
+                "22",
+                "-v",
+                "1",
+                "-stats",
+                "-y",
+                output_path,
+            ],
         )
-        print(result.stderr, result.stdout)
-        return result.returncode
+        return Video(output_path)
 
     # NOTE:  Untested
     def extract_audio(self, output_path: str | None = None) -> int:

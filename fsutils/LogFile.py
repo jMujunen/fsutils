@@ -2,9 +2,12 @@
 
 import pandas as pd
 import re
+from io import StringIO
 from typing import Any, List
 
 from .GenericFile import File
+
+DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
 
 
 class Log(File):
@@ -25,93 +28,74 @@ class Log(File):
 
     """
 
+    sanatized = False
+
     def __init__(self, path, spec="csv", encoding="iso-8859-1"):
-        self.DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
         specs = {"csv": ",", "tsv": "\t", "custom": ", "}
+        if spec not in specs:
+            raise ValueError(f"Unsupported spec: {spec}. Supported specs are {list(specs.keys())}.")
         self.spec = specs[spec]
         super().__init__(path, encoding)
 
     @property
     def header(self) -> str:
         """Get the header of the log file."""
-        return self.head()[0].strip().strip(self.spec)
+        try:
+            return self.head()[0].strip().strip(self.spec)
+        except IndexError:
+            return ""
 
     @property
     def columns(self) -> List[str]:
         """Get the columns of the log file as a list"""
-        return [col for col in self.head()[0].split(self.spec)]
-
-    @property
-    def footer(self) -> str | None:
-        """Get the footer of the log file."""
-        second_last, last = self.tail()[-1], self.tail()[-2]
-        second_last = second_last.strip(self.spec)
-        last = last.strip(self.spec)
-        return second_last if second_last == self.header else None
+        try:
+            first_line = self.head()[0]
+            return [col for col in first_line.split(self.spec)]
+        except IndexError:
+            return []
 
     def to_df(self) -> pd.DataFrame:
-        """
-        Convert the log file into a pandas DataFrame.
-
-        Returns:
-        --------
-            pd.DataFrame: The data of the log file in a DataFrame format.
-        """
+        """Convert the log file into a pandas DataFrame."""
         import pandas as pd
 
-        return pd.DataFrame(self.content, columns=self.columns)
+        return pd.read_csv(StringIO("\n".join(self.sanitize())), delimiter=self.spec)
 
-    def sanitize(self) -> str:
+    def sanitize(self) -> List[str]:
+        """Sanitize the log file by removing any empty lines, spaces,
+        special charactesrs, and trailing delimiters. Also remove the last 2 lines
         """
-        Sanitize the log file by removing any empty lines, spaces, and trailing delimiters
-        from the header and footer. Also remove the last 2 lines
-
-        Returns:
-        -------
-            str: The sanitized content
-        """
+        # Skip sanitizing if already done
+        if self.sanatized:
+            return self.content
         pattern = re.compile(
             r"(GPU2.\w+\(.*\)|NaN|N\/A|Fan2|°|Â|\*|,,+|\s\[[^\s]+\]|\"|\+|\s\[..TDP\]|\s\[\]|\s\([^\s]\))"
         )
-        # pattern = re.compile(r"(,\s+|\s+,)")
 
         sanitized_content = []
-        lines = len(self)
         for i, line in enumerate(self):
-            if i == lines - 2:
+            # Avoid appending the last two lines as they are usually empty or contain errors
+            if i == len(self) - 2:
                 break
             sanitized_line = re.sub(pattern, "", line).strip().strip(self.spec)
             if sanitized_line:
-                sanitized_line = re.sub(pattern, ",", sanitized_line)
-                sanitized_line = re.sub(r"(\w+)\s+(\w+)", r"\1_\2", sanitized_line)
                 sanitized_content.append(sanitized_line)
-
-        self._content = "\n".join(sanitized_content)
+        self._content = sanitized_content
+        self.sanatized = True
         return self._content
 
     @property
     def stats(self) -> Any:
-        """
-        Calculate basic statistical information for the data in a DataFrame.
-
-        Returns:
-        --------
-            pandas.Series: A series containing the mean, min, and max values of each column in the DataFrame.
-        """
+        """Calculate basic statistical information for the data in a DataFrame."""
         try:
             df = pd.read_csv(self.path)
         except UnicodeDecodeError:
-            df = pd.read_csv(self.sanitize())
+            df = self.to_df()
         return df.mean()
 
-    def compare(self, other) -> None:
-        """
-        Compare the statistics of this log file with another. Prints a table comparing each column's mean values.
+    def compare(self, other: "Log") -> None:
+        """Compare the statistics of this log file with another.
 
-        Parameters:
-        -----------
-            other (LogFile): Another LogFile instance to compare against.
-        """
+        Prints a table comparing each column's mean values."""
 
         def round_values(val: float | int) -> float:
             try:
@@ -141,17 +125,7 @@ class Log(File):
             num1, num2 = compare_values(self.stats[k], other.stats[k])
             print(f"{k:<32} {num1:<15} {num2:>20}")
 
-    # def compare(self, other: File) -> None:
-    #     """
-    #     Compare the statistics of this log file with another. Prints a table comparing each column's mean values.
-
-    #     Parameters:
-    #     -----------
-    #         other (Log): Another Log instance to compare against.
-
-    #     """
-
-    #     # FIXME : Account for differences in columns. Currently, differences in columns output the following:
+    #  FIXME : Account for differences in columns. Currently, differences in columns output the following:
     #     """ 12V                              + 44                  11.94
     #         Vcore                            1.287               + 1.301
     #         VIN3                             + 55                  1.315
@@ -160,51 +134,8 @@ class Log(File):
     #         Frame_Time                       4.07                 + 8.73
     #         GPU_Busy                         + 58                  4.749 """
 
-    #     def compare_values(num1: str | int, num2: str | int):
-    #         digits = re.compile(r"(\d+(\.\d+)?)")
-
-    #         num1 = digits.search(str(num1))[0]
-    #         num2 = digits.search(str(num2))[0]
-    #         # num2 = re.search(r'(\d+(\.\d+)?)', line.split(' ')[-1]).group(0)
-    #         if float(num1) == float(num2):
-    #             return (
-    #                 f"{num1.replace(num1, f'{fg.cyan}{'\u003d'}{style.reset} {str(num1)}')}",
-    #                 num2,
-    #             )
-    #         if float(num1) > float(num2):
-    #             return (
-    #                 f"{num1.replace(num1, f'{fg.red}{'\u002b'}{style.reset} {str(num1)}')}",
-    #                 num2,
-    #             )
-    #         return (
-    #             num1,
-    #             f"{num2.replace(num2, f' {fg.red}{'\u002b'}{style.reset} {str(num2)}')}",
-    #         )
-
-    #     def round_values(val):
-    #         try:
-    #             if float(val) < 5:
-    #                 # round to three decimal places
-    #                 return float(f"{float(val):.3f}")
-    #             elif 5 <= float(val) < 15:
-    #                 # round to two decimal places
-    #                 return float(f"{float(val):.2f}")
-    #             else:
-    #                 return int(val)  # no decimal places
-    #         except Exception as e:
-    #             print(f"\033[31m {e}\033[0m")
-
-    #     print("{:<20} {:>15} {:>20}".format("Sensor", self.basename, other.basename))
-    #     if isinstance(other, Log):
-    #         df_stats1 = self.stats
-    #         for k, v in df_stats1.items():
-    #             try:
-    #                 num1, num2 = compare_values(round_values(v), round_values(other.stats[k]))
-    #                 print(f"{k:<32} {num1:<15} {num2:>20}")
-    #             except KeyError:
-    #                 pass
-
     def save(self) -> None:
+        # FIXME : Create a backup first
         """Save the (updated) content to the log file (overwrites original content)."""
-        with open(self.path, "w") as f:
-            f.write(self._content)
+        with open(self.path, "w", encoding=self.encoding) as f:
+            f.write("\n".join(self._content))

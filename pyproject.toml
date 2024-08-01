@@ -19,8 +19,25 @@ ruff = "^0.5.3"
 sphinx = "^7.4.7"
 exifread = "^3.0.0"
 sentence-transformers = "^3.0.1"
+mypy = "^1.11.1"
+pytest = "^8.3.2"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+include = ["fsutils/**"]
+exclude = ["**/dist",
+    "**/__pycache__",
+    "**/tests",
+    "**/.git",
+    "**/.vscode"
+]
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+pythonVersion = "3.12"
+pythonPlatform = "Linux"

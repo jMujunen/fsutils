@@ -51,6 +51,8 @@ class File:
 
     """
 
+    _content: List[Any] = []
+
     def __init__(self, path: str, encoding: str = "utf-8") -> None:
         """Constructor for the FileObject class.
 
@@ -61,18 +63,19 @@ class File:
         """
         self.encoding = encoding
         self.path = os.path.abspath(os.path.expanduser(path))
-        self._content = []
+        # self._content = []
 
-    def head(self, n=5) -> List[str] | None:
+    def head(self, n=5) -> List[str]:
         """Return the first n lines of the file"""
         if self.content is not None and len(self.content) > n:
             return self.content[:n]
         return self.content
 
-    def tail(self, n=5) -> List[str] | None:
+    def tail(self, n=5) -> List[str]:
         """Return the last n lines of the file"""
         if self.content is not None:
             return self.content[-n:]
+        return self.content
 
     @property
     def is_link(self) -> bool:
@@ -121,7 +124,7 @@ class File:
         return 0
 
     @property
-    def content(self) -> List[Any] | None:
+    def content(self) -> List[Any]:
         """Helper for self.read()"""
         if not self._content:
             self._content = self.read()
@@ -255,3 +258,6 @@ class File:
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
             **vars(self)
         )
+
+    def __str__(self) -> str:
+        return "\n".join(self.content)

@@ -4,7 +4,7 @@ import datetime
 import os
 import re
 from collections import defaultdict
-from typing import Any, Iterator, List, Union
+from typing import Any, Dict, Iterator, List, Union
 
 from size import Converter
 
@@ -18,33 +18,37 @@ from .VideoFile import Video
 
 
 class FileManager(File):
+    _objects: List[File] = []
+    _directories: List["FileManager"] = []
+    _files: List[str] = []
+    _metadata: Dict = {}
+
     """
     A class representing information about a directory.
 
-    #### Methods:
-
-    >>> file_info(other):   # Check for `other` in self and return it as an object of `other`
-        objects():          # Convert each file in self to an appropriate type of object
-        getinfo():          # Returns a list of extentions and their count
-        __eq__(other):      # Compare properties of two Dir objects
-        __contains__(other) # Check if `other` is present in self
-        __len__ ():         # Return the number of objects in self
-        __iter__ ():        # Iterator which yields the appropriate File instance
-
+    Attributes
     ----------
+        - `path (str)` : The path to the directory.
 
-    ####  Properties:
-        - `files`       : A read-only property returning a list of file names
-        - `objects`     : A read-only property yielding a sequence of DirectoryObject or FileObject instances
-        - `directories` : A read-only property yielding a list of absolute paths for subdirectories
+    Methods
+    -------
+        - `file_info (other)` :     # Check for `other` in self and return it as an object of `other`
+        - `getinfo()` :             # Returns a list of extentions and their count
+        - `__eq__ (other)` :        # Compare properties of two Dir objects
+        - `__contains__ (other)` :  # Check if `other` is present in self
+        - `__len__`:                # Return the number of objects in self
+        - `__iter__`  :             # Iterator which yields the appropriate File instance
+
+
+    Properties
+    -----------
+        - `files`       : Read only propery returning a list of file names
+        - `objects`     : Read-only property yielding a sequence of DirectoryObject or FileObject instances
+        - `directories` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
 
     def __init__(self, path: str):
-        self._files = []
-        self._directories = []
-        self._objects = []
-        self._metadata = {}
         super().__init__(path)
 
     @property
@@ -89,18 +93,9 @@ class FileManager(File):
         return self._objects
 
     def file_info(self, file_name: str) -> File | None:
-        """
-        Query the object for files with the given name.
-        Returns an appropriate FileObject if found.
+        """Query the object for files with the given name.
 
-        Parameters
-        ----------
-            file_name (str): The name of the file
-
-        Returns:
-        ---------
-            File (class) | None: Information about the specified file if found
-        """
+        Returns Information about the specified file if found"""
         try:
             try:
                 if file_name in os.listdir(self.path):
@@ -193,16 +188,7 @@ class FileManager(File):
             print(("{:<20}{:<40}").format(s, filepath.replace(self.path, "")))
 
     def __contains__(self, item: File) -> bool:
-        """Compare items in two DirectoryObjects
-
-        Parameters:
-        ----------
-            item (FileObject, VideoObject, ImageObject, ExecutableObject, DirectoryObject): The item to check.
-
-        Returns:
-        ----------
-            bool: True if the item is present, False otherwise.
-        """
+        """Compare items in two DirectoryObjects"""
         if isinstance(item, (File, Video, Img, Exe, FileManager)):
             return item.basename in self.files
         return item in self.files
@@ -227,16 +213,7 @@ class FileManager(File):
         pass
 
     def __eq__(self, other: "FileManager") -> bool:
-        """Compare the contents of Dirs
-
-        Parameters:
-        ----------
-            other (class): The class instance to compare with.
-
-        Returns:
-        ----------
-            bool: True if the path of the two instances are equal, False otherwise.
-        """
+        """Compare the contents of two FileManager objects"""
         return self.content == other.content
 
     def fmt(self, *args) -> str:
@@ -244,7 +221,7 @@ class FileManager(File):
         return f"{self.__class__.__name__}({self.path})"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size}, dir_name={self.path}, path={self.path}, is_empty={self.is_empty})".format(
+        return f"{self.__class__.__name__}(dir_name={self.path}, path={self.path}, is_empty={self.is_empty})".format(
             **vars(self)
         )
 
@@ -316,7 +293,7 @@ if __name__ == "__main__":
     from ExecutionTimer import ExecutionTimer
 
     with ExecutionTimer():
-        for item in path:
+        for item in path.videos:
             if item.is_dir:
                 print(item)
                 print(item)
