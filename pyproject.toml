@@ -38,6 +38,7 @@ exclude = ["**/dist",
 
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportIncompatibleMethodOverride = false
 
 pythonVersion = "3.12"
 pythonPlatform = "Linux"

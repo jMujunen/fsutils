@@ -4,7 +4,8 @@ import datetime
 import os
 import re
 from collections import defaultdict
-from typing import Any, Dict, Iterator, List, Union
+from collections.abc import Iterator
+from typing import Any
 
 from size import Converter
 
@@ -17,12 +18,7 @@ from .ScriptFile import Exe
 from .VideoFile import Video
 
 
-class FileManager(File):
-    _objects: List[File] = []
-    _directories: List["FileManager"] = []
-    _files: List[str] = []
-    _metadata: Dict = {}
-
+class Dir(File):
     """
     A class representing information about a directory.
 
@@ -48,16 +44,21 @@ class FileManager(File):
 
     """
 
+    _objects: list[File] = []
+    _directories: list["Dir"] = []
+    _files: list[str] = []
+    _metadata: dict = {}
+
     def __init__(self, path: str):
         super().__init__(path)
 
     @property
-    def files(self) -> List[str]:
+    def files(self) -> list[str]:
         """Return a list of file names in the directory represented by this object."""
         return [f.basename for f in self if not os.path.isdir(f.path)]
 
     @property
-    def file_objects(self) -> List[Union[File, Exe, Log, Img, Video, Git]]:
+    def file_objects(self) -> list[File | Exe | Log | Img | Video | Git]:
         """Return a list of objects contained in the directory.
 
         This property iterates over all items in the directory and filters out those that are instances
@@ -70,11 +71,12 @@ class FileManager(File):
         return [
             item
             for item in self
-            if isinstance(item, (File, Exe, Log, Img, Video, Git)) and not os.path.isdir(item.path)
+            if isinstance(item, File | Exe | Log | Img | Video | Git)
+            and not os.path.isdir(item.path)
         ]
 
     @property
-    def content(self) -> List[Any] | None:
+    def content(self) -> list[Any] | None:
         """List the the contents of the toplevel directory."""
         try:
             return os.listdir(self.path)
@@ -82,14 +84,14 @@ class FileManager(File):
             pass
 
     @property
-    def rel_directories(self) -> List[str]:
+    def rel_directories(self) -> list[str]:
         """Return a list of subdirectory paths relative to the directory represented by this object"""
         return [f".{folder.path.replace(self.path, "")}" for folder in self.dirs]
 
-    def objects(self) -> List[File | Exe | Log | Img | Video | Git]:
+    def objects(self) -> list[File | Exe | Log | Img | Video | Git]:
         """Return a list of fsutil objects inside self"""
         if not self._objects:
-            self._objects = [file for file in self]
+            self._objects = list(self.__iter__())
         return self._objects
 
     def file_info(self, file_name: str) -> File | None:
@@ -127,7 +129,7 @@ class FileManager(File):
         return len(self.files) == 0
 
     @property
-    def images(self) -> List[Img]:
+    def images(self) -> list[Img]:
         """Return a list of ImageObject instances found in the directory.
 
         Returns:
@@ -137,14 +139,14 @@ class FileManager(File):
         return [item for item in self if isinstance(item, Img)]
 
     @property
-    def videos(self) -> List[Video]:
+    def videos(self) -> list[Video]:
         """Return a list of VideoObject instances found in the directory."""
         return [item for item in self if isinstance(item, Video)]
 
     @property
-    def dirs(self) -> List[File]:
+    def dirs(self) -> list[File]:
         """Return a list of DirectoryObject instances found in the directory."""
-        return [item for item in self if isinstance(item, FileManager)]
+        return [item for item in self if isinstance(item, Dir)]
 
     @property
     def stat(self) -> None:
@@ -189,7 +191,7 @@ class FileManager(File):
 
     def __contains__(self, item: File) -> bool:
         """Compare items in two DirectoryObjects"""
-        if isinstance(item, (File, Video, Img, Exe, FileManager)):
+        if isinstance(item, File | Video | Img | Exe | Dir):
             return item.basename in self.files
         return item in self.files
 
@@ -202,7 +204,7 @@ class FileManager(File):
         for root, _, files in os.walk(self.path):
             # Yield directories first to avoid unnecessary checks inside the loop
             for directory in _:
-                yield FileManager(os.path.join(root, directory))
+                yield Dir(os.path.join(root, directory))
 
             for file in files:
                 path = os.path.join(root, file)  # full path of the file
@@ -212,8 +214,8 @@ class FileManager(File):
         """Detect duplicate files in a directory and its subdirectories"""
         pass
 
-    def __eq__(self, other: "FileManager") -> bool:
-        """Compare the contents of two FileManager objects"""
+    def __eq__(self, other: "Dir") -> bool:
+        """Compare the contents of two Dir objects"""
         return self.content == other.content
 
     def fmt(self, *args) -> str:
@@ -227,22 +229,7 @@ class FileManager(File):
 
 
 def obj(path: str) -> File:
-    """Returns the appropriate subclass if File
-
-    Parameters:
-    ----------
-        path (str): Path of the file or directory.
-
-    Returns:
-    ---------
-        A subclass of `File`, which can be one of the following classes - `Img, Log, Video, Exe, Dir, Git`.
-
-    Raises:
-    -------
-        ValueError: If path is None.
-        FileNotFoundError: If provided path does not exist.
-
-    """
+    """Returns the appropriate subclass if File"""
     if not path or not isinstance(path, str):
         raise ValueError("Path cannot be None")
     if not os.path.exists(path):
@@ -283,13 +270,13 @@ def obj(path: str) -> File:
             if k.match(path.split(os.sep)[-1]):
                 return v(path)
         if os.path.isdir(path):
-            return FileManager(path)
+            return Dir(path)
         return File(path)
     return cls(path)
 
 
 if __name__ == "__main__":
-    path = FileManager("/home/joona/.dotfiles")
+    path = Dir("/home/joona/.dotfiles")
     from ExecutionTimer import ExecutionTimer
 
     with ExecutionTimer():

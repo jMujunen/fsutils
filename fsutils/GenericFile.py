@@ -3,7 +3,8 @@
 import os
 import re
 import shutil
-from typing import Any, Iterator, List
+from collections.abc import Iterator
+from typing import Any, List
 
 import chardet
 from size import Converter
@@ -51,7 +52,7 @@ class File:
 
     """
 
-    _content: List[Any] = []
+    _content: list[Any] = []
 
     def __init__(self, path: str, encoding: str = "utf-8") -> None:
         """Constructor for the FileObject class.
@@ -65,13 +66,13 @@ class File:
         self.path = os.path.abspath(os.path.expanduser(path))
         # self._content = []
 
-    def head(self, n=5) -> List[str]:
+    def head(self, n: int = 5) -> list[str]:
         """Return the first n lines of the file"""
         if self.content is not None and len(self.content) > n:
             return self.content[:n]
         return self.content
 
-    def tail(self, n=5) -> List[str]:
+    def tail(self, n: int = 5) -> list[str]:
         """Return the last n lines of the file"""
         if self.content is not None:
             return self.content[-n:]
@@ -118,19 +119,19 @@ class File:
         new_path = os.path.splitext(self.path)[0] + ext
         try:
             shutil.move(self.path, new_path, copy_function=shutil.copy2)
-        except IOError as e:
+        except OSError as e:
             print(f"Error while saving {self.basename}: {e}")
             return 1
         return 0
 
     @property
-    def content(self) -> List[Any]:
+    def content(self) -> list[Any]:
         """Helper for self.read()"""
         if not self._content:
             self._content = self.read()
         return self._content
 
-    def read(self, **kwargs) -> List[Any]:
+    def read(self, **kwargs) -> list[Any]:
         """Method for reading the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
@@ -151,7 +152,7 @@ class File:
                     content = list(lines[kwargs.get("a", 0) : kwargs.get("b", len(lines))])
             except Exception:
                 try:
-                    with open(self.path, "r", encoding=self.encoding) as f:
+                    with open(self.path, encoding=self.encoding) as f:
                         content = f.readlines()
                 except Exception:
                     try:
@@ -210,12 +211,7 @@ class File:
     #     return self._content
 
     def __iter__(self) -> Iterator[str]:
-        """Iterate over the lines of a file.
-
-        Yields:
-        --------
-            str: A line from the file
-        """
+        """Iterate over the lines of a file."""
         if self.content is not None:
             try:
                 for line in self.content:
@@ -242,14 +238,14 @@ class File:
             item in word for word in item.split(" ") for line in self
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Compare two FileObjects
 
         Paramaters:
         ----------
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
         """
-        if not isinstance(other, (self.__class__, File)):
+        if not isinstance(other, self.__class__ | File):
             return False
         self._content = self.read()
         return self._content == other.content

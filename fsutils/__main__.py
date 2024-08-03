@@ -161,6 +161,8 @@ def video_parser(arguments: argparse.Namespace) -> int:
 
     def video_info_all(video: Video) -> str:
         return f"""
+            {video.basename}
+            ---------------
             Codec: {video.codec}
             Dimensions: {video.dimensions}
             Duration: {video.duration}
@@ -185,11 +187,7 @@ def video_parser(arguments: argparse.Namespace) -> int:
     if arguments.video_command == "makegif" and isinstance(arguments.file, str):
         return (
             Video(arguments.file)
-            .make_gif(
-                arguments.scale,
-                arguments.fps,
-                arguments.output,
-            )
+            .make_gif(arguments.scale, arguments.fps, arguments.output)
             .render()
         )
 
@@ -199,6 +197,8 @@ def video_parser(arguments: argparse.Namespace) -> int:
             files = [arguments.file]
         video_objects = [Video(i) for i in files]
         for vid in video_objects:
+            # print(vid.basename)
+            # print("--------------------------")
             for arg, value in arguments.__dict__.items():
                 if arg in specs.keys() and value:
                     print(f"{arg}: {specs[arg](vid)}")
@@ -208,6 +208,7 @@ def video_parser(arguments: argparse.Namespace) -> int:
         output_path = arguments.output or f"{arguments.file}_compressed.mp4"
         try:
             compressed = Video(arguments.file).compress(output=output_path)
+            print(video_info_all(compressed))
             return 0
         except Exception as e:
             print(e)
