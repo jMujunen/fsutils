@@ -88,6 +88,7 @@ class Dir(File):
         """Return a list of subdirectory paths relative to the directory represented by this object"""
         return [f".{folder.path.replace(self.path, "")}" for folder in self.dirs]
 
+    @property
     def objects(self) -> list[File | Exe | Log | Img | Video | Git]:
         """Return a list of fsutil objects inside self"""
         if not self._objects:
@@ -197,7 +198,7 @@ class Dir(File):
 
     def __len__(self) -> int:
         """Return the number of items in the object"""
-        return len(self.objects())
+        return len(self.objects)
 
     def __iter__(self) -> Iterator[File | Exe | Log | Img | Video | Git]:
         """Yield a sequence of File instances for each item in self"""

@@ -20,28 +20,26 @@ class Img(File):
 
     Attributes
     ----------
-        path (str): The absolute path to the file.
+        - `path (str)` : The absolute path to the file.
 
     Methods
     -------
-        calculate_hash(self): Calculate the hash value of the image
-        render(self, size=None): Render an image using kitty at a specified size (optional)
-        generate_title(): EXPERIMENTAL! - Generate a title for the image using ollama
-        resize(width=320, height=320) - Resize the image to a specified width and height
+        - `calculate_hash(self)` : Calculate the hash value of the image
+        - `render(self, size=None`): Render an image using kitty at a specified size (optional)
+        - `generate_title()` : EXPERIMENTAL! - Generate a title for the image using ollama
+        - `resize(width=320, height=320)` : Resize the image to a specified width and height
 
     Properties:
     ----------
-        capture_date (str or None): Return the capture date of the image
-        dimensions (tuple or None): Return a tuple containing the width and height of the image
-        exif (dict or None): Return a dictionary containing EXIF data about the image if available
-        is_corrupted (bool): Return True if the file is corrupted, False otherwise
-
+        - `capture_date` (str) : Return the capture date of the image
+        - `dimensions` (tuple) : Return a tuple containing the width and height of the image
+        - `exif` (dict)        : Return a dictionary containing EXIF data about the image if available
+        - `is_corrupted` (bool): Return True if the file is corrupted, False otherwise
     """
 
-    def __init__(self, path: str):
-        self._exif = None
+    def __init__(self, path: str) -> None:
+        self._exif: Image.Exif = Image.Exif()
         self._tags = []
-        # self._capture_date = self._exif.
         super().__init__(path)
 
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash | None:
@@ -93,7 +91,7 @@ class Img(File):
     @property
     def exif(self) -> Image.Exif | None:
         """Extract the EXIF data from the image"""
-        if self._exif is not None:
+        if self._exif:
             return self._exif
         # Open Image
         try:
@@ -155,23 +153,6 @@ class Img(File):
             self.__dict__.get("capture_date")
         date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
         return datetime.fromisoformat(date_str)
-
-    # def generate_title(self) -> str | None:
-    #     """Generate a title for the image using ollama"""
-    #     try:
-    #         response = ollama.chat(
-    #             model="llava",
-    #             messages=[
-    #                 {
-    #                     "role": "user",
-    #                     "content": "Catagorize the image into 1 of the following based on the scene. Cat, Portrait, Car, Nature, Adventure",
-    #                     "images": [self.path],
-    #                 }
-    #             ],
-    #         )
-    #         return response["message"]["content"]
-    #     except Exception as e:
-    #         print(f"An error occurred while generating a title:\n{str(e)}")
 
     def render(self, render_size=320) -> int:
         """Render the image in the terminal using kitty terminal"""
@@ -320,12 +301,7 @@ class Img(File):
         return img_str
 
     def grayscale(self, output: str) -> "Img":
-        """Convert the image to grayscale and save it to the specified output path.
-
-        Paramaters:
-        ----------
-            output (str): The path where the grayscale image will be saved.
-        """
+        """Convert the image to grayscale and save it to the specified output path."""
         img = cv2.imread(self.path)
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         cv2.imwrite(output, gray_img)
@@ -333,13 +309,7 @@ class Img(File):
 
     @property
     def is_corrupt(self) -> bool:
-        """Check if the image is corrupt.
-
-        Returns
-        -------
-            bool: True if the image is corrupt, False otherwise
-
-        """
+        """Check if the image is corrupt."""
         # If the file is a HEIC image, it cannot be verified
         if self.extension == ".heic":
             return False  # Placeholder TODO

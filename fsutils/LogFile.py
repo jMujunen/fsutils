@@ -3,7 +3,7 @@
 import pandas as pd
 import re
 from io import StringIO
-from typing import Any, List
+from typing import Any
 
 from .GenericFile import File
 
@@ -46,11 +46,11 @@ class Log(File):
             return ""
 
     @property
-    def columns(self) -> List[str]:
+    def columns(self) -> list[str]:
         """Get the columns of the log file as a list"""
         try:
             first_line = self.head()[0]
-            return [col for col in first_line.split(self.spec)]
+            return first_line.split(self.spec)
         except IndexError:
             return []
 
@@ -60,26 +60,25 @@ class Log(File):
 
         return pd.read_csv(StringIO("\n".join(self.sanitize())), delimiter=self.spec)
 
-    def sanitize(self) -> List[str]:
+    def sanitize(self) -> list[str]:
         """Sanitize the log file by removing any empty lines, spaces,
         special charactesrs, and trailing delimiters. Also remove the last 2 lines
         """
         # Skip sanitizing if already done
         if self.sanatized:
             return self.content
-        pattern = re.compile(
+        num_lines = len(self)
+        sanatized_header = [col.strip() for col in self.columns]
+
+        HEADER_SANATIZER = re.compile(
             r"(GPU2.\w+\(.*\)|NaN|N\/A|Fan2|°|Â|\*|,,+|\s\[[^\s]+\]|\"|\+|\s\[..TDP\]|\s\[\]|\s\([^\s]\))"
         )
 
-        sanitized_content = []
-        for i, line in enumerate(self):
-            # Avoid appending the last two lines as they are usually empty or contain errors
-            if i == len(self) - 2:
-                break
-            sanitized_line = re.sub(pattern, "", line).strip().strip(self.spec)
-            if sanitized_line:
-                sanitized_content.append(sanitized_line)
-        self._content = sanitized_content
+        sanatized_content = [
+            HEADER_SANATIZER.sub("", row) for i, row in enumerate(self) if i < num_lines - 2
+        ]
+
+        self._content = sanatized_content
         self.sanatized = True
         return self._content
 

@@ -4,7 +4,7 @@ import os
 import re
 import shutil
 from collections.abc import Iterator
-from typing import Any, List
+from typing import Any
 
 import chardet
 from size import Converter
@@ -43,12 +43,12 @@ class File:
 
     Methods:
     ----------
-        `read()` : Return the contents of the file
-        `head(self, n=5)` : Return the first n lines of the file
-        `tail(self, n=5)` : Return the last n lines of the file
-        `detect_encoding()` : Return the encoding of the file based on its content
-        `__eq__()` : Compare properties of FileObjects
-        `__str__()` : Return a string representation of the object
+        - `read()` : Return the contents of the file
+        - `head(self, n=5)` : Return the first n lines of the file
+        - `tail(self, n=5)` : Return the last n lines of the file
+        - `detect_encoding()` : Return the encoding of the file based on its content
+        - `__eq__()` : Compare properties of FileObjects
+        - `__str__()` : Return a string representation of the object
 
     """
 
@@ -64,6 +64,7 @@ class File:
         """
         self.encoding = encoding
         self.path = os.path.abspath(os.path.expanduser(path))
+        self._exsits = self.exists
         # self._content = []
 
     def head(self, n: int = 5) -> list[str]:
@@ -123,6 +124,10 @@ class File:
             print(f"Error while saving {self.basename}: {e}")
             return 1
         return 0
+
+    @property
+    def exists(self) -> bool:
+        return os.path.exists(self.path)
 
     @property
     def content(self) -> list[Any]:
@@ -198,6 +203,22 @@ class File:
     def is_image(self) -> bool:
         """Check if the file is an image"""
         return self.extension.lower() in FILE_TYPES["img"]
+
+    @property
+    def st(self) -> os.stat_result:
+        """Run `stat` on the file"""
+        return os.stat(self.path)
+
+    @property
+    def mode(self) -> int:
+        """Get UNIX EXT4 file permissions"""
+        return int(oct(self.st.st_mode)[-3:])
+
+    @mode.setter
+    def mode(self, value: int) -> None:
+        """Set UNIX EXT4 file permissions"""
+        value = int(f"0o{value}")
+        os.chmod(self.path, value)
 
     def detect_encoding(self) -> str | None:
         """Detects encoding of the file"""

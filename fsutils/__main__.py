@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import os
 
-from fsutils import Video  # , File, Dir, obj, Exe
+from .VideoFile import Video
 
 
 def parse_args():

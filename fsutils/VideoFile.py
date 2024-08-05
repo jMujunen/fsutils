@@ -6,12 +6,12 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import cv2
 from size import Converter
 
-from .ffprobe import FFProbe, FFStream
+from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
 from .ImageFile import Img
 
@@ -225,12 +225,11 @@ class Video(File):
         --------
         >>> compress(output="~/Videos/compressed_video.mp4")
         """
-        output_path = os.path.join(
-            self.dir_name, self.basename[:-4] + "_compressed." + self.extension
-        )
+
+        output_path = os.path.join(self.dir_name, f"_{self.basename}")
         output_path = kwargs.get("output", output_path)
-        if os.path.exists(output_path):
-            raise FileExistsError(f"File {output_path} already exists.")
+        # if os.path.exists(output_path):
+        #     raise FileExistsError(f"File {output_path} already exists.")
         subprocess.check_output(
             [
                 "ffmpeg",
@@ -242,10 +241,40 @@ class Video(File):
                 "18",
                 "-qp",
                 "22",
-                "-v",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "128k",
+                "-pass",
                 "1",
-                "-stats",
+                "-v",
+                "quiet",
                 "-y",
+                "-stats",
+                output_path,
+            ],
+        )
+        subprocess.check_output(
+            [
+                "ffmpeg",
+                "-i",
+                self.path,
+                "-c:v",
+                "hevc_nvenc",
+                "-crf",
+                "18",
+                "-qp",
+                "22",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "128k",
+                "-pass",
+                "2",
+                "-v",
+                "quiet",
+                "-y",
+                "-stats",
                 output_path,
             ],
         )
@@ -281,3 +310,29 @@ class Video(File):
         return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimensions}, info={self.info}".format(
             **vars(self)
         )
+
+
+class FFMpegManager:
+    def __init__(self, movie: Video) -> None:
+        self.file = movie
+
+    def __enter__(self) -> None:
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+        if exc_type is not None:
+            try:
+                os.remove(self.file.path)
+            except OSError:
+                pass
+            return True
+        else:
+            return False
+
+
+if __name__ == "__main__":
+    from . import Dir
+
+    videos = Dir("/mnt/ssd/OBS/muru/PUBG/_PLAYERUNKNOWN'S BATTLEGROUNDS/").videos[:-2]
+    for vid in videos:
+        compressed = vid.compress()

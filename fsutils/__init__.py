@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from .DirNode import Dir as Dir
-from .ffprobe import FFProbe as FFProbe
+from .FFProbe import (FFProbe as FFProbe, FFStream as FFStream)
 from .GenericFile import File as File
 from .GitObject import Git as Git
 from .ImageFile import Img as Img

@@ -4,3 +4,6 @@ class FFProbeError(Exception):
 
 class DurationError(Exception):
     pass
+
+class CorruptMediaError(Exception):
+    pass
