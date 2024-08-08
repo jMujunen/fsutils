@@ -136,9 +136,14 @@ class Video(File):
         except KeyboardInterrupt:
             sys.exit(0)
 
+    @property
     def ffprobe(self) -> FFStream:
-        """Return FFProbe data."""
         return [stream for stream in FFProbe(self.path).streams if stream.is_video()][0]
+
+    @property
+    def fps(self) -> int | None:
+        """Return the frames per second of the video."""
+        return self.ffprobe.frame_rate()
 
     def render(self) -> None:
         """Render the video using in the shell using kitty protocols."""
@@ -153,16 +158,15 @@ class Video(File):
             except Exception as e:
                 print(f"Error: {e}")
 
-    def make_gif(self, scale=500, fps=24, output="./output.gif") -> Img:
-        # TODO : Return out output gif as an object
-        # [ ] Add support for more options like duration of gif and color palette.
+    def make_gif(self, scale=320, fps=24, output="./output.gif") -> Img:
         """Convert the video to a gif using FFMPEG.
 
         Parameters:
         -----------
-            `scale` : int, optional (default is 500)
-            `fps`   : int, optional (default is 10)
-            `output_path` : str, optional (default is "./output.gif")
+            - `scale` : int, optional (default is 500)
+            - `fps`   : int, optional (default is 10)
+            - `output_path` : str, optional (default is "./output.gif")
+            - `bitrate` : int, optional (default is 3MB)
 
             Breakdown:
             * `FPS` : Deault is 24 but the for smaller file sizes, try 6-10
@@ -170,6 +174,7 @@ class Video(File):
                 - 500-1000 = high quality but larger file size.
                 - 100-500   = medium quality and smaller file size.
                 - 10-100    = low quality and smaller file size.
+            * `bitrate` : the bit rate of the video, in mb/s (100mb/s = 1080p | 10mb/s = 480p)
 
             * The default `fps | scale` of `24 | 500` means a decent quality gif.
         Returns:
@@ -179,18 +184,27 @@ class Video(File):
         output = os.path.join(self.dir_name, output) or os.path.join(
             self.dir_name, self.basename[:-4] + ".gif"
         )
+        w = scale
+        h = round(scale * 0.5625)
+        scale = f"{w}x{h}"
         subprocess.check_output(
             [
                 "ffmpeg",
                 "-i",
                 f"{self.path}",
-                "-vf",
-                f"scale=-1:{str(scale)}:flags=lanczos",
+                # f"scale=-1:{str(scale)}:flags=lanczos",
                 "-r",
                 f"{str(fps)}",
+                "-vf",
+                '"framerate=12"',
+                "-s",
+                scale,
+                "-pix_fmt",
+                "rgb24",
+                "-y",
                 f"{output}",
-                "-loglevel",
-                "quiet",
+                "-v",
+                "error",
             ]
         )
         return Img(output)
@@ -206,6 +220,7 @@ class Video(File):
 
         Returns:
         --------
+        Returns:
             int : subprocess return code
         """
 
@@ -215,11 +230,12 @@ class Video(File):
         )
 
     def compress(self, **kwargs: Any) -> "Video":
-        """Compress video using x266 codec with crf 18.
+        """Compress video using x265 codec with crf 18.
 
         Keyword Arguments:
         ----------------
             - `output` : Save compressed video to this path
+            `output` : Save compressed video to this path
 
         Examples
         --------
@@ -238,39 +254,19 @@ class Video(File):
                 "-c:v",
                 "hevc_nvenc",
                 "-crf",
-                "18",
+                "28",
                 "-qp",
-                "22",
+                "32",
+                "-rc",
+                "constqp",
+                "-preset",
+                "slow",
+                "-tune",
+                "hq",
                 "-c:a",
                 "aac",
                 "-b:a",
                 "128k",
-                "-pass",
-                "1",
-                "-v",
-                "quiet",
-                "-y",
-                "-stats",
-                output_path,
-            ],
-        )
-        subprocess.check_output(
-            [
-                "ffmpeg",
-                "-i",
-                self.path,
-                "-c:v",
-                "hevc_nvenc",
-                "-crf",
-                "18",
-                "-qp",
-                "22",
-                "-c:a",
-                "aac",
-                "-b:a",
-                "128k",
-                "-pass",
-                "2",
                 "-v",
                 "quiet",
                 "-y",

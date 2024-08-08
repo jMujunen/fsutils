@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from .DirNode import Dir as Dir
-from .FFProbe import (FFProbe as FFProbe, FFStream as FFStream)
+from .FFProbe import FFProbe, FFStream
 from .GenericFile import File as File
 from .GitObject import Git as Git
 from .ImageFile import Img as Img
@@ -18,4 +18,6 @@ all = [
     "FFProbe",
     "Dir",
     "Git",
+    "FFProbe",
+    "FFStream",
 ]

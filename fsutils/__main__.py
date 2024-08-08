@@ -167,9 +167,10 @@ def video_parser(arguments: argparse.Namespace) -> int:
             Duration: {video.duration}
             Bitrate: {video.bitrate_human}
             Size: {video.size_human}
-            Frame rate: {video.ffprobe().frame_rate()}
-            Aspect ratio: {video.ffprobe().aspect_ratio()}
+            Frame rate: {video.ffprobe.frame_rate()}
+            Aspect ratio: {video.ffprobe.aspect_ratio()}
             Capture date: {video.capture_date}
+
         """
 
     specs = {
@@ -180,7 +181,7 @@ def video_parser(arguments: argparse.Namespace) -> int:
         "size": lambda v: v.size,
         "capture_date": lambda v: v.capture_date,
         "info": lambda v: v.info,
-        "fps": lambda v: v.ffprobe().frame_rate(),
+        "fps": lambda v: v.ffprobe.frame_rate(),
         "all": lambda v: video_info_all(v),
     }
     if arguments.video_command == "makegif" and isinstance(arguments.file, str):

@@ -14,6 +14,8 @@ from size import Converter
 
 from .GenericFile import File
 
+ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
+
 
 class Img(File):
     """A class representing information about an image
@@ -291,12 +293,17 @@ class Img(File):
         resized = self.resize()
         with Image.open(resized.path) as img:
             try:
+                if self.extension == ".png":
+                    # change the extension to JPEG
+                    img = img.convert("RGB")
                 buffered = BytesIO()
-                img.save(buffered, format="JPEG")
+                img.save(buffered, format=ENCODE_SPEC.get(self.extension, "JPEG"))
                 img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 os.remove(resized.path)
             except OSError as e:
-                print("OSError  while converting to base64:")
+                print(
+                    f"OSError  while converting to base64: {self.extension}: spec=({ENCODE_SPEC.get(self.extension)})"
+                )
                 return str(e)
         return img_str
 
