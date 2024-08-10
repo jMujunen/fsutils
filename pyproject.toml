@@ -27,18 +27,19 @@ pytest = "^8.3.2"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.pyright]
-include = ["fsutils/**"]
-exclude = ["**/dist",
-    "**/__pycache__",
-    "**/tests",
-    "**/.git",
-    "**/.vscode"
-]
+# [tool.pyright]
+# include = ["fsutils/**"]
+# exclude = ["**/dist",
+#     "**/__pycache__",
+#     "**/tests",
+#     "**/.git",
+#     "**/.vscode"
+# ]
 
-reportMissingImports = true
-reportMissingTypeStubs = false
-reportIncompatibleMethodOverride = false
+# reportMissingImports = true
+# reportMissingTypeStubs = false
+# reportIncompatibleMethodOverride = false
+# reportOptionalMemberAccess = false
 
 pythonVersion = "3.12"
 pythonPlatform = "Linux"

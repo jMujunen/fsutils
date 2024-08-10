@@ -11,6 +11,7 @@ from typing import Any
 import cv2
 from size import Converter
 
+from .exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
 from .ImageFile import Img
@@ -137,8 +138,16 @@ class Video(File):
             sys.exit(0)
 
     @property
-    def ffprobe(self) -> FFStream:
-        return [stream for stream in FFProbe(self.path).streams if stream.is_video()][0]
+    def ffprobe(self) -> FFStream | None:
+        try:
+            return [stream for stream in FFProbe(self.path).streams if stream.is_video()][0]
+        except IndexError:
+            if self.is_corrupt:
+                raise CorruptMediaError(f"{self.path} is corrupt.") from IndexError
+            else:
+                raise FFProbeError(
+                    f"FFprobe did not find any video streams for {self.path}."
+                ) from IndexError
 
     @property
     def fps(self) -> int | None:
@@ -254,9 +263,9 @@ class Video(File):
                 "-c:v",
                 "hevc_nvenc",
                 "-crf",
-                "28",
+                "16",
                 "-qp",
-                "32",
+                "24",
                 "-rc",
                 "constqp",
                 "-preset",
