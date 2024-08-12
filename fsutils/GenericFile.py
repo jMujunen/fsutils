@@ -66,6 +66,8 @@ class File:
         self.path = os.path.abspath(os.path.expanduser(path))
         self._exsits = self.exists
         # self._content = []
+        # print(f"{self.__class__.__name__}(exists={self.exists}, basename={self.basename})")
+        # print(self.__doc__)
 
     def head(self, n: int = 5) -> list[str]:
         """Return the first n lines of the file"""
@@ -278,3 +280,7 @@ class File:
 
     def __str__(self) -> str:
         return "\n".join(self.content)
+
+    # def __getattribute__(self, name: str, /) -> Any:
+    # """Get an attribute of the File Object"""
+    # return self.__dict__.get(name, None)

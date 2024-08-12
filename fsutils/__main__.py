@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os
 
 from .VideoFile import Video
 
@@ -99,18 +100,22 @@ def parse_args():
         "compress",
         help="Compress a video file",
     )
-    video_compress_parser.add_argument("file", type=str, help="Input Video File")
+    video_compress_parser.add_argument(
+        "file",
+        nargs="+",
+        help="File(s) to compress",
+    )
     video_compress_parser.add_argument(
         "-o ",
         "--output",
-        type=str,
-        help="Save to this path",
+        help="Save to this folder",
     )
     video_compress_parser.add_argument(
         "-c",
         "--clean",
-        type=str,
         help="Remove the old file after sucessfull compression",
+        action="store_true",
+        default=False,
     )
     # |=========== Image Parser ==============|
     img_parser = subparsers.add_parser("img", help="Image related operations")
@@ -155,7 +160,7 @@ def video_parser(arguments: argparse.Namespace) -> int:
     --------------
     >>> fstuils video makegif input_video.mp4 --scale 750 --fps 15 -o output_video.gif
         fstuils video info video1.mp4 video2.mp4 --codec --dimensions --duration
-        fstuils video compress video.mp4 -o compressed_video.mp4 --clean old_video.mp4
+        fstuils video compress video.mp4 --output /path/to/folder
     """
 
     def video_info_all(video: Video) -> str:
@@ -205,14 +210,19 @@ def video_parser(arguments: argparse.Namespace) -> int:
         return 0
 
     elif arguments.video_command == "compress":
-        output_path = arguments.output or f"{arguments.file}_compressed.mp4"
-        try:
-            compressed = Video(arguments.file).compress(output=output_path)
-            print(video_info_all(compressed))
-            return 0
-        except Exception as e:
-            print(e)
-            return 1
+        files = arguments.file
+        if isinstance(arguments.file, str):
+            files = [arguments.file]
+        video_objects = [Video(i) for i in files]
+        output_folder = arguments.output or os.path.dirname(files[0])
+        for vid in video_objects:
+            try:
+                result = vid.compress(output=os.path.join(output_folder, f"_{vid.basename}"))
+                print(video_info_all(result))
+            except Exception as e:
+                print(e)
+                continue
+        return 0
     return 0
 
 

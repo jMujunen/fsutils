@@ -76,12 +76,12 @@ class Dir(File):
         ]
 
     @property
-    def content(self) -> list[Any] | None:
+    def content(self) -> list[str]:
         """List the the contents of the toplevel directory."""
         try:
             return os.listdir(self.path)
         except NotADirectoryError:
-            pass
+            return []
 
     @property
     def rel_directories(self) -> list[str]:
@@ -98,7 +98,7 @@ class Dir(File):
     def file_info(self, file_name: str) -> File | None:
         """Query the object for files with the given name.
 
-        Returns Information about the specified file if found"""
+        Return an instance of the appropriate sub0class of File if a matching file is found."""
         try:
             try:
                 if file_name in os.listdir(self.path):
