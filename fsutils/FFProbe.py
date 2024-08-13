@@ -200,7 +200,7 @@ class FFStream:
                 try:
                     size = (int(width), int(height))
                 except ValueError:
-                    raise FFProbeError(f"None integer size {width}:{height}")
+                    raise FFProbeError(f"None integer size {width}:{height}") from ValueError
         else:
             return None
 
@@ -222,7 +222,7 @@ class FFStream:
                 try:
                     frame_count = int(self.__dict__.get("nb_frames", ""))
                 except ValueError:
-                    raise FFProbeError("None integer frame count")
+                    raise FFProbeError("None integer frame count") from ValueError
             else:
                 # When N/A is returned, set frame_count to 0 too
                 frame_count = 0
@@ -240,7 +240,7 @@ class FFStream:
             try:
                 duration = float(self.__dict__.get("duration", ""))
             except ValueError:
-                raise FFProbeError("None numeric duration")
+                raise FFProbeError("None numeric duration") from ValueError
         else:
             duration = 0.0
 
@@ -277,14 +277,14 @@ class FFStream:
         try:
             return int(self.__dict__.get("bit_rate", ""))
         except ValueError:
-            raise FFProbeError("None integer bit_rate")
+            raise FFProbeError("None integer bit_rate") from ValueError
 
     def frame_rate(self) -> int | None:
         """Returns the frames per second as an integer"""
         try:
             return int(self.__dict__.get("r_frame_rate", "").split("/")[0])
         except ValueError:
-            raise FFProbeError("None numeric frame rate")
+            raise FFProbeError("None numeric frame rate") from ValueError
 
     def aspect_ratio(self) -> str | None:
         """Returns the stream's display aspect ratio."""

@@ -312,7 +312,7 @@ class Video(File):
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
-        return f"{self.__class__.__name__}(size={self.size}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimensions}, info={self.info}".format(
+        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate_human}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimensions}".format(
             **vars(self)
         )
 
