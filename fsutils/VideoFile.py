@@ -200,18 +200,18 @@ class Video(File):
             [
                 "ffmpeg",
                 "-i",
-                f"{self.path}",
+                self.path,
                 # f"scale=-1:{str(scale)}:flags=lanczos",
                 "-r",
-                f"{str(fps)}",
+                str(fps),
                 "-vf",
-                '"framerate=12"',
+                "framerate=12",
                 "-s",
                 scale,
                 "-pix_fmt",
                 "rgb24",
                 "-y",
-                f"{output}",
+                output,
                 "-v",
                 "error",
             ]
@@ -253,8 +253,9 @@ class Video(File):
 
         output_path = os.path.join(self.dir_name, f"_{self.basename}")
         output_path = kwargs.get("output", output_path)
-        # if os.path.exists(output_path):
-        #     raise FileExistsError(f"File {output_path} already exists.")
+        # if os.path.exists(output_path) or self.is_corrupt:
+        #     print(f"File {output_path} already exists.")
+        #     return None
         subprocess.check_output(
             [
                 "ffmpeg",
