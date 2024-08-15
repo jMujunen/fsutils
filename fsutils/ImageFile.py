@@ -190,7 +190,7 @@ class Img(File):
         file_path: str | None = None,
     ) -> "Img":
         """Resize the image to specified width and height"""
-        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename.strip("resized_")}")
+        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename}")
         if file_path is not None:
             saved_image_path = file_path
         if (
@@ -209,12 +209,12 @@ class Img(File):
 
     def compress(
         self,
-        new_size_ratio: int = 1,
+        new_size_ratio: float | int = 1.0,
         quality: int = 90,
         width: int | None = None,
         height: int | None = None,
         to_jpg=False,
-    ):
+    ) -> "Img":
         """Compresses an image.
 
         Paramaters:
@@ -227,8 +227,7 @@ class Img(File):
 
         Returns
         -------
-            `str` : The path to the compressed image file if successful, else an error message
-            if an error occurred during saving the compressed image file to disk
+            - `Img`: A new instance of the Img class with the compressed image path and dimensions
 
         Raises
         ------
@@ -273,7 +272,7 @@ class Img(File):
                 # save the image with the corresponding quality and optimize set to True
                 img.save(new_file_path, quality=quality, optimize=True)
             except OSError as e:
-                return f"Error while saving the compressed image.\n{e}"
+                print(f"Error while saving the compressed image.\n{e}")
 
             # get the new image size in bytes
             new_image_size = os.path.getsize(new_file_path)
@@ -287,6 +286,7 @@ class Img(File):
                 saving_diff / self.size * 100:.2f
             }% of the original image size.")
             print(f"{"=" * 60}")
+            return self.__class__(new_file_path)
 
     def encode(self) -> str:
         """Base64 encode the image for LLM prococessing."""

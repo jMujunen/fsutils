@@ -5,7 +5,6 @@ import os
 import re
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import Any
 
 from size import Converter
 
