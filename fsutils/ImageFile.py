@@ -75,7 +75,7 @@ class Img(File):
             if file.is_corrupt:
                 print(f"\033[1;31m{self.path} is corrupt\033[0m", end=f"{" " * 80}\r", flush=True)
 
-            print(f"Error calculating hash: {e}")
+            print(f"Error calculating hash: {e!r}")
 
     @property
     def dimensions(self) -> tuple[int, int]:
@@ -119,7 +119,7 @@ class Img(File):
                     self._tags.append(tag)
                 yield tag
             except Exception as e:
-                print(f"Error extracting tag {tag_id}: {e}")
+                print(f"Error extracting tag {tag_id}: {e!r}")
                 continue
 
     @property
@@ -156,16 +156,29 @@ class Img(File):
         date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
         return datetime.fromisoformat(date_str)
 
-    def render(self, render_size=320) -> int:
-        """Render the image in the terminal using kitty terminal"""
+    def render(self, render_size=320, title=True) -> int:
+        """Render the image in the terminal using kitty graphics protocol
+
+        Paramaters:
+        ------------
+        `render_size` int : The size of the image to render in terminal
+
+        `title` : bool : If True, display the name with the image
+        """
         try:
+            if title:
+                pos = round(
+                    (render_size / 10) - (render_size % 360 / 10)
+                )  # Vain attempt to center the title
+                print(f"\033[1m{self.basename.center(pos)}\033[0m")
             return subprocess.run(
                 f'kitten icat --use-window-size 100,100,{render_size},100 "{self.path}"',
                 shell=True,
                 check=False,
             ).returncode
+
         except Exception as e:
-            print(f"An error occurred while rendering the image:\n{e!s}")
+            print(f"An error occurred while rendering the image:\n{e!r}")
             return 1
 
     def open(self) -> int:
@@ -178,9 +191,9 @@ class Img(File):
             print(e)
         return 1
 
-    def save(self, path: str) -> "Img":
+    def save(self, path: str):
         """Save the image to a specified location"""
-        return self
+        raise NotImplementedError(self.__class__.__name__ + ".save() is not yet implemented.")
 
     def resize(
         self,
@@ -272,7 +285,7 @@ class Img(File):
                 # save the image with the corresponding quality and optimize set to True
                 img.save(new_file_path, quality=quality, optimize=True)
             except OSError as e:
-                print(f"Error while saving the compressed image.\n{e}")
+                print(f"Error while saving the compressed image.\n{e!r}")
 
             # get the new image size in bytes
             new_image_size = os.path.getsize(new_file_path)
@@ -333,7 +346,7 @@ class Img(File):
             return False
         # If any other exception is raised, we didnt account for something so print the error
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error: {e!r}")
             return False
 
     def __eq__(self, other) -> bool:
