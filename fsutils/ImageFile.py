@@ -157,6 +157,37 @@ class Img(File):
         date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
         return datetime.fromisoformat(date_str)
 
+    @property
+    def is_corrupt(self) -> bool:
+        """Check if the image is corrupt."""
+        # If the file is a HEIC image, it cannot be verified
+        if self.extension == ".heic":
+            return False  # Placeholder TODO
+
+        try:
+            # Verify integrity of the image
+            with Image.open(self.path) as f:
+                f.verify()
+            return False
+        # If an IOError or SyntaxError is raised, the image is corrupt
+        except (OSError, SyntaxError):
+            return True
+        except KeyboardInterrupt:
+            return False
+        # If any other exception is raised, we didn't account for something so print the error
+        except Exception as e:
+            print(f"Error: {e!r}")
+            return False
+
+    @staticmethod
+    def show(path: str) -> int:
+        """`HACK`: Mirror of render()"""
+        return subprocess.run(
+            f'kitten icat --use-window-size 100,100,320,100 "{path}"',
+            shell=True,
+            check=False,
+        ).returncode
+
     def render(self, render_size=320, title=True) -> int:
         """Render the image in the terminal using kitty graphics protocol
 
@@ -328,39 +359,6 @@ class Img(File):
         cv2.imwrite(output, gray_img)
         return Img(output)
 
-    def _read_chunk(self, size=8192) -> bytes:
-        """Read a chunk of the file and return it as bytes."""
-        with open(self.path, "rb") as f:
-            return f.read(size)
-
-    @property
-    def md5_checksum(self, size=8192) -> str:
-        """Return the MD5 checksum of a portion of the image file."""
-        data = self._read_chunk(size)
-        return hashlib.md5(data).hexdigest()
-
-    @property
-    def is_corrupt(self) -> bool:
-        """Check if the image is corrupt."""
-        # If the file is a HEIC image, it cannot be verified
-        if self.extension == ".heic":
-            return False  # Placeholder TODO
-
-        try:
-            # Verify integrity of the image
-            with Image.open(self.path) as f:
-                f.verify()
-            return False
-        # If an IOError or SyntaxError is raised, the image is corrupt
-        except (OSError, SyntaxError):
-            return True
-        except KeyboardInterrupt:
-            return False
-        # If any other exception is raised, we didnt account for something so print the error
-        except Exception as e:
-            print(f"Error: {e!r}")
-            return False
-
     # def __eq__(self, other) -> bool:
     #     if not isinstance(other, self.__class__):
     #         return False
@@ -369,6 +367,7 @@ class Img(File):
     #         if super().__eq__(other) or self.calculate_hash() == other.calculate_hash()
     #         else False
     #     )
+
     def __eq__(self, other: "Img", /) -> bool:
         return super().__eq__(other)
 

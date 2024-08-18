@@ -1,5 +1,6 @@
 """Base class and building block for all other classes defined in this library"""
 
+import hashlib
 import os
 import re
 import shutil
@@ -174,6 +175,17 @@ class File:
             else self._content
         )
 
+    def _read_chunk(self, size=8192) -> bytes:
+        """Read a chunk of the file and return it as bytes."""
+        with open(self.path, "rb") as f:
+            return f.read(size)
+
+    @property
+    def md5_checksum(self, size=8192) -> str:
+        """Return the MD5 checksum of a portion of the image file."""
+        data = self._read_chunk(size)
+        return hashlib.md5(data).hexdigest()
+
     @property
     def is_file(self) -> bool:
         """Check if the object is a file"""
@@ -234,7 +246,10 @@ class File:
     #     return self._content
 
     def __hash__(self) -> int:
-        return hash(("\n".join(self.content), self.size))
+        try:
+            return hash(("\n".join(self.content), self.size))
+        except TypeError:
+            return hash((self.md5_checksum, self.size))
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""
@@ -283,12 +298,7 @@ class File:
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
 
         """
-
-        if all((os.path.exists(other.path), os.path.exists(self.path))) and hash(self) == hash(
-            other
-        ):
-            return True
-        return False
+        return all((other.exists, self.exists, hash(self) == hash(other)))
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
