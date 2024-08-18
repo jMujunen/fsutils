@@ -194,32 +194,44 @@ class Dir(File):
         """Detect duplicate files in a directory and its subdirectories"""
         pass
 
-    def sort(self, spec="mtime", reversed=True) -> None:
+    def sort(self, specifier, reversed=True) -> None:
         """Sort the files and directories by the specifying attribute."""
         specs = {
-            "mtime": lambda: file_stats.st_mtime,
-            "ctime": lambda: file_stats.st_ctime,
-            "atime": lambda: file_stats.st_atime,
-            "size": lambda: int(Converter(file_stats.st_size)),
-            "name": lambda: print(self.basename),
-            "ext": lambda: print(self.extension),
+            "mtime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_mtime).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
+            "ctime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_ctime).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
+            "atime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_atime).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
+            "size": lambda x: x.size,
+            "name": lambda x: x.basename,
+            "ext": lambda x: x.extension,
         }
-        files = []
-        for item in self:
-            if item.is_file and spec in list(specs.keys())[:4]:
-                file_stats = os.stat(item.path)
-                result = datetime.datetime.fromtimestamp(specs[spec]()).strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                files.append((item.path, result))
-            else:  # item.is_file and spec in ["ext", "name"]:
-                result = specs[spec]()
-        files.sort(key=lambda x: x[1])
-        files.reverse()
+        # sorted_files = sorted(
+        #     self.file_objects, key=lambda x: specs.get(spec, "mtime")(x), reverse=reversed
+        # )
+
+        _fmt = []
+        for file in self.file_objects:
+            _fmt.append((specs.get(specifier, "mtime")(file), file.path))
+
+        result = sorted(_fmt, key=lambda x: x[0], reverse=reversed)
+
         # Print the table
-        print(("{:<20}{:<40}").format(spec, "File"))
-        for filepath, s in files:
-            print(("{:<20}{:<40}").format(s, filepath.replace(self.path, "")))
+        format_string = "{:<60}{:<40}"
+        print(format_string.format(specifier, "File"))
+        for f in result:
+            print(format_string.format(*f))
+
+            # files.sort(key=lambda x: x[1])
+            # files.reverse()
+            # # Print the table
+            # print(("{:<20}{:<40}").format(spec, "File"))
+            # for filepath, s in files:
+            #     print(("{:<20}{:<40}").format(s, filepath.replace(self.path, "")))
 
     def __contains__(self, item: File) -> bool:
         """Compare items in two DirectoryObjects"""
