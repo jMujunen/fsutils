@@ -233,6 +233,9 @@ class File:
     #     self._content = "".split(re.sub(r"\r\n$|\r$", "\n", "".join(self.content)))
     #     return self._content
 
+    def __hash__(self) -> int:
+        return hash(("\n".join(self.content), self.size))
+
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""
         if self.content is not None:
@@ -261,17 +264,31 @@ class File:
             item in word for word in item.split(" ") for line in self
         )
 
-    def __eq__(self, other: object) -> bool:
+    # def __eq__(self, other: object) -> bool:
+    #     """Compare two FileObjectsfor
+
+    #     Paramaters:
+    #     ----------
+    #         other (Object): The Object to compare (FileObject, VideoObject, etc.)
+    #     """
+    #     if not isinstance(other, self.__class__ | File):
+    #         return False
+    #     self._content = self.read()
+    #     return self._content == other.content
+    def __eq__(self, other: "File", /) -> bool:
         """Compare two FileObjects
 
         Paramaters:
-        ----------
+        -----------
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
+
         """
-        if not isinstance(other, self.__class__ | File):
-            return False
-        self._content = self.read()
-        return self._content == other.content
+
+        if all((os.path.exists(other.path), os.path.exists(self.path))) and hash(self) == hash(
+            other
+        ):
+            return True
+        return False
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
@@ -279,7 +296,10 @@ class File:
         )
 
     def __str__(self) -> str:
-        return "\n".join(self.content)
+        try:
+            return "\n".join(self.content)
+        except TypeError:
+            return self.__repr__()
 
     # def __getattribute__(self, name: str, /) -> Any:
     # """Get an attribute of the File Object"""

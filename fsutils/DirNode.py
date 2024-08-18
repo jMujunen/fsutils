@@ -4,7 +4,7 @@ import datetime
 import os
 import re
 from collections import defaultdict
-from collections.abc import Generator, Iterator
+from collections.abc import Iterator
 
 from size import Converter
 
@@ -57,7 +57,7 @@ class Dir(File):
         return [f.basename for f in self if not os.path.isdir(f.path)]
 
     @property
-    def file_objects(self) -> Generator:  # list[File | Exe | Log | Img | Video | Git]:
+    def file_objects(self) -> list[File | Exe | Log | Img | Video | Git]:
         """Return a list of objects contained in the directory.
 
         This property iterates over all items in the directory and filters out those that are instances
@@ -67,15 +67,12 @@ class Dir(File):
         -------
             List[Union[File, Exe, Log, Img, Video, Git]]: A list of file objects.
         """
-        _gen = self.__iter__()
-        for _obj in _gen:
-            yield _obj if not os.path.isdir(_obj.path) else next(_gen)
-        # return [
-        #     item
-        #     for item in self
-        #     if isinstance(item, File | Exe | Log | Img | Video | Git)
-        #     and not os.path.isdir(item.path)
-        # ]
+        return [
+            item
+            for item in self
+            if isinstance(item, File | Exe | Log | Img | Video | Git)
+            and not os.path.isdir(item.path)
+        ]
 
     @property
     def content(self) -> list[str]:
@@ -91,13 +88,11 @@ class Dir(File):
         return [f".{folder.path.replace(self.path, "")}" for folder in self.dirs]
 
     @property
-    def objects(self) -> Generator:  # [list[File | Exe | Log | Img | Video | Git]:
+    def objects(self) -> list[File | Exe | Log | Img | Video | Git]:
         """Return a list of fsutil objects inside self"""
-        raise DeprecationWarning("Deprecated! Iterate through the object directly method instead.")
         if not self._objects:
-            self._objects.append = list(self.__iter__())
-        # self._objects = list(self.__iter__())
-        # yield
+            self._objects = list(self.__iter__())
+        return self._objects
 
     def file_info(self, file_name: str) -> File | None:
         """Query the object for files with the given name.
@@ -134,25 +129,19 @@ class Dir(File):
         return len(self.files) == 0
 
     @property
-    def images(self) -> Generator:  # list[Img]:
+    def images(self) -> list[Img]:
         """Return a list of ImageObject instances found in the directory.
 
         Returns:
         --------
             List[ImageObject]: A list of ImageObject instances
         """
-        _gen = self.__iter__()
-        for item in _gen:
-            yield item if item.is_image else next(_gen)
-        # return [item for item in self if isinstance(item, Img)]
+        return [item for item in self if isinstance(item, Img)]
 
     @property
-    def videos(self) -> Generator:  # list[Video]:
+    def videos(self) -> list[Video]:
         """Return a list of VideoObject instances found in the directory."""
-        _gen = self.__iter__()
-        for item in _gen:
-            yield item if item.is_image else next(_gen)
-        # return [item for item in self if isinstance(item, Video)]
+        return [item for item in self if isinstance(item, Video)]
 
     @property
     def dirs(self) -> list[File]:

@@ -1,5 +1,6 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
+import hashlib
 import json
 import os
 import subprocess
@@ -259,12 +260,14 @@ class Video(File):
         subprocess.check_output(
             [
                 "ffmpeg",
+                "-hwaccel",
+                "cuda",
                 "-i",
                 self.path,
                 "-c:v",
                 "hevc_nvenc",
                 "-crf",
-                "16",
+                "18",
                 "-qp",
                 "24",
                 "-rc",
@@ -306,6 +309,12 @@ class Video(File):
             shell=True,
         )
 
+    @property
+    def md5_checksum(self) -> str:
+        """Return the MD5 checksum of the video file."""
+        with open(self.path, "rb") as f:
+            return hashlib.md5(f.read()).hexdigest()
+
     # NOTE:  Untested
     def extract_frames(self, output_path: str | None = None) -> int:
         # [ ] - WIP
@@ -316,6 +325,9 @@ class Video(File):
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate_human}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimensions}".format(
             **vars(self)
         )
+
+    def __hash__(self) -> int:
+        return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum))
 
 
 class FFMpegManager:

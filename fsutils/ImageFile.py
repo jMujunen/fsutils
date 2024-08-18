@@ -1,6 +1,7 @@
 """Represents an image."""
 
 import base64
+import hashlib
 import os
 import subprocess
 from datetime import datetime
@@ -327,6 +328,17 @@ class Img(File):
         cv2.imwrite(output, gray_img)
         return Img(output)
 
+    def _read_chunk(self, size=8192) -> bytes:
+        """Read a chunk of the file and return it as bytes."""
+        with open(self.path, "rb") as f:
+            return f.read(size)
+
+    @property
+    def md5_checksum(self, size=8192) -> str:
+        """Return the MD5 checksum of a portion of the image file."""
+        data = self._read_chunk(size)
+        return hashlib.md5(data).hexdigest()
+
     @property
     def is_corrupt(self) -> bool:
         """Check if the image is corrupt."""
@@ -349,14 +361,19 @@ class Img(File):
             print(f"Error: {e!r}")
             return False
 
-    def __eq__(self, other) -> bool:
-        if not isinstance(other, self.__class__):
-            return False
-        return (
-            True
-            if super().__eq__(other) or self.calculate_hash() == other.calculate_hash()
-            else False
-        )
+    # def __eq__(self, other) -> bool:
+    #     if not isinstance(other, self.__class__):
+    #         return False
+    #     return (
+    #         True
+    #         if super().__eq__(other) or self.calculate_hash() == other.calculate_hash()
+    #         else False
+    #     )
+    def __eq__(self, other: "Img", /) -> bool:
+        return super().__eq__(other)
+
+    def __hash__(self) -> int:
+        return hash((self.md5_checksum, self.dimensions, self.size))
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
