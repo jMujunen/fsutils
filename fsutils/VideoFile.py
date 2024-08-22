@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Any
 
 import cv2
+from rich.console import Console
+from rich.table import Table
 from size import Converter
 
 from .exceptions import CorruptMediaError, FFProbeError
@@ -19,25 +21,24 @@ from .ImageFile import Img
 
 
 class Video(File):
-    """
-    A class representing information about a video.
+    """A class representing information about a video.
 
-    Attributes:
-    ----------
+    | Method | Description |
+    | :---------------- | :-------------|
+    | `metadata()`     | Extract video metadata |
+    | `compress(output=./output.mp4)` | Compress the video using ffmpeg |
+    | `make_gif(scale, fps, output)` | Create a gif from the video |
+    | `extract_frames()` | Extract frames from the video |
+    | `render()`       | Render the video using ffmpeg |
+    | `trim()`         | Trim the video using ffmpeg |
+
+    ---------------
+    ### Attributes:
         - `path (str):` The absolute path to the file.
-
-    Methods:
-    ----------
-        - `metadata()` : Extract video metadata
-        - `compress(output=./output.mp4)` : Compress the video using ffmpeg
-        - `make_gif(scale, fps, output)` : Create a gif from the video
-        - `extract_frames()` : Extract frames from the video
-        - `render()` : Render the video using ffmpeg
-        - `trim()` : Trim the video using ffmpeg
-
-    Properties:
+    -------------------
+    ### Properties:
     -----------
-        - `is_corrupt` : Check if the video is corrupt or not.
+        - `is_corrupt`
         - `duration`
         - `size`
         - `codec`
@@ -107,22 +108,14 @@ class Video(File):
         return datetime.fromisoformat(capture_date)
 
     @property
-    def info(self) -> FFStream | None:
-        if self._info is None:
-            for stream in FFProbe(self.path).streams:
-                if stream.is_video():
-                    self._info = stream
-        return self._info
-
-    @property
     def codec(self) -> str | None:
         """Codec eg `H264` | `H265`"""
-        return self.info.codec() if self.info else None
+        return self.ffprobe.codec()
 
     @property
     def dimensions(self) -> tuple[int, int] | None:
         """Return width and height of the video `(1920x1080)`."""
-        return self.info.frame_size() if self.info else None
+        return self.ffprobe.frame_size()
 
     @property
     def is_corrupt(self) -> bool:
@@ -155,6 +148,15 @@ class Video(File):
         """Return the frames per second of the video."""
         return self.ffprobe.frame_rate()
 
+    @property
+    def quality(self) -> float:
+        return round((self.bitrate / self.num_frames) / 1000, 1)
+
+    @property
+    def num_frames(self) -> int:
+        """Return the number of frames in the video."""
+        return int(self.ffprobe.__dict__.get("nb_frames", -1))
+
     def render(self) -> None:
         """Render the video using in the shell using kitty protocols."""
         if os.environ.get("TERM") == "xterm-kitty":
@@ -168,7 +170,7 @@ class Video(File):
             except Exception as e:
                 print(f"Error: {e}")
 
-    def make_gif(self, scale=320, fps=24, output="./output.gif") -> Img:
+    def make_gif(self, scale: str | int = 320, fps=24, output="./output.gif") -> Img:
         """Convert the video to a gif using FFMPEG.
 
         Parameters:
@@ -194,29 +196,41 @@ class Video(File):
         output = os.path.join(self.dir_name, output) or os.path.join(
             self.dir_name, self.basename[:-4] + ".gif"
         )
-        w = scale
-        h = round(scale * 0.5625)
-        scale = f"{w}x{h}"
+        # w = scale
+        # h = round(scale * 0.5625)
+        # scale = f"{w}x{h}"
+        # "-r",
+        # str(fps),
+        # "-s",
+        # scale,
         subprocess.check_output(
             [
                 "ffmpeg",
                 "-i",
                 self.path,
-                # f"scale=-1:{str(scale)}:flags=lanczos",
+                # "-vf",
+                # f"fps={fps},scale=-1:{str(scale)}:flags=lanczos",
+                "-c:v",
+                "gif",
                 "-r",
-                str(fps),
-                "-vf",
-                "framerate=12",
+                f"{fps}",
                 "-s",
-                scale,
+                f"{scale}",
+                "-c:v",
+                "gif",
+                "-r",
+                f"{fps}",
+                "-s",
+                f"{scale}",
                 "-pix_fmt",
-                "rgb24",
+                "rgb8",
                 "-y",
                 output,
                 "-v",
                 "error",
             ]
         )
+
         return Img(output)
 
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
@@ -252,8 +266,7 @@ class Video(File):
         >>> compress(output="~/Videos/compressed_video.mp4")
         """
 
-        output_path = os.path.join(self.dir_name, f"_{self.basename}")
-        output_path = kwargs.get("output", output_path)
+        output_path = kwargs.get("output") or os.path.join(self.dir_name, f"_{self.basename}")
         # if os.path.exists(output_path) or self.is_corrupt:
         #     print(f"File {output_path} already exists.")
         #     return None
@@ -262,24 +275,26 @@ class Video(File):
                 "ffmpeg",
                 "-hwaccel",
                 "cuda",
+                "-hwaccel_output_format",
+                "cuda",
                 "-i",
                 self.path,
                 "-c:v",
                 "hevc_nvenc",
                 "-crf",
-                "18",
+                "20",
                 "-qp",
                 "24",
                 "-rc",
                 "constqp",
                 "-preset",
-                "slow",
+                "medium",
                 "-tune",
                 "hq",
                 "-c:a",
-                "aac",
-                "-b:a",
-                "128k",
+                "copy",
+                # "-b:a",
+                # "128k",
                 "-v",
                 "quiet",
                 "-y",
@@ -322,12 +337,38 @@ class Video(File):
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
-        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, bitrate={self.bitrate_human}, duration={self.duration}, codec={self.codec}, capture_date={self.capture_date}, dimensions={self.dimensions}".format(
-            **vars(self)
-        )
+        return f"""{self.__class__.__name__}(
+        size={self.size_human},
+        path={self.path},
+        basename={self.basename},
+        extension={self.extension},
+        bitrate={self.bitrate_human},
+        duration={self.duration},
+        codec={self.codec},
+        capture_date={self.capture_date},
+        dimensions={self.dimensions}
+    )""".format(**vars(self))
 
     def __hash__(self) -> int:
         return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum))
+
+    def __format__(self, format_spec: str, /) -> str:
+        """Return a formatted string representation of the file."""
+        header = ""
+        if format_spec == "header":
+            header = (
+                "{:<70} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n".format(
+                    "Name",
+                    "Quality",
+                    "Bitrate",
+                    "Size",
+                    "Codec",
+                    "Duration",
+                    "FPS",
+                    "Dimensions",
+                )
+            )
+        return f"{header}{self.basename:<70} | {self.quality:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {str(self.dimensions):<10}"
 
 
 class FFMpegManager:

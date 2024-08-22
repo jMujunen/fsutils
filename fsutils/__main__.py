@@ -2,6 +2,8 @@
 import argparse
 import os
 
+from ThreadPoolHelper import Pool
+
 from .VideoFile import Video
 
 
@@ -33,7 +35,7 @@ def parse_args():
     )
     video_makegif_parser.add_argument(
         "--scale",
-        type=int,
+        # type=int | str,
         default=500,
         help="Scale factor for the gif - (100-1000 is usually good).",
     )
@@ -95,6 +97,11 @@ def parse_args():
         help="Display all information about a video",
         action="store_true",
     )
+    video_info.add_argument(
+        "--quality",
+        help="View the quality in terms of size relative to (bitrate/duration)",
+        action="store_true",
+    )
     # -------- Compression -----------
     video_compress_parser = video_subparsers.add_parser(
         "compress",
@@ -102,8 +109,8 @@ def parse_args():
     )
     video_compress_parser.add_argument(
         "file",
-        nargs="+",
         help="File(s) to compress",
+        type=str,
     )
     video_compress_parser.add_argument(
         "-o ",
@@ -163,32 +170,54 @@ def video_parser(arguments: argparse.Namespace) -> int:
         fstuils video compress video.mp4 --output /path/to/folder
     """
 
-    def video_info_all(video: Video) -> str:
-        return f"""
-            {video.basename}
-            ---------------
-            Codec: {video.codec}
-            Dimensions: {video.dimensions}
-            Duration: {video.duration}
-            Bitrate: {video.bitrate_human}
-            Size: {video.size_human}
-            Frame rate: {video.ffprobe.frame_rate()}
-            Aspect ratio: {video.ffprobe.aspect_ratio()}
-            Capture date: {video.capture_date}
+    def processes_vid(vid: Video, arg_dict: dict) -> str:
+        def video_info_all(video: Video) -> str:
+            return f"""
+                {video.basename}
+                ---------------
+                Codec: {video.codec}
+                Dimensions: {video.dimensions}
+                Duration: {video.duration}
+                Bitrate: {video.bitrate_human}
+                Size: {video.size_human}
+                Frame rate: {video.ffprobe.frame_rate()}
+                Aspect ratio: {video.ffprobe.aspect_ratio()}
+                Capture date: {video.capture_date}
+                Quality (Bigger = better): {video.quality}
+            """
 
-        """
+        def spec(s, vid):
+            match s:
+                case "codec":
+                    return vid.codec
+                case "dimensions":
+                    return vid.dimensions
+                case "duration":
+                    return vid.duration
+                case "bitrate":
+                    return vid.bitrate_human
+                case "size":
+                    return vid.size_human
+                case "fps":
+                    return vid.fps
+                case "compression_ratio":
+                    return vid.ratio
+                case "capture_date":
+                    return vid.capture_date
+                case "all":
+                    return video_info_all(vid)
+                case "quality":
+                    return vid.quality
+                case _:
+                    return
 
-    specs = {
-        "codec": lambda v: v.codec,
-        "dimensions": lambda v: v.dimensions,
-        "duration": lambda v: v.duration,
-        "bitrate": lambda v: v.bitrate,
-        "size": lambda v: v.size,
-        "capture_date": lambda v: v.capture_date,
-        "info": lambda v: v.info,
-        "fps": lambda v: v.ffprobe.frame_rate(),
-        "all": lambda v: video_info_all(v),
-    }
+        valid_args = (arg for arg, value in arg_dict if value)
+        for arg in valid_args:
+            result = spec(arg, vid)
+            if result is not None:
+                return result
+        return ""
+
     if arguments.video_command == "makegif" and isinstance(arguments.file, str):
         return (
             Video(arguments.file)
@@ -201,28 +230,21 @@ def video_parser(arguments: argparse.Namespace) -> int:
         if isinstance(arguments.file, str):
             files = [arguments.file]
         video_objects = [Video(i) for i in files]
-        for vid in video_objects:
-            # print(vid.basename)
-            # print("--------------------------")
-            for arg, value in arguments.__dict__.items():
-                if arg in specs.keys() and value:
-                    print(f"{arg}: {specs[arg](vid)}")
-        return 0
+        pool = Pool()
+        for r in pool.execute(processes_vid, video_objects, arguments.__dict__.items()):
+            if r:
+                print(r)
 
     elif arguments.video_command == "compress":
-        files = arguments.file
-        if isinstance(arguments.file, str):
-            files = [arguments.file]
-        video_objects = [Video(i) for i in files]
-        output_folder = arguments.output or os.path.dirname(files[0])
-        for vid in video_objects:
-            try:
-                result = vid.compress(output=os.path.join(output_folder, f"_{vid.basename}"))
-                print(video_info_all(result))
-            except Exception as e:
-                print(e)
-                continue
-        return 0
+        vid = Video(arguments.file)
+        # if isinstance(arguments.file, str):
+        # files = [arguments.file]
+        try:
+            result = vid.compress(output=arguments.output)
+            print(format(result, "header"))
+        except Exception as e:
+            print(f"{e!r}")
+            return 1
     return 0
 
 

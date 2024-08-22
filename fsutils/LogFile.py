@@ -68,7 +68,7 @@ class Log(File):
         if self.sanatized:
             return self.content
         num_lines = len(self)
-        sanatized_header = [col.strip() for col in self.columns]
+        [col.strip() for col in self.columns]
 
         HEADER_SANATIZER = re.compile(
             r"(GPU2.\w+\(.*\)|NaN|N\/A|Fan2|°|Â|\*|,,+|\s\[[^\s]+\]|\"|\+|\s\[..TDP\]|\s\[\]|\s\([^\s]\))"
