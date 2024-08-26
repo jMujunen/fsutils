@@ -1,7 +1,6 @@
 """Represents an image."""
 
 import base64
-import hashlib
 import os
 import subprocess
 from datetime import datetime
@@ -180,8 +179,14 @@ class Img(File):
             return False
 
     @staticmethod
-    def show(path: str) -> int:
+    def show(path: str, render_size=320, title=True) -> int:
         """`HACK`: Mirror of render()"""
+        if title:
+            title = f"{os.path.split(path)[-1]}"
+            pos = round(
+                (render_size / 10) - (render_size % 360 / 10)
+            )  # Vain attempt to center the title
+            print(f"\033[1m{title.center(pos)}\033[0m")
         return subprocess.run(
             f'kitten icat --use-window-size 100,100,320,100 "{path}"',
             shell=True,
@@ -189,20 +194,13 @@ class Img(File):
         ).returncode
 
     def render(self, render_size=320, title=True) -> int:
-        """Render the image in the terminal using kitty graphics protocol
-
-        Paramaters:
-        ------------
-        `render_size` int : The size of the image to render in terminal
-
-        `title` : bool : If True, display the name with the image
-        """
         try:
             if title:
+                title = f"{self.basename}\t{str(self.capture_date)}"
                 pos = round(
                     (render_size / 10) - (render_size % 360 / 10)
                 )  # Vain attempt to center the title
-                print(f"\033[1m{self.basename.center(pos)}\033[0m")
+                print(f"\033[1m{title.center(pos)}\033[0m")
             return subprocess.run(
                 f'kitten icat --use-window-size 100,100,{render_size},100 "{self.path}"',
                 shell=True,
@@ -358,15 +356,6 @@ class Img(File):
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         cv2.imwrite(output, gray_img)
         return Img(output)
-
-    # def __eq__(self, other) -> bool:
-    #     if not isinstance(other, self.__class__):
-    #         return False
-    #     return (
-    #         True
-    #         if super().__eq__(other) or self.calculate_hash() == other.calculate_hash()
-    #         else False
-    #     )
 
     def __eq__(self, other: "Img", /) -> bool:
         return super().__eq__(other)
