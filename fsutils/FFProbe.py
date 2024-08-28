@@ -279,7 +279,7 @@ class FFStream:
         except ValueError:
             raise FFProbeError("None integer bit_rate") from ValueError
 
-    def frame_rate(self) -> int | None:
+    def frame_rate(self) -> int:
         """Returns the frames per second as an integer"""
         try:
             return int(self.__dict__.get("r_frame_rate", "").split("/")[0])

@@ -91,6 +91,10 @@ class Log(File):
             df = self.to_df()
         return df.mean()
 
+    @property
+    def content(self) -> list[Any]:
+        return [line.strip() for line in super().content if line]
+
     def compare(self, other: "Log") -> None:
         """Compare the statistics of this log file with another.
 

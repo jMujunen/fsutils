@@ -3,6 +3,7 @@
 import base64
 import os
 import subprocess
+from collections.abc import Callable
 from datetime import datetime
 from io import BytesIO
 
@@ -44,7 +45,7 @@ class Img(File):
         self._tags = []
         super().__init__(path)
 
-    def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash | None:
+    def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash:
         """Calculate the hash value of the image
 
         Paramters:
@@ -57,25 +58,29 @@ class Img(File):
             None (None)         : NoneType if an error occurs while calculating the hash
 
         """
-        specs = {
+        {
             "avg": lambda x: imagehash.average_hash(x),
             "dhash": lambda x: imagehash.dhash(x),
             "phash": lambda x: imagehash.phash(x),
         }
+
+        def get_spec(spec: str, img: Image.Image) -> imagehash.ImageHash:
+            match spec:
+                case "avg":
+                    return imagehash.average_hash(img)
+                case "dhash":
+                    return imagehash.dhash(img)
+                case "phash":
+                    return imagehash.phash(img)
+                case _:
+                    raise ValueError("Invalid specification for hash algorithm")
+
         # Ignore heic until feature is implemented to support it.
         # Excluding this has unwanted effects when comparing hash values
-        if self.extension == ".heic":
+        if self.extension == ".heic" or self.is_corrupt:
             pass
-        try:
-            with Image.open(self.path) as img:
-                hash_table = specs[spec](img)
-            return hash_table
-        except UnidentifiedImageError as e:
-            file = Img(self.path)
-            if file.is_corrupt:
-                print(f"\033[1;31m{self.path} is corrupt\033[0m", end=f"{" " * 80}\r", flush=True)
-
-            print(f"Error calculating hash: {e!r}")
+        with Image.open(self.path) as img:
+            return get_spec(spec, img)
 
     @property
     def dimensions(self) -> tuple[int, int]:

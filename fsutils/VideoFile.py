@@ -144,13 +144,13 @@ class Video(File):
                 ) from IndexError
 
     @property
-    def fps(self) -> int | None:
+    def fps(self) -> int:
         """Return the frames per second of the video."""
         return self.ffprobe.frame_rate()
 
     @property
-    def quality(self) -> float:
-        return round((self.bitrate / self.num_frames) / 1000, 1)
+    def quality(self):  # -> float:
+        return f"{round(self.num_frames / self.bitrate, 2)}"
 
     @property
     def num_frames(self) -> int:
@@ -263,40 +263,34 @@ class Video(File):
 
         Examples
         --------
-        >>> compress(output="~/Videos/compressed_video.mp4")
+        >>> compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         """
-
         output_path = kwargs.get("output") or os.path.join(self.dir_name, f"_{self.basename}")
-        # if os.path.exists(output_path) or self.is_corrupt:
-        #     print(f"File {output_path} already exists.")
-        #     return None
         subprocess.check_output(
             [
                 "ffmpeg",
-                "-hwaccel",
-                "cuda",
-                "-hwaccel_output_format",
-                "cuda",
                 "-i",
                 self.path,
                 "-c:v",
-                "hevc_nvenc",
+                kwargs.get("codec", "hevc_nvenc"),
                 "-crf",
-                "20",
+                kwargs.get("crf", "20"),
                 "-qp",
-                "24",
+                kwargs.get("qp", "24"),
                 "-rc",
                 "constqp",
                 "-preset",
-                "medium",
+                kwargs.get("preset", "medium"),
                 "-tune",
-                "hq",
+                kwargs.get("tune", "hq"),
+                "-r",
+                kwargs.get("fps", str(self.fps)),
                 "-c:a",
                 "copy",
                 # "-b:a",
                 # "128k",
                 "-v",
-                "quiet",
+                kwargs.get("loglevel", "quiet"),
                 "-y",
                 "-stats",
                 output_path,
@@ -354,21 +348,26 @@ class Video(File):
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted string representation of the file."""
-        header = ""
-        if format_spec == "header":
-            header = (
-                "{:<70} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n".format(
-                    "Name",
-                    "Quality",
-                    "Bitrate",
-                    "Size",
-                    "Codec",
-                    "Duration",
-                    "FPS",
-                    "Dimensions",
-                )
-            )
-        return f"{header}{self.basename:<70} | {self.quality:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {str(self.dimensions):<10}"
+        name = self.basename
+        iterations = 0
+        while len(name) > 20 and iterations < 5:  # Protection from infinite loop
+            if "-" in name:
+                name = name.split("-")[-1]
+            else:
+                name = ".".join([name.split(".")[0], name.split(".")[-1]])
+            iterations += 1
+        return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {str(self.dimensions):<10}"
+
+    @staticmethod
+    def fmtheader() -> str:
+        template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}"
+        header = template.format(
+            "File", "Num Frames", "Bitrate", "Size", "Codec", "Duration", "FPS", "Dimensions"
+        )
+        linebreak = template.format(
+            "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
+        )
+        return f"\033[1m{header}\033[0m\n{linebreak}"
 
 
 class FFMpegManager:

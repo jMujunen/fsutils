@@ -100,19 +100,39 @@ class Dir(File):
 
         Return an instance of the appropriate sub0class of File if a matching file is found."""
         try:
-            try:
-                if file_name in os.listdir(self.path):
-                    return obj(os.path.join(self.path, file_name))
-            except (NotADirectoryError, FileNotFoundError):
-                pass
-            for d in self.dirs:
-                content = os.listdir(os.path.join(self.path, d.path))
-                if file_name in content:
-                    return obj(os.path.join(self.path, d.path, file_name))
-                # return obj(os.path.join(self.path, d, file_name))
-        except (FileNotFoundError, NotADirectoryError) as e:
-            print(e)
+            if file_name in os.listdir(self.path):
+                return obj(os.path.join(self.path, file_name))
+        except (NotADirectoryError, FileNotFoundError):
+            pass
+        for d in self.dirs:
+            content = os.listdir(os.path.join(self.path, d.path))
+            if file_name in content:
+                return obj(os.path.join(self.path, d.path, file_name))
+            # return obj(os.path.join(self.path, d, file_name))
         return
+
+    def query_image(self, image: Img, threshold=3, method="phash") -> list[Img]:
+        """Scan self for images with has values similar to the one of the given image"""
+        pool = Pool()
+        similar_images = []
+
+        def hash_extracter(img: Img, method: str):
+            abs(hash_to_query - img.calculate_hash(method))
+            return img.calculate_hash(method), img
+
+        hash_to_query = image.calculate_hash(method)
+        for result in pool.execute(hash_extracter, self.images, progress_bar=False):
+            if result:
+                h, img = result
+                try:
+                    distance = abs(hash_to_query - h)
+                    print(distance, end="\r")
+                    if distance < threshold:
+                        similar_images.append(img)
+                        print(f"\n\033[1;33m{img.basename}\033[0m")
+                except Exception:
+                    print("\033[31mError while calculating hash difference: {e!r}\033[0m")
+        return similar_images
 
     @staticmethod
     def compare(dir1: "Dir", dir2: "Dir"):
@@ -232,6 +252,20 @@ class Dir(File):
             # print(("{:<20}{:<40}").format(spec, "File"))
             # for filepath, s in files:
             #     print(("{:<20}{:<40}").format(s, filepath.replace(self.path, "")))
+
+    def __format__(self, format_spec: str, /) -> str:
+        pool = Pool()
+        if format_spec == "videos":
+            print(Video.fmtheader())
+            return "\n".join(
+                result for result in pool.execute(format, self.videos, progress_bar=False)
+            )
+        # print(format(vid))
+        elif format_spec == "images":
+            # for img in self.images:
+            return "format(img)"
+        else:
+            return "Formatting Dir is not supported yet"
 
     def __contains__(self, item: File) -> bool:
         """Compare items in two DirectoryObjects"""
