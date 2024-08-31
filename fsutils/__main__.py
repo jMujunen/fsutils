@@ -70,23 +70,18 @@ def parse_args():
         type=str,
     )
     video_compress_parser.add_argument(
-        "-o ",
-        "--output",
-        help="Save to this folder",
-    )
-    video_compress_parser.add_argument(
         "-c",
         "--clean",
         help="Remove the old file after sucessfull compression",
         action="store_true",
         default=False,
     )
-    # video_compress_parser.add_argument(
-    #     "--fps",
-    #     help="Frames per second",
-    #     type=int,
-    #     required=False,
-    # )
+    video_compress_parser.add_argument(
+        "--options",
+        help="List additional options",
+        required=False,
+        action="store_true",
+    )
     # video_compress_parser.add_argument(
     #     "--crf",
     #     type=int,
@@ -162,7 +157,7 @@ def video_parser(arguments: argparse.Namespace) -> int:
 
     Example usage:
     --------------
-    >>> fstuils video makegif input_video.mp4 --scale 750 --fps 15 -o output_video.gif
+    >>> fstuils video makegif input_video.mp4  --scale 750 --fps 15 -o output_video.gif
         fstuils video info video1.mp4 video2.mp4 --codec --dimensions --duration
         fstuils video compress video.mp4 --output /path/to/folder
     """
@@ -186,7 +181,8 @@ def video_parser(arguments: argparse.Namespace) -> int:
         vid = Video(arguments.file)
         if isinstance(arguments.file, str):
             files = [arguments.file]
-        result = vid.compress(output=arguments.output)
+        kwargs = {item.split("=")[0].strip("--"): item.split("=")[1] for item in arguments.kwargs}  # noqa
+        result = vid.compress(**kwargs)
         print(format(result, "header"))
     return 0
 

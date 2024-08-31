@@ -6,6 +6,9 @@ import re
 from collections import defaultdict
 from collections.abc import Iterator
 
+import cv2
+import numpy as np
+from PIL import Image
 from size import Converter
 from ThreadPoolHelper import Pool
 
@@ -89,7 +92,7 @@ class Dir(File):
         return [f".{folder.path.replace(self.path, "")}" for folder in self.dirs]
 
     @property
-    def objects(self) -> list[File | Exe | Log | Img | Video | Git]:
+    def objects(self) -> list[File]:
         """Return a list of fsutil objects inside self"""
         if not self._objects:
             self._objects = list(self.__iter__())
@@ -136,8 +139,26 @@ class Dir(File):
 
     @staticmethod
     def compare(dir1: "Dir", dir2: "Dir"):
-        def process_item(item: File):
-            return hash(item)
+        def calculate_dhash(image: Img):
+            # Resize the image to a fixed size
+            img = Image.open(image.path).convert("L")
+            img = img.resize((9, 8))
+
+            # Convert the image to an array of pixels
+            pixel_array = np.array(img)
+
+            # Calculate the difference hash (DHash)
+            diff_hash = ""
+            for i in range(pixel_array.shape[0] - 1):
+                for j in range(pixel_array.shape[1]):
+                    if pixel_array[i, j] > pixel_array[i + 1, j]:
+                        diff_hash += "1"
+                    else:
+                        diff_hash += "0"
+
+            # Convert the binary string to an integer
+            dhash = int(diff_hash, 2)
+            return dhash, image
 
         def process_dir(file: "File"):
             if hash(file) in hash_set:
@@ -149,15 +170,14 @@ class Dir(File):
         # Execute the threaded operation and
         # calculate hashes for all files in dir1 and store them in hash_dict
         pool = Pool()
-        for result in pool.execute(process_item, dir1.file_objects):
-            hash_set.add(result)
-
-        # Compare hashes of files in dir2 with those in hash_dict
-        for result in pool.execute(process_dir, dir2.file_objects):
-            identical_files.append(result)
-            # for other_file in dir2.file_objects:
-            # if hash(other_file) in hash_set:
-
+        print(f"Calculating dhashes for {len(dir1.images)} files...")
+        for result in pool.execute(calculate_dhash, dir1.images):
+            if result:
+                dhash, img = result
+                if dhash in hash_set:
+                    identical_files.append(img)
+                    continue
+                hash_set.add(dhash)
         return identical_files
 
     @property
@@ -167,32 +187,22 @@ class Dir(File):
 
     @property
     def is_empty(self) -> bool:
-        """Check if the directory is empty.
-
-        Returns:
-        --------
-            bool: True if the directory is empty, False otherwise
-        """
+        """Check if the directory is empty."""
         return len(self.files) == 0
 
     @property
     def images(self) -> list[Img]:
-        """Return a list of ImageObject instances found in the directory.
-
-        Returns:
-        --------
-            List[ImageObject]: A list of ImageObject instances
-        """
+        """A list of ImageObject instances found in the directory."""
         return [item for item in self if isinstance(item, Img)]
 
     @property
     def videos(self) -> list[Video]:
-        """Return a list of VideoObject instances found in the directory."""
+        """A list of VideoObject instances found in the directory."""
         return [item for item in self if isinstance(item, Video)]
 
     @property
     def dirs(self) -> list[File]:
-        """Return a list of DirectoryObject instances found in the directory."""
+        """A list of DirectoryObject instances found in the directory."""
         return [item for item in self if isinstance(item, Dir)]
 
     @property
@@ -230,9 +240,6 @@ class Dir(File):
             "name": lambda x: x.basename,
             "ext": lambda x: x.extension,
         }
-        # sorted_files = sorted(
-        #     self.file_objects, key=lambda x: specs.get(spec, "mtime")(x), reverse=reversed
-        # )
 
         _fmt = []
         for file in self.file_objects:
@@ -246,13 +253,6 @@ class Dir(File):
         for f in result:
             print(format_string.format(*f))
 
-            # files.sort(key=lambda x: x[1])
-            # files.reverse()
-            # # Print the table
-            # print(("{:<20}{:<40}").format(spec, "File"))
-            # for filepath, s in files:
-            #     print(("{:<20}{:<40}").format(s, filepath.replace(self.path, "")))
-
     def __format__(self, format_spec: str, /) -> str:
         pool = Pool()
         if format_spec == "videos":
@@ -260,28 +260,27 @@ class Dir(File):
             return "\n".join(
                 result for result in pool.execute(format, self.videos, progress_bar=False)
             )
-        # print(format(vid))
         elif format_spec == "images":
-            # for img in self.images:
-            return "format(img)"
+            print(Img.fmtheader())
+            return "\n".join(
+                result for result in pool.execute(format, self.images, progress_bar=False)
+            )
         else:
             return "Formatting Dir is not supported yet"
 
     def __contains__(self, item: File) -> bool:
         """Compare items in two DirectoryObjects"""
-        if isinstance(item, File | Video | Img | Exe | Dir):
+        if isinstance(item, File):
             return item in self.file_objects or item in self.dirs
-            # return item.basename in self.files
-        return item in self.files
 
     def __hash__(self) -> int:
-        return hash((self.content, self.stat, self.is_empty))
+        return hash((tuple(self.content), self.stat, self.is_empty))
 
     def __len__(self) -> int:
         """Return the number of items in the object"""
         return len(self.objects)
 
-    def __iter__(self) -> Iterator[File | Exe | Log | Img | Video | Git]:
+    def __iter__(self) -> Iterator[File]:
         """Yield a sequence of File instances for each item in self"""
         for root, _, files in os.walk(self.path):
             # Yield directories first to avoid unnecessary checks inside the loop

@@ -216,15 +216,10 @@ class Img(File):
             print(f"An error occurred while rendering the image:\n{e!r}")
             return 1
 
-    def open(self) -> int:
+    def open(self) -> None:
         """Open the image in the OS default image viewer"""
-        try:
-            with Image.open(self.path) as f:
-                f.show()
-            return 0
-        except UnidentifiedImageError as e:
-            print(e)
-        return 1
+        with Image.open(self.path) as f:
+            f.show()
 
     def save(self, path: str):
         """Save the image to a specified location"""
@@ -238,7 +233,7 @@ class Img(File):
         file_path: str | None = None,
     ) -> "Img":
         """Resize the image to specified width and height"""
-        saved_image_path = os.path.join(self.dir_name, f"resized_{self.basename}")
+        saved_image_path = os.path.join(self.dir_name, f"_resized-{self.basename}")
         if file_path is not None:
             saved_image_path = file_path
         if (
@@ -249,11 +244,8 @@ class Img(File):
             return self.__class__(saved_image_path)
         with Image.open(self.path) as img:
             resized_img = img.resize((width, height))
-        try:
             resized_img.save(saved_image_path)
-        except OSError as e:
-            print(f"An error occurred while saving resized image:\n{e!s}")
-        return self.__class__(saved_image_path)
+            return self.__class__(saved_image_path)
 
     def compress(
         self,
@@ -267,11 +259,11 @@ class Img(File):
 
         Paramaters:
         ---------
-            - `new_size_ratio` (float): The new size ratio of the image after compression
-            - `quality` (int): The quality of the compression from 0-100, where 100 is best quality and highest file size
-            - `width` (int): The new width of the image after resizing
-            - `height` (int): The new height of the image after resizing
-            - `to_jpg` (bool): Convert the image to jpg format if True, else keep it in its original format
+            - `new_size_ratio (float)`: The new size ratio of the image after compression
+            - `quality (int)`: The quality of the compression from 0-100, where 100 is best quality and highest file size
+            - `width (int)`: The new width of the image after resizing
+            - `height (int)`: The new height of the image after resizing
+            - `to_jpg (bool)`: Convert the image to jpg format if True, else keep it in its original format
 
         Returns
         -------
@@ -284,60 +276,35 @@ class Img(File):
             - `ValueError` : If an invalid value was passed for width, height or new_size_ratio parameters
 
         """
-        # load the image to memory
+        # Make new filename prepending _compressed to the original file name
+        new_filename = f"_compressed{self.basename}"
+        # Load the image to memory
         with Image.open(self.path) as img:
             if to_jpg:
                 # convert the image to RGB mode
                 img = img.convert("RGB")
-
-            # print the original image shape
-            print(f"[*] Image shape: {img.size}")
-            # print the size before compression/resizing
-            print(f"[*] Size before compression:{Converter(self.size)}\n")
-
+                new_filename = f"{self.basename}_compressed.jpg"
+            # Multiply width & height with `ratio`` to reduce image size
             if new_size_ratio < 1.0:
-                # if resizing ratio is below 1.0, then multiply width & height with this ratio to reduce image size
                 img = img.resize(
                     (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio)),
                 )
-                # print new image shape
-                print("\t[+] New Image shape:", img.size)
             elif width and height:
-                # if width and height are set, resize with them instead
                 img = img.resize((width, height))
-                # print new image shape
-                print("\t[+] New Image shape:", img.size)
-
-            # make new filename appending _compressed to the original file name
-            if to_jpg:
-                # change the extension to JPEG
-                new_filename = f"{self.basename}_compressed.jpg"
-            else:
-                # retain the same extension of the original image
-                new_filename = f"{self.basename}_compressed{self.extension}"
             try:
                 new_file_path = os.path.join(self.dir_name, new_filename)
-                # save the image with the corresponding quality and optimize set to True
                 img.save(new_file_path, quality=quality, optimize=True)
+                resized_img = self.__class__(new_file_path)
             except OSError as e:
                 print(f"Error while saving the compressed image.\n{e!r}")
 
-            # get the new image size in bytes
-            new_image_size = os.path.getsize(new_file_path)
-            new_image_human = Converter(new_image_size)
-            # print the new size in a good format
-            print("\t[+] Size after compression:", (new_image_human))
-            # calculate the saving bytes
-            saving_diff = float(new_image_size) - self.size
-            # print the saving percentage
-            print(f"\t[+] Image size change: {
-                saving_diff / self.size * 100:.2f
-            }% of the original image size.")
-            print(f"{"=" * 60}")
-            return self.__class__(new_file_path)
+        # Calculate file size reduction
+        size_diff = (resized_img.size - self.size) / self.size * 100  # type: ignore
+        print(f"The image was reduced by {size_diff:.2f}%.")
+        return resized_img  # type: ignore
 
     def encode(self) -> str:
-        """Base64 encode the image for LLM prococessing."""
+        """Base64 encode the image for LLM processing."""
         resized = self.resize()
         with Image.open(resized.path) as img:
             try:
@@ -367,6 +334,28 @@ class Img(File):
 
     def __hash__(self) -> int:
         return hash((self.md5_checksum, self.dimensions, self.size))
+
+    def __format__(self, format_spec: str, /) -> str:
+        """Return a formatted table representation of the file."""
+        name = self.basename
+        iterations = 0
+        while len(name) > 20 and iterations < 5:  # Protection from infinite loop
+            if "-" in name:
+                name = name.split("-")[0]
+            elif "_" in name:
+                name = name.split("_")[0]
+            else:
+                name = name.split(" ")[0]
+            iterations += 1
+        return f"{name:<25} | {self.extension:<6} | {self.size_human:<10} | {str(self.dimensions):<15} | {str(self.capture_date):<25}"
+
+    @staticmethod
+    def fmtheader() -> str:
+        """Return a formatted table header."""
+        template = "{:<25} | {:<6} | {:<10} | {:<15} |{:<25}"
+        header = template.format("File", "Ext", "Size", "Dimensions", "Capture Date")
+        linebreak = template.format("-" * 25, "-" * 6, "-" * 10, "-" * 15, "-" * 25)
+        return f"\033[1m{header}\033[0m\n{linebreak}"
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
