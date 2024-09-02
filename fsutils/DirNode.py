@@ -6,10 +6,8 @@ import re
 from collections import defaultdict
 from collections.abc import Iterator
 
-import cv2
 import numpy as np
 from PIL import Image
-from size import Converter
 from ThreadPoolHelper import Pool
 
 # from fsutils import File, Log, Exe, Video, Img

@@ -8,7 +8,7 @@ from collections.abc import Iterator
 from typing import Any
 
 import chardet
-from size import Converter
+from size import Size
 
 from .mimecfg import FILE_TYPES
 
@@ -90,7 +90,7 @@ class File:
     @property
     def size_human(self) -> str:
         """Return the size of the file in human readable format."""
-        return str(Converter(self.size))
+        return str(Size(self.size))
 
     @property
     def size(self) -> int:

@@ -12,7 +12,7 @@ from typing import Any
 import cv2
 from rich.console import Console
 from rich.table import Table
-from size import Converter
+from size import Size
 
 from .exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
@@ -93,7 +93,7 @@ class Video(File):
     def bitrate_human(self) -> str | None:
         """Return the bitrate in a human readable format."""
         if self.bitrate is not None and self.bitrate > 0:
-            return str(Converter(self.bitrate))
+            return str(Size(self.bitrate))
 
     @property
     def duration(self) -> int:

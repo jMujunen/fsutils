@@ -11,7 +11,7 @@ import cv2
 import imagehash
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
-from size import Converter
+from size import Size
 
 from .GenericFile import File
 
