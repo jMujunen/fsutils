@@ -295,7 +295,7 @@ class File:
 
         Paramaters:
         -----------
-            other (Object): The Object to compare (FileObject, VideoObject, etc.)
+            - `other (Object)` : The Object to compare (FileObject, VideoObject, etc.)
 
         """
         return all((other.exists, self.exists, hash(self) == hash(other)))

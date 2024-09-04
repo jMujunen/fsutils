@@ -10,8 +10,6 @@ from pathlib import Path
 from typing import Any
 
 import cv2
-from rich.console import Console
-from rich.table import Table
 from size import Size
 
 from .exceptions import CorruptMediaError, FFProbeError
@@ -26,7 +24,7 @@ class Video(File):
     | Method | Description |
     | :---------------- | :-------------|
     | `metadata()`     | Extract video metadata |
-    | `compress(output=./output.mp4)` | Compress the video using ffmpeg |
+    | `compress()` | Compress the video using ffmpeg |
     | `make_gif(scale, fps, output)` | Create a gif from the video |
     | `extract_frames()` | Extract frames from the video |
     | `render()`       | Render the video using ffmpeg |
@@ -132,7 +130,7 @@ class Video(File):
             sys.exit(0)
 
     @property
-    def ffprobe(self) -> FFStream | None:
+    def ffprobe(self) -> FFStream:
         try:
             return [stream for stream in FFProbe(self.path).streams if stream.is_video()][0]
         except IndexError:
@@ -155,7 +153,7 @@ class Video(File):
     @property
     def num_frames(self) -> int:
         """Return the number of frames in the video."""
-        return int(self.ffprobe.__dict__.get("nb_frames", -1))
+        return self.ffprobe.frames()
 
     def render(self) -> None:
         """Render the video using in the shell using kitty protocols."""
@@ -189,9 +187,10 @@ class Video(File):
             * `bitrate` : the bit rate of the video, in mb/s (100mb/s = 1080p | 10mb/s = 480p)
 
             * The default `fps | scale` of `24 | 500` means a decent quality gif.
+
         Returns:
         --------
-            int : subprocess return code
+            - `Img` : subprocess return code
         """
         output = os.path.join(self.dir_name, output) or os.path.join(
             self.dir_name, self.basename[:-4] + ".gif"
@@ -238,14 +237,9 @@ class Video(File):
 
         Parameters:
         ----------
-            start_ : int, optional (default is 0)
-            end_    : int, optional  (default is 100)
-            output : str, optional (default is current working directory)
-
-        Returns:
-        --------
-        Returns:
-            int : subprocess return code
+            - `start_ (int)`:  (default is 0)
+            - `end_ int` : (default is 100)
+            - `output (str)` : (default is current working directory)
         """
 
         output_path = output if output else self.path[:-4] + f"_trimmed.{self.extension}"
@@ -259,7 +253,6 @@ class Video(File):
         Keyword Arguments:
         ----------------
             - `output` : Save compressed video to this path
-            `output` : Save compressed video to this path
 
         Examples
         --------
@@ -317,12 +310,6 @@ class Video(File):
             f"ffmpeg -i {self.path} -map s -c copy {os.path.splitext(self.path)[0]}_subtitle.srt",
             shell=True,
         )
-
-    @property
-    def md5_checksum(self) -> str:
-        """Return the MD5 checksum of the video file."""
-        with open(self.path, "rb") as f:
-            return hashlib.md5(f.read()).hexdigest()
 
     # NOTE:  Untested
     def extract_frames(self, output_path: str | None = None) -> int:
