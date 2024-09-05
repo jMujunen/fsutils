@@ -3,8 +3,10 @@
 import base64
 import os
 import subprocess
+from collections.abc import Generator
 from datetime import datetime
 from io import BytesIO
+from typing import Never
 
 import cv2
 import imagehash
@@ -12,7 +14,6 @@ from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
 
 from .GenericFile import File
-from typing import Never
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 
@@ -95,7 +96,7 @@ class Img(File):
             print(f"{e!r}")
 
     @property
-    def tags(self):
+    def tags(self) -> Generator | None:
         """Extract metadata from image files."""
         for tag_id in self.exif:
             try:
@@ -142,7 +143,7 @@ class Img(File):
                             int(minute),
                             int(second[:2]),
                         )
-                except:
+                except:  # noqa
                     continue
         else:
             self.__dict__.get("capture_date")
