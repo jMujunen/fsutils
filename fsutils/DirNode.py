@@ -47,18 +47,13 @@ class Dir(File):
 
     """
 
-    _objects: list[File] = []
-    _directories: list["Dir"] = []
-    _files: list[str] = []
-    _metadata: dict = {}
-
     def __init__(self, path: str):
         super().__init__(path)
 
     @property
     def files(self) -> list[str]:
         """Return a list of file names in the directory represented by this object."""
-        return [f.basename for f in self if not os.path.isdir(f.path)]
+        return [f.filename for f in self if not os.path.isdir(f.path)]
 
     @property
     def file_objects(self) -> list[File | Exe | Log | Img | Video | Git]:
@@ -111,7 +106,6 @@ class Dir(File):
             content = os.listdir(os.path.join(self.path, d.path))
             if file_name in content:
                 return obj(os.path.join(self.path, d.path, file_name))
-            # return obj(os.path.join(self.path, d, file_name))
         return None
 
     def query_image(self, image: Img, threshold=3, method="phash") -> list[Img]:
@@ -132,54 +126,10 @@ class Dir(File):
                     print(distance, end="\r")
                     if distance < threshold:
                         similar_images.append(img)
-                        print(f"\n\033[1;33m{img.basename}\033[0m")
+                        print(f"\n\033[1;33m{img.filename}\033[0m")
                 except Exception:
                     print("\033[31mError while calculating hash difference: {e!r}\033[0m")
         return similar_images
-
-    @staticmethod
-    def compare(dir1: "Dir", dir2: "Dir"):
-        def calculate_dhash(image: Img):
-            # Resize the image to a fixed size
-            img = Image.open(image.path).convert("L")
-            img = img.resize((9, 8))
-
-            # Convert the image to an array of pixels
-            pixel_array = np.array(img)
-
-            # Calculate the difference hash (DHash)
-            diff_hash = ""
-            for i in range(pixel_array.shape[0] - 1):
-                for j in range(pixel_array.shape[1]):
-                    if pixel_array[i, j] > pixel_array[i + 1, j]:
-                        diff_hash += "1"
-                    else:
-                        diff_hash += "0"
-
-            # Convert the binary string to an integer
-            dhash = int(diff_hash, 2)
-            return dhash, image
-
-        def process_dir(file: "File"):
-            if hash(file) in hash_set:
-                return file.path, dir1.file_info(file.basename).path
-            return None
-
-        # Create a dictionary to store the hashes of files in dir1
-        hash_set = set()
-        identical_files = []
-        # Execute the threaded operation and
-        # calculate hashes for all files in dir1 and store them in hash_dict
-        pool = Pool()
-        print(f"Calculating dhashes for {len(dir1.images)} files...")
-        for result in pool.execute(calculate_dhash, dir1.images):
-            if result:
-                dhash, img = result
-                if dhash in hash_set:
-                    identical_files.append(img)
-                    continue
-                hash_set.add(dhash)
-        return identical_files
 
     @property
     def is_dir(self) -> bool:
@@ -237,7 +187,7 @@ class Dir(File):
                 "%Y-%m-%d %H:%M:%S"
             ),
             "size": lambda x: x.size,
-            "name": lambda x: x.basename,
+            "name": lambda x: x.filename,
             "ext": lambda x: x.extension,
         }
 
@@ -314,7 +264,7 @@ class Dir(File):
 
 
 def obj(path: str) -> File:
-    """Returns the appropriate subclass if File."""
+    """Return the appropriate subclass if File."""
     if not os.path.exists(path):
         raise FileNotFoundError(path, " does not exist")
     ext = os.path.splitext(path)[1].lower()
@@ -357,12 +307,46 @@ def obj(path: str) -> File:
     return cls(path)
 
 
-if __name__ == "__main__":
-    path = Dir("/home/joona/.dotfiles")
-    from ExecutionTimer import ExecutionTimer
+# @staticmethod
+# def compare(dir1: "Dir", dir2: "Dir"):
+#     def calculate_dhash(image: Img):
+#         # Resize the image to a fixed size
+#         img = Image.open(image.path).convert("L")
+#         img = img.resize((9, 8))
 
-    with ExecutionTimer():
-        for item in path.videos:
-            if item.is_dir:
-                print(item)
-                print(item)
+#         # Convert the image to an array of pixels
+#         pixel_array = np.array(img)
+
+#         # Calculate the difference hash (DHash)
+#         diff_hash = ""
+#         for i in range(pixel_array.shape[0] - 1):
+#             for j in range(pixel_array.shape[1]):
+#                 if pixel_array[i, j] > pixel_array[i + 1, j]:
+#                     diff_hash += "1"
+#                 else:
+#                     diff_hash += "0"
+
+#         # Convert the binary string to an integer
+#         dhash = int(diff_hash, 2)
+#         return dhash, image
+
+#     def process_dir(file: "File"):
+#         if hash(file) in hash_set:
+#             return file.path, dir1.file_info(file.filename).path
+#         return None
+
+#     # Create a dictionary to store the hashes of files in dir1
+#     hash_set = set()
+#     identical_files = []
+#     # Execute the threaded operation and
+#     # calculate hashes for all files in dir1 and store them in hash_dict
+#     pool = Pool()
+#     print(f"Calculating dhashes for {len(dir1.images)} files...")
+#     for result in pool.execute(calculate_dhash, dir1.images):
+#         if result:
+#             dhash, img = result
+#             if dhash in hash_set:
+#                 identical_files.append(img)
+#                 continue
+#             hash_set.add(dhash)
+#     return identical_files

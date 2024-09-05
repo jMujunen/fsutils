@@ -190,7 +190,7 @@ class Img(File):
     def render(self, render_size=320, title=True) -> int:
         try:
             if title:
-                title = f"{self.basename}\t{self.capture_date!s}"
+                title = f"{self.filename}\t{self.capture_date!s}"
                 pos = round(
                     (render_size / 10) - (render_size % 360 / 10)
                 )  # Vain attempt to center the title
@@ -222,7 +222,7 @@ class Img(File):
         file_path: str | None = None,
     ) -> "Img":
         """Resize the image to specified width and height."""
-        saved_image_path = os.path.join(self.dir_name, f"_resized-{self.basename}")
+        saved_image_path = os.path.join(self.dirname, f"_resized-{self.filename}")
         if file_path is not None:
             saved_image_path = file_path
         if (
@@ -266,22 +266,22 @@ class Img(File):
 
         """
         # Make new filename prepending _compressed to the original file name
-        new_filename = f"_compressed{self.basename}"
+        new_filename = f"_compressed{self.filename}"
         # Load the image to memory
         with Image.open(self.path) as img:
             if to_jpg:
                 # convert the image to RGB mode
-                img = img.convert("RGB")
-                new_filename = f"{self.basename}_compressed.jpg"
+                img.convert("RGB")
+                new_filename = f"{self.filename}_compressed.jpg"
             # Multiply width & height with `ratio`` to reduce image size
             if new_size_ratio < 1.0:
-                img = img.resize(
+                img.resize(
                     (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio)),
                 )
             elif width and height:
-                img = img.resize((width, height))
+                img.resize((width, height))
             try:
-                new_file_path = os.path.join(self.dir_name, new_filename)
+                new_file_path = os.path.join(self.dirname, new_filename)
                 img.save(new_file_path, quality=quality, optimize=True)
                 resized_img = self.__class__(new_file_path)
             except OSError as e:
@@ -326,7 +326,7 @@ class Img(File):
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted table representation of the file."""
-        name = self.basename
+        name = self.filename
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
             if "-" in name:
@@ -346,7 +346,7 @@ class Img(File):
         linebreak = template.format("-" * 25, "-" * 6, "-" * 10, "-" * 15, "-" * 25)
         return f"\033[1m{header}\033[0m\n{linebreak}"
 
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
-            **vars(self),
-        )
+    # def __repr__(self) -> str:
+    #     return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.filename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
+    #         **vars(self),
+    #     )

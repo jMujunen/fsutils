@@ -2,12 +2,32 @@
 
 import pandas as pd
 import re
-from io import StringIO
+from dataclasses import dataclass, field
 from typing import Any
 
 from .GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
+
+
+@dataclass
+class LogEntry(File):
+    """A class to represent a log entry."""
+
+    path: str = field(default_factory=lambda: "")
+    sep: str = field(default=",")
+
+    encoding: str = field(default="iso-8859-1")
+    df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
+
+    def __post_init__(self):
+        """Initialize a LogEntry object."""
+        super().__init__(path=self.path, encoding=self.encoding)
+        self.df = pd.read_csv(self.path, sep=self.sep, encoding=self.encoding, engine="python")
+        self.columns = list(self.df.columns)
+        self.describe = self.df.describe()
+        self.min = self.df.min()
+        self.max = self.df.max()
 
 
 class Log(File):
@@ -28,9 +48,8 @@ class Log(File):
 
     """
 
-    sanatized = False
-
-    def __init__(self, path, spec="csv", encoding="iso-8859-1"):
+    def __init__(self, path: str, spec="csv", encoding="iso-8859-1"):
+        """Initialize a Log object."""
         specs = {"csv": ",", "tsv": "\t", "custom": ", "}
         if spec not in specs:
             raise ValueError(f"Unsupported spec: {spec}. Supported specs are {list(specs.keys())}.")
@@ -54,31 +73,25 @@ class Log(File):
         except IndexError:
             return []
 
-    def to_df(self) -> pd.DataFrame:
-        """Convert the log file into a pandas DataFrame."""
-        import pandas as pd
-
-        return pd.read_csv(StringIO("\n".join(self.sanitize())), delimiter=self.spec)
-
     def sanitize(self) -> list[str]:
-        """Sanitize the log file by removing any empty lines, spaces,
-        special charactesrs, and trailing delimiters. Also remove the last 2 lines.
+        """Sanitize the log file.
+
+        Remove any empty lines, spaces, special characters, and trailing delimiters.
+        Also remove the last 2 lines.
         """
         # Skip sanitizing if already done
-        if self.sanatized:
-            return self.content
         num_lines = len(self)
-        [col.strip() for col in self.columns]
+        lines = [col.strip() for col in self.columns]
 
         HEADER_SANATIZER = re.compile(
             r"(GPU2.\w+\(.*\)|NaN|N\/A|Fan2|°|Â|\*|,,+|\s\[[^\s]+\]|\"|\+|\s\[..TDP\]|\s\[\]|\s\([^\s]\))"
         )
 
-        sanatized_content = [
+        sanitized_content = [
             HEADER_SANATIZER.sub("", row) for i, row in enumerate(self) if i < num_lines - 2
         ]
 
-        self._content = sanatized_content
+        self._content = sanitized_content
         self.sanatized = True
         return self._content
 
@@ -105,10 +118,9 @@ class Log(File):
                 val = float(val)
                 if val < 5:
                     return round(val, 3)
-                elif 5 <= val < 15:
+                if 5 <= val < 15:
                     return round(val, 2)
-                else:
-                    return int(val)
+                return int(val)
             except ValueError as e:
                 print(f"\033[31m Error rounding value: {e}\033[0m")
                 return val
@@ -118,10 +130,9 @@ class Log(File):
             num2 = round_values(num2)
             if num1 == num2:
                 return (f"{num1}", str(num1))
-            elif num1 > num2:
+            if num1 > num2:
                 return (f"\033[32m{num1}\033[0m", f"\033[31m+{num1 - num2!s}\033[0m")
-            else:
-                return (f"\033[31m{num1}\033[0m", f"\033[32m+{num2 - num1!s}\033[0m")
+            return (f"\033[31m{num1}\033[0m", f"\033[32m+{num2 - num1!s}\033[0m")
 
         print("{:<20} {:>15} {:>20}".format("Sensor", self.basename, other.basename))
         for k in set(self.stats.keys()).intersection(other.stats.keys()):
