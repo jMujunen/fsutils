@@ -1,4 +1,4 @@
-"""This module exposes the Log class as a parent of File"""
+"""This module exposes the Log class as a parent of File."""
 
 import pandas as pd
 import re
@@ -47,7 +47,7 @@ class Log(File):
 
     @property
     def columns(self) -> list[str]:
-        """Get the columns of the log file as a list"""
+        """Get the columns of the log file as a list."""
         try:
             first_line = self.head()[0]
             return first_line.split(self.spec)
@@ -62,7 +62,7 @@ class Log(File):
 
     def sanitize(self) -> list[str]:
         """Sanitize the log file by removing any empty lines, spaces,
-        special charactesrs, and trailing delimiters. Also remove the last 2 lines
+        special charactesrs, and trailing delimiters. Also remove the last 2 lines.
         """
         # Skip sanitizing if already done
         if self.sanatized:
@@ -119,9 +119,9 @@ class Log(File):
             if num1 == num2:
                 return (f"{num1}", str(num1))
             elif num1 > num2:
-                return (f"\033[32m{num1}\033[0m", f"\033[31m+{str(num1 - num2)}\033[0m")
+                return (f"\033[32m{num1}\033[0m", f"\033[31m+{num1 - num2!s}\033[0m")
             else:
-                return (f"\033[31m{num1}\033[0m", f"\033[32m+{str(num2 - num1)}\033[0m")
+                return (f"\033[31m{num1}\033[0m", f"\033[32m+{num2 - num1!s}\033[0m")
 
         print("{:<20} {:>15} {:>20}".format("Sensor", self.basename, other.basename))
         for k in set(self.stats.keys()).intersection(other.stats.keys()):

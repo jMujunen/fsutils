@@ -17,8 +17,7 @@ class ExifData:
     def exif(self):
         """Open image and return all EXIF data."""
         with Image.open(self.path) as img:
-            data = img.getexif()
-        return data
+            return img.getexif()
 
     @property
     def capture_date(self):
@@ -32,6 +31,7 @@ class ExifData:
                 data = data.decode()
             if str(tag).startswith("DateTime"):
                 return data
+        return None
 
     def __str__(self):
         """Format the capture date in a human readable format."""

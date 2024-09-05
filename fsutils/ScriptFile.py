@@ -3,7 +3,7 @@ from .GenericFile import File
 
 class Exe(File):
     """
-    A class representing information about an executable file
+    A class representing information about an executable file.
 
     Attributes:
     ----------
@@ -28,7 +28,7 @@ class Exe(File):
 
     @shebang.setter
     def shebang(self, shebang: str) -> str | None:
-        """Shebang setter"""
+        """Shebang setter."""
         self._content = [shebang].extend(self.read()[len(self.shebang.strip()) :])
         try:
             with open(self.path, "w", encoding="utf-8") as f:
@@ -41,5 +41,3 @@ class Exe(File):
             return self._content
         except PermissionError:
             print(f"Permission denied: {self.path}")
-            pass
-            pass

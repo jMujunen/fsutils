@@ -17,7 +17,7 @@ from .exceptions import CorruptMediaError, FFProbeError
 class FFProbe:
     """
     FFProbe wraps the ffprobe command and pulls the data into an object form::
-        metadata = FFProbe("multimedia-file.mov")
+        metadata = FFProbe("multimedia-file.mov").
     """
 
     def __init__(self, path_to_video: str) -> None:
@@ -106,13 +106,12 @@ class FFProbe:
                     self.subtitle.append(stream)
                 elif stream.is_attachment():
                     self.attachment.append(stream)
+        elif not os.path.exists(self.path_to_video):
+            raise FileNotFoundError("File does not exist: " + self.path_to_video)
+        elif os.path.isdir(self.path_to_video):
+            raise IsADirectoryError("Given path is a directory, not a file.")
         else:
-            if not os.path.exists(self.path_to_video):
-                raise FileNotFoundError("File does not exist: " + self.path_to_video)
-            elif os.path.isdir(self.path_to_video):
-                raise IsADirectoryError("Given path is a directory, not a file.")
-            else:
-                raise CorruptMediaError(f"{self.path_to_video} is corrupt")
+            raise CorruptMediaError(f"{self.path_to_video} is corrupt")
             # else:
             #     raise OSError(
             #         "No such media file or stream is not responding: " + self.path_to_video
@@ -164,7 +163,7 @@ class FFStream:
 
     def is_audio(self) -> bool:
         """
-        Is this stream labelled as an audio stream?
+        Is this stream labelled as an audio stream?.
         """
         return self.__dict__.get("codec_type", None) == "audio"
 
@@ -248,7 +247,7 @@ class FFStream:
 
     def language(self) -> str | None:
         """
-        Returns language tag of stream. e.g. eng
+        Returns language tag of stream. e.g. eng.
         """
         return self.__dict__.get("TAG:language", None)
 
@@ -272,7 +271,7 @@ class FFStream:
 
     def bit_rate(self) -> int | None:
         """
-        Returns bit_rate as an integer in bps
+        Returns bit_rate as an integer in bps.
         """
         try:
             return int(self.__dict__.get("bit_rate", ""))
@@ -280,7 +279,7 @@ class FFStream:
             raise FFProbeError("None integer bit_rate") from ValueError
 
     def frame_rate(self) -> int:
-        """Returns the frames per second as an integer"""
+        """Returns the frames per second as an integer."""
         try:
             return int(self.__dict__.get("r_frame_rate", "").split("/")[0])
         except ValueError:

@@ -16,6 +16,7 @@ from .exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
 from .ImageFile import Img
+import contextlib
 
 
 class Video(File):
@@ -80,8 +81,7 @@ class Video(File):
     def bitrate(self) -> int:
         """Extract the bitrate/s with ffprobe."""
         try:
-            bitrate = round(int(self.metadata.get("bit_rate", -1)))
-            return bitrate
+            return round(int(self.metadata.get("bit_rate", -1)))
         except ZeroDivisionError:
             if self.is_corrupt:
                 print(f"\033[31m{self.basename} is corrupt!\033[0m")
@@ -92,6 +92,7 @@ class Video(File):
         """Return the bitrate in a human readable format."""
         if self.bitrate is not None and self.bitrate > 0:
             return str(Size(self.bitrate))
+        return None
 
     @property
     def duration(self) -> int:
@@ -107,7 +108,7 @@ class Video(File):
 
     @property
     def codec(self) -> str | None:
-        """Codec eg `H264` | `H265`"""
+        """Codec eg `H264` | `H265`."""
         return self.ffprobe.codec()
 
     @property
@@ -132,7 +133,7 @@ class Video(File):
     @property
     def ffprobe(self) -> FFStream:
         try:
-            return [stream for stream in FFProbe(self.path).streams if stream.is_video()][0]
+            return next(stream for stream in FFProbe(self.path).streams if stream.is_video())
         except IndexError:
             if self.is_corrupt:
                 raise CorruptMediaError(f"{self.path} is corrupt.") from IndexError
@@ -147,7 +148,7 @@ class Video(File):
         return self.ffprobe.frame_rate()
 
     @property
-    def quality(self):  # -> float:
+    def quality(self) -> str:  # -> float:
         return f"{round(self.num_frames / self.bitrate, 2)}"
 
     @property
@@ -335,7 +336,7 @@ class Video(File):
             else:
                 name = ".".join([name.split(".")[0], name.split(".")[-1]])
             iterations += 1
-        return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {str(self.dimensions):<10}"
+        return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {self.dimensions!s:<10}"
 
     @staticmethod
     def fmtheader() -> str:
@@ -358,10 +359,8 @@ class FFMpegManager:
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
         if exc_type is not None:
-            try:
+            with contextlib.suppress(OSError):
                 os.remove(self.file.path)
-            except OSError:
-                pass
             return True
         else:
             return False

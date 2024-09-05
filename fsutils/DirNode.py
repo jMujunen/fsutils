@@ -6,8 +6,10 @@ import re
 from collections import defaultdict
 from collections.abc import Iterator
 
+import cv2
 import numpy as np
 from PIL import Image
+from size import Size
 from ThreadPoolHelper import Pool
 
 # from fsutils import File, Log, Exe, Video, Img
@@ -86,12 +88,12 @@ class Dir(File):
 
     @property
     def rel_directories(self) -> list[str]:
-        """Return a list of subdirectory paths relative to the directory represented by this object"""
+        """Return a list of subdirectory paths relative to the directory represented by this object."""
         return [f".{folder.path.replace(self.path, "")}" for folder in self.dirs]
 
     @property
     def objects(self) -> list[File]:
-        """Return a list of fsutil objects inside self"""
+        """Return a list of fsutil objects inside self."""
         if not self._objects:
             self._objects = list(self.__iter__())
         return self._objects
@@ -110,10 +112,10 @@ class Dir(File):
             if file_name in content:
                 return obj(os.path.join(self.path, d.path, file_name))
             # return obj(os.path.join(self.path, d, file_name))
-        return
+        return None
 
     def query_image(self, image: Img, threshold=3, method="phash") -> list[Img]:
-        """Scan self for images with has values similar to the one of the given image"""
+        """Scan self for images with has values similar to the one of the given image."""
         pool = Pool()
         similar_images = []
 
@@ -161,6 +163,7 @@ class Dir(File):
         def process_dir(file: "File"):
             if hash(file) in hash_set:
                 return file.path, dir1.file_info(file.basename).path
+            return None
 
         # Create a dictionary to store the hashes of files in dir1
         hash_set = set()
@@ -180,7 +183,7 @@ class Dir(File):
 
     @property
     def is_dir(self) -> bool:
-        """Is the object a directory?"""
+        """Is the object a directory?."""
         return os.path.isdir(self.path)
 
     @property
@@ -213,14 +216,13 @@ class Dir(File):
                 self._metadata[ext[1:]] += 1  # Remove the dot from extention
         sorted_stat = dict(sorted(self._metadata.items(), key=lambda x: x[1]))
         # Print the sorted table
-        max_key_length = max([len(k) for k in sorted_stat.keys()])
+        max_key_length = max([len(k) for k in sorted_stat])
         for key, value in sorted_stat.items():
             print(f"{key: <{max_key_length}} {value}")
 
     @staticmethod
     def detect_duplicates():
-        """Detect duplicate files in a directory and its subdirectories"""
-        pass
+        """Detect duplicate files in a directory and its subdirectories."""
 
     def sort(self, specifier, reversed=True) -> None:
         """Sort the files and directories by the specifying attribute."""
@@ -267,19 +269,20 @@ class Dir(File):
             return "Formatting Dir is not supported yet"
 
     def __contains__(self, item: File) -> bool:
-        """Compare items in two DirectoryObjects"""
+        """Compare items in two DirectoryObjects."""
         if isinstance(item, File):
             return item in self.file_objects or item in self.dirs
+        return None
 
     def __hash__(self) -> int:
         return hash((tuple(self.content), self.stat, self.is_empty))
 
     def __len__(self) -> int:
-        """Return the number of items in the object"""
+        """Return the number of items in the object."""
         return len(self.objects)
 
     def __iter__(self) -> Iterator[File]:
-        """Yield a sequence of File instances for each item in self"""
+        """Yield a sequence of File instances for each item in self."""
         for root, _, files in os.walk(self.path):
             # Yield directories first to avoid unnecessary checks inside the loop
             for directory in _:
@@ -290,7 +293,7 @@ class Dir(File):
                 yield obj(path)
 
     def __eq__(self, other: "Dir", /) -> bool:
-        """Compare the contents of two Dir objects"""
+        """Compare the contents of two Dir objects."""
         return all(
             (
                 isinstance(other, self.__class__),
@@ -311,7 +314,7 @@ class Dir(File):
 
 
 def obj(path: str) -> File:
-    """Returns the appropriate subclass if File"""
+    """Returns the appropriate subclass if File."""
     if not os.path.exists(path):
         raise FileNotFoundError(path, " does not exist")
     ext = os.path.splitext(path)[1].lower()

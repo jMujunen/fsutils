@@ -31,7 +31,7 @@ class FileTreeNode:
         self.parent = parent
         self.children = []
 
-    def add_child(self, child: "FileTreeNode"):
+    def add_child(self, child: "FileTreeNode") -> None:
         """
         Add a child node to this node.
 
@@ -86,6 +86,7 @@ class FileTree:
         """
         if not self.root:
             self.root = node
+            return None
         else:
             current = self.root
             while True:
@@ -145,5 +146,4 @@ def create_file_tree(directory_object, file_tree):
                     dir_node.add_child(file_node)
                 except Exception as e:
                     print(e)
-                    pass
     return file_tree

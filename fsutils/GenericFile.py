@@ -1,4 +1,4 @@
-"""Base class and building block for all other classes defined in this library"""
+"""Base class and building block for all other classes defined in this library."""
 
 import hashlib
 import os
@@ -71,13 +71,13 @@ class File:
         # print(self.__doc__)
 
     def head(self, n: int = 5) -> list[str]:
-        """Return the first n lines of the file"""
+        """Return the first n lines of the file."""
         if self.content is not None and len(self.content) > n:
             return self.content[:n]
         return self.content
 
     def tail(self, n: int = 5) -> list[str]:
-        """Return the last n lines of the file"""
+        """Return the last n lines of the file."""
         if self.content is not None:
             return self.content[-n:]
         return self.content
@@ -94,32 +94,32 @@ class File:
 
     @property
     def size(self) -> int:
-        """Return the size of the file in bytes"""
+        """Return the size of the file in bytes."""
         return int(os.path.getsize(self.path))
 
     @property
     def dir_name(self) -> str:
-        """Return the parent directory of the file"""
+        """Return the parent directory of the file."""
         return os.path.dirname(self.path) if not self.is_dir else self.path
 
     @property
     def file_name(self) -> str:
-        """Return the file name without the extension"""
+        """Return the file name without the extension."""
         return str(os.path.splitext(self.path)[0])
 
     @property
     def basename(self) -> str:
-        """Return the file name with the extension"""
+        """Return the file name with the extension."""
         return str(os.path.basename(self.path))
 
     @property
     def extension(self) -> str:
-        """Return the file extension"""
+        """Return the file extension."""
         return str(os.path.splitext(self.path)[-1]).lower()
 
     @extension.setter
     def extension(self, ext: str) -> int:
-        """Set a new extension to the file"""
+        """Set a new extension to the file."""
         new_path = os.path.splitext(self.path)[0] + ext
         try:
             shutil.move(self.path, new_path, copy_function=shutil.copy2)
@@ -134,7 +134,7 @@ class File:
 
     @property
     def content(self) -> list[Any]:
-        """Helper for self.read()"""
+        """Helper for self.read()."""
         if not self._content:
             self._content = self.read()
         return self._content
@@ -188,57 +188,56 @@ class File:
 
     @property
     def is_file(self) -> bool:
-        """Check if the object is a file"""
+        """Check if the object is a file."""
         if GIT_OBJECT_REGEX.match(self.basename):
             return False
         return os.path.isfile(self.path)
 
     @property
     def is_executable(self) -> bool:
-        """Check if the file has the executable bit set"""
+        """Check if the file has the executable bit set."""
         return os.access(self.path, os.X_OK)
 
     @property
     def is_dir(self) -> bool:
-        """Check if the object is a directory"" """
+        """Check if the object is a directory""."""
         return os.path.isdir(self.path)
 
     @property
     def is_video(self) -> bool:
-        """Check if the file is a video"""
+        """Check if the file is a video."""
         return self.extension.lower() in FILE_TYPES["video"]
 
     @property
     def is_gitobject(self) -> bool:
-        """Check if the file is a git object"""
+        """Check if the file is a git object."""
         return GIT_OBJECT_REGEX.match(self.basename) is not None
 
     @property
     def is_image(self) -> bool:
-        """Check if the file is an image"""
+        """Check if the file is an image."""
         return self.extension.lower() in FILE_TYPES["img"]
 
     @property
     def st(self) -> os.stat_result:
-        """Run `stat` on the file"""
+        """Run `stat` on the file."""
         return os.stat(self.path)
 
     @property
     def mode(self) -> int:
-        """Get UNIX EXT4 file permissions"""
+        """Get UNIX EXT4 file permissions."""
         return int(oct(self.st.st_mode)[-3:])
 
     @mode.setter
     def mode(self, value: int) -> None:
-        """Set UNIX EXT4 file permissions"""
+        """Set UNIX EXT4 file permissions."""
         value = int(f"0o{value}")
         os.chmod(self.path, value)
 
     def detect_encoding(self) -> str | None:
-        """Detects encoding of the file"""
+        """Detects encoding of the file."""
         with open(self.path, "rb") as f:
-            encoding = chardet.detect(f.read())["encoding"]
-        return encoding
+            return chardet.detect(f.read())["encoding"]
 
     # def unixify(self) -> List[str]:
     #     """Convert DOS line endings to UNIX - \\r\\n -> \\n"""
@@ -291,11 +290,11 @@ class File:
     #     self._content = self.read()
     #     return self._content == other.content
     def __eq__(self, other: "File", /) -> bool:
-        """Compare two FileObjects
+        """Compare two FileObjects.
 
         Paramaters:
         -----------
-            - `other (Object)` : The Object to compare (FileObject, VideoObject, etc.)
+            other (Object): The Object to compare (FileObject, VideoObject, etc.)
 
         """
         return all((other.exists, self.exists, hash(self) == hash(other)))

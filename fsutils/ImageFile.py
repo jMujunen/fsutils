@@ -3,7 +3,6 @@
 import base64
 import os
 import subprocess
-from collections.abc import Callable
 from datetime import datetime
 from io import BytesIO
 
@@ -11,15 +10,15 @@ import cv2
 import imagehash
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
-from size import Size
 
 from .GenericFile import File
+from typing import Never
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 
 
 class Img(File):
-    """A class representing information about an image
+    """A class representing information about an image.
 
     Attributes
     ----------
@@ -46,49 +45,36 @@ class Img(File):
         super().__init__(path)
 
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash:
-        """Calculate the hash value of the image
+        """Calculate the hash value of the image.
 
         Paramters:
         ---------
-            spec (str): The specification for the hashing algorithm to use.
-
-        Returns
-        -------
-            hash_table (array)  : The calculated hash of the image.
-            None (None)         : NoneType if an error occurs while calculating the hash
+            - `spec (str)` : The specification for the hashing algorithm to use.
 
         """
-        {
-            "avg": lambda x: imagehash.average_hash(x),
-            "dhash": lambda x: imagehash.dhash(x),
-            "phash": lambda x: imagehash.phash(x),
-        }
-
-        def get_spec(spec: str, img: Image.Image) -> imagehash.ImageHash:
-            match spec:
-                case "avg":
-                    return imagehash.average_hash(img)
-                case "dhash":
-                    return imagehash.dhash(img)
-                case "phash":
-                    return imagehash.phash(img)
-                case _:
-                    raise ValueError("Invalid specification for hash algorithm")
-
         # Ignore heic until feature is implemented to support it.
         # Excluding this has unwanted effects when comparing hash values
         if self.extension == ".heic" or self.is_corrupt:
             pass
         with Image.open(self.path) as img:
-            return get_spec(spec, img)
+            match spec:
+                case "avg":
+                    img_hash = imagehash.average_hash(img)
+                case "dhash":
+                    img_hash = imagehash.dhash(img)
+                case "phash":
+                    img_hash = imagehash.phash(img)
+                case _:
+                    raise ValueError("Invalid specification for hash algorithm")
+        return img_hash
 
     @property
     def dimensions(self) -> tuple[int, int]:
-        """Extract the dimensions of the image
+        """Extract the dimensions of the image.
 
         Returns
         -------
-            Tuple(int, int): width x height of the image in pixels.
+            - `Tuple(int, int)` : width x height of the image in pixels.
 
         """
         with Image.open(self.path) as img:
@@ -97,7 +83,7 @@ class Img(File):
 
     @property
     def exif(self) -> Image.Exif | None:
-        """Extract the EXIF data from the image"""
+        """Extract the EXIF data from the image."""
         if self._exif:
             return self._exif
         # Open Image
@@ -106,11 +92,11 @@ class Img(File):
                 self._exif = img.getexif()
             return self._exif
         except UnidentifiedImageError as e:
-            print(e)
+            print(f"{e!r}")
 
     @property
     def tags(self):
-        """Extract metadata from image files"""
+        """Extract metadata from image files."""
         for tag_id in self.exif:
             try:
                 tags = TAGS.get(tag_id, tag_id)
@@ -123,6 +109,8 @@ class Img(File):
                 if tag not in self._tags:
                     self._tags.append(tag)
                 yield tag
+            except UnicodeDecodeError:
+                continue
             except Exception as e:
                 print(f"Error extracting tag {tag_id}: {e!r}")
                 continue
@@ -185,7 +173,7 @@ class Img(File):
 
     @staticmethod
     def show(path: str, render_size=320, title=True) -> int:
-        """`HACK`: Mirror of render()"""
+        """`HACK`: Mirror of render()."""
         if title:
             title = f"{os.path.split(path)[-1]}"
             pos = round(
@@ -201,7 +189,7 @@ class Img(File):
     def render(self, render_size=320, title=True) -> int:
         try:
             if title:
-                title = f"{self.basename}\t{str(self.capture_date)}"
+                title = f"{self.basename}\t{self.capture_date!s}"
                 pos = round(
                     (render_size / 10) - (render_size % 360 / 10)
                 )  # Vain attempt to center the title
@@ -217,12 +205,12 @@ class Img(File):
             return 1
 
     def open(self) -> None:
-        """Open the image in the OS default image viewer"""
+        """Open the image in the OS default image viewer."""
         with Image.open(self.path) as f:
             f.show()
 
-    def save(self, path: str):
-        """Save the image to a specified location"""
+    def save(self, path: str) -> Never:
+        """Save the image to a specified location."""
         raise NotImplementedError(self.__class__.__name__ + ".save() is not yet implemented.")
 
     def resize(
@@ -232,7 +220,7 @@ class Img(File):
         overwrite=False,
         file_path: str | None = None,
     ) -> "Img":
-        """Resize the image to specified width and height"""
+        """Resize the image to specified width and height."""
         saved_image_path = os.path.join(self.dir_name, f"_resized-{self.basename}")
         if file_path is not None:
             saved_image_path = file_path
@@ -347,7 +335,7 @@ class Img(File):
             else:
                 name = name.split(" ")[0]
             iterations += 1
-        return f"{name:<25} | {self.extension:<6} | {self.size_human:<10} | {str(self.dimensions):<15} | {str(self.capture_date):<25}"
+        return f"{name:<25} | {self.extension:<6} | {self.size_human:<10} | {self.dimensions!s:<15} | {self.capture_date!s:<25}"
 
     @staticmethod
     def fmtheader() -> str:

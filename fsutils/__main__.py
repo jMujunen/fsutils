@@ -133,7 +133,7 @@ def parse_args():
     return main_parser.parse_args()
 
 
-def log_parser(arguments: argparse.Namespace):
+def log_parser(arguments: argparse.Namespace) -> None:
     pass
 
 
@@ -141,7 +141,7 @@ def dir_parser(arguments: argparse.Namespace) -> int:
     return 1
 
 
-def image_parser(arguments: argparse.Namespace):
+def image_parser(arguments: argparse.Namespace) -> None:
     print(arguments)
 
 
