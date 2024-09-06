@@ -5,7 +5,6 @@ import os
 import re
 import shutil
 from collections.abc import Iterator
-from dataclasses import dataclass, field
 from typing import Any
 
 import chardet
@@ -16,26 +15,7 @@ from .mimecfg import FILE_TYPES
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
-@dataclass
-class FileMetadata:
-    """Hold file metadata."""
-
-    path: str
-    encoding: str = field(default="utf-8")
-
-    def __post_init__(self):
-        self.path = os.path.abspath(self.path)
-        if not os.path.exists(self.path):
-            raise FileNotFoundError(f"{self.path} does not exist")
-        self.filename = os.path.basename(self.path)
-        self.extension = os.path.splitext(self.path)[-1]
-        self.size = os.path.getsize(self.path)
-        self.size_human = Size(self.size)
-        self.st = os.stat(self.path)
-        self.dirname = os.path.dirname(self.path)
-
-
-class File(FileMetadata):
+class File:
     """This is the base class for all of the following objects.
 
     It represents a generic file and defines the common methods that are used by all of them.
@@ -73,15 +53,22 @@ class File(FileMetadata):
 
     """
 
+    _content: list[Any] = []
+
     def __init__(self, path: str, encoding: str = "utf-8") -> None:
-        """Init for the object.
+        """Constructor for the FileObject class.
 
         Paramaters:
         ----------
             - `path (str)` : The path to the file
             - `encoding (str)` : Encoding type of the file (default is utf-8)
         """
-        super().__init__(path=path, encoding=encoding)
+        self.encoding = encoding
+        self.path = os.path.abspath(os.path.expanduser(path))
+        self._exsits = self.exists
+        # self._content = []
+        # print(f"{self.__class__.__name__}(exists={self.exists}, basename={self.basename})")
+        # print(self.__doc__)
 
     def head(self, n: int = 5) -> list[str]:
         """Return the first n lines of the file."""
@@ -96,6 +83,52 @@ class File(FileMetadata):
         return self.content
 
     @property
+    def is_link(self) -> bool:
+        """Check if the path is a symbolic link."""
+        return os.path.islink(self.path)
+
+    @property
+    def size_human(self) -> str:
+        """Return the size of the file in human readable format."""
+        return str(Size(self.size))
+
+    @property
+    def size(self) -> int:
+        """Return the size of the file in bytes."""
+        return int(os.path.getsize(self.path))
+
+    @property
+    def dir_name(self) -> str:
+        """Return the parent directory of the file."""
+        return os.path.dirname(self.path) if not self.is_dir else self.path
+
+    @property
+    def file_name(self) -> str:
+        """Return the file name without the extension."""
+        return str(os.path.splitext(self.path)[0])
+
+    @property
+    def basename(self) -> str:
+        """Return the file name with the extension."""
+        return str(os.path.basename(self.path))
+
+    @property
+    def extension(self) -> str:
+        """Return the file extension."""
+        return str(os.path.splitext(self.path)[-1]).lower()
+
+    @extension.setter
+    def extension(self, ext: str) -> int:
+        """Set a new extension to the file."""
+        new_path = os.path.splitext(self.path)[0] + ext
+        try:
+            shutil.move(self.path, new_path, copy_function=shutil.copy2)
+        except OSError as e:
+            print(f"Error while saving {self.basename}: {e}")
+            return 1
+        return 0
+
+    @property
     def exists(self) -> bool:
         return os.path.exists(self.path)
 
@@ -107,7 +140,7 @@ class File(FileMetadata):
         return self._content
 
     def read(self, **kwargs) -> list[Any]:
-        """Read the content of a file.
+        """Method for reading the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
         practice to override this method in subclasses that deal with binary files.
@@ -154,6 +187,38 @@ class File(FileMetadata):
         return hashlib.md5(data).hexdigest()
 
     @property
+    def is_file(self) -> bool:
+        """Check if the object is a file."""
+        if GIT_OBJECT_REGEX.match(self.basename):
+            return False
+        return os.path.isfile(self.path)
+
+    @property
+    def is_executable(self) -> bool:
+        """Check if the file has the executable bit set."""
+        return os.access(self.path, os.X_OK)
+
+    @property
+    def is_dir(self) -> bool:
+        """Check if the object is a directory""."""
+        return os.path.isdir(self.path)
+
+    @property
+    def is_video(self) -> bool:
+        """Check if the file is a video."""
+        return self.extension.lower() in FILE_TYPES["video"]
+
+    @property
+    def is_gitobject(self) -> bool:
+        """Check if the file is a git object."""
+        return GIT_OBJECT_REGEX.match(self.basename) is not None
+
+    @property
+    def is_image(self) -> bool:
+        """Check if the file is an image."""
+        return self.extension.lower() in FILE_TYPES["img"]
+
+    @property
     def st(self) -> os.stat_result:
         """Run `stat` on the file."""
         return os.stat(self.path)
@@ -170,15 +235,20 @@ class File(FileMetadata):
         os.chmod(self.path, value)
 
     def detect_encoding(self) -> str | None:
-        """Detect encoding of the file."""
+        """Detects encoding of the file."""
         with open(self.path, "rb") as f:
             return chardet.detect(f.read())["encoding"]
 
-    # def __hash__(self) -> int:
-    #     try:
-    #         return hash(("\n".join(self.content), self.size))
-    #     except TypeError:
-    #         return hash((self.md5_checksum, self.size))
+    # def unixify(self) -> List[str]:
+    #     """Convert DOS line endings to UNIX - \\r\\n -> \\n"""
+    #     self._content = "".split(re.sub(r"\r\n$|\r$", "\n", "".join(self.content)))
+    #     return self._content
+
+    def __hash__(self) -> int:
+        try:
+            return hash(("\n".join(self.content), self.size))
+        except TypeError:
+            return hash((self.md5_checksum, self.size))
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""
@@ -208,6 +278,17 @@ class File(FileMetadata):
             item in word for word in item.split(" ") for line in self
         )
 
+    # def __eq__(self, other: object) -> bool:
+    #     """Compare two FileObjectsfor
+
+    #     Paramaters:
+    #     ----------
+    #         other (Object): The Object to compare (FileObject, VideoObject, etc.)
+    #     """
+    #     if not isinstance(other, self.__class__ | File):
+    #         return False
+    #     self._content = self.read()
+    #     return self._content == other.content
     def __eq__(self, other: "File", /) -> bool:
         """Compare two FileObjects.
 
@@ -218,8 +299,17 @@ class File(FileMetadata):
         """
         return all((other.exists, self.exists, hash(self) == hash(other)))
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
+            **vars(self)
+        )
+
     def __str__(self) -> str:
         try:
             return "\n".join(self.content)
         except TypeError:
             return self.__repr__()
+
+    # def __getattribute__(self, name: str, /) -> Any:
+    # """Get an attribute of the File Object"""
+    # return self.__dict__.get(name, None)

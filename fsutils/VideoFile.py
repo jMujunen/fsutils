@@ -1,6 +1,5 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
-import contextlib
 import hashlib
 import json
 import os
@@ -17,6 +16,7 @@ from .exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
 from .ImageFile import Img
+import contextlib
 
 
 class Video(File):
@@ -84,7 +84,7 @@ class Video(File):
             return round(int(self.metadata.get("bit_rate", -1)))
         except ZeroDivisionError:
             if self.is_corrupt:
-                print(f"\033[31m{self.filename} is corrupt!\033[0m")
+                print(f"\033[31m{self.basename} is corrupt!\033[0m")
             return 0
 
     @property
@@ -193,8 +193,8 @@ class Video(File):
         --------
             - `Img` : subprocess return code
         """
-        output = os.path.join(self.dirname, output) or os.path.join(
-            self.dirname, self.filename[:-4] + ".gif"
+        output = os.path.join(self.dir_name, output) or os.path.join(
+            self.dir_name, self.basename[:-4] + ".gif"
         )
         # w = scale
         # h = round(scale * 0.5625)
@@ -259,7 +259,7 @@ class Video(File):
         --------
         >>> compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         """
-        output_path = kwargs.get("output") or os.path.join(self.dirname, f"_{self.filename}")
+        output_path = kwargs.get("output") or os.path.join(self.dir_name, f"_{self.basename}")
         subprocess.check_output(
             [
                 "ffmpeg",
@@ -328,7 +328,7 @@ class Video(File):
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted string representation of the file."""
-        name = self.filename
+        name = self.basename
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
             if "-" in name:
@@ -348,6 +348,22 @@ class Video(File):
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
         )
         return f"\033[1m{header}\033[0m\n{linebreak}"
+
+
+class FFMpegManager:
+    def __init__(self, movie: Video) -> None:
+        self.file = movie
+
+    def __enter__(self) -> None:
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+        if exc_type is not None:
+            with contextlib.suppress(OSError):
+                os.remove(self.file.path)
+            return True
+        else:
+            return False
 
 
 if __name__ == "__main__":
