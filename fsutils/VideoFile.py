@@ -1,5 +1,6 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
+import contextlib
 import hashlib
 import json
 import os
@@ -16,7 +17,6 @@ from .exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
 from .ImageFile import Img
-import contextlib
 
 
 class Video(File):
@@ -84,7 +84,7 @@ class Video(File):
             return round(int(self.metadata.get("bit_rate", -1)))
         except ZeroDivisionError:
             if self.is_corrupt:
-                print(f"\033[31m{self.basename} is corrupt!\033[0m")
+                print(f"\033[31m{self.filename} is corrupt!\033[0m")
             return 0
 
     @property
@@ -121,10 +121,7 @@ class Video(File):
         """Check if the video is corrupt."""
         try:
             cap = cv2.VideoCapture(self.path)
-            if not cap.isOpened():
-                return True  # Video is corrupt
-            else:
-                return False  # Video is not corrupt
+            return cap.isOpened()
         except (OSError, SyntaxError):
             return True  # Video is corrupt
         except KeyboardInterrupt:
@@ -169,7 +166,12 @@ class Video(File):
             except Exception as e:
                 print(f"Error: {e}")
 
-    def make_gif(self, scale: str | int = 320, fps=24, output="./output.gif") -> Img:
+    def make_gif(
+        self,
+        scale: int | str | tuple[int, int] = 640,
+        fps=24,
+        **kwargs: Any,
+    ):
         """Convert the video to a gif using FFMPEG.
 
         Parameters:
@@ -193,45 +195,89 @@ class Video(File):
         --------
             - `Img` : subprocess return code
         """
-        output = os.path.join(self.dir_name, output) or os.path.join(
-            self.dir_name, self.basename[:-4] + ".gif"
-        )
-        # w = scale
-        # h = round(scale * 0.5625)
-        # scale = f"{w}x{h}"
-        # "-r",
-        # str(fps),
-        # "-s",
-        # scale,
-        subprocess.check_output(
-            [
-                "ffmpeg",
-                "-i",
-                self.path,
-                # "-vf",
-                # f"fps={fps},scale=-1:{str(scale)}:flags=lanczos",
-                "-c:v",
-                "gif",
-                "-r",
-                f"{fps}",
-                "-s",
-                f"{scale}",
-                "-c:v",
-                "gif",
-                "-r",
-                f"{fps}",
-                "-s",
-                f"{scale}",
-                "-pix_fmt",
-                "rgb8",
-                "-y",
-                output,
-                "-v",
-                "error",
-            ]
-        )
+        # f"scale=-1:{str(scale)}:flags=lanczos",
+        # subprocess.check_output(
+        #     [
+        #         "ffmpeg",
+        #         "-i",
+        #         f"{self.path}",
+        #         "-vf",
+        #         f"scale=-1:{str(scale)}:flags=lanczos",
+        #         "-r",
+        #         f"{str(fps)}",
+        #         f"{output}",
+        #         "-loglevel",
+        #         "quiet",
+        #     ]
+        # )
 
-        return Img(output)
+        # Other options: "-pix_fmt","rgb24" |
+
+        _cmd = [
+            "ffmpeg",
+            "-i",
+            "{i}",
+            "-vf",
+            "scale=-1:{scale}:flags=lanczos",
+            "-y",
+            "-v",
+            "error",
+            "{output}",
+        ]
+
+        _cmd2 = [
+            "ffmpeg",
+            "-i",
+            "{in}",
+            "-vf",
+            "framerate={fps}",
+            "-s",
+            "{scale",
+            "-y",
+            "-v",
+            "error",
+            "{output}",
+        ]
+        # cmd = _cmd.format(**kwargs)
+        # match kwargs:
+        #     case {"output": value}:
+
+        # output = kwargs.get("output", os.path.join(self.dir_name, f"{self.filename[:-4]}.gif"))
+        # if isinstance(scale, int):
+        #     w = scale
+        #     h = round(scale * 0.5625)
+        # elif isinstance(scale, tuple):
+        #     w, h = scale
+        # else:
+        #     raise ValueError(f"{scale} is not a valid value for scale")
+        # scale = f"{w}x{h}"
+        # match kwargs.keys():
+        #     case _:
+        #         pass
+        # subprocess.check_output(
+        #     [
+        #         "ffmpeg",
+        #         "-i",
+        #         self.path,
+        #         # "-vf",
+        #         # f"fps={fps},scale=-1:{str(scale)}:flags=lanczos",
+        #         "-vf",
+        #         '"framerate=12"' "-r",
+        #         str(fps),
+        #         "-s",
+        #         str(scale),
+        #         "-c:v",
+        #         "gif",
+        #         "-pix_fmt",
+        #         "rgb8",
+        #         "-y",
+        #         output,
+        #         "-v",
+        #         "error",
+        #     ]
+        # )
+
+        return self
 
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
         """Trim the video from start to end time (seconds).
@@ -259,7 +305,7 @@ class Video(File):
         --------
         >>> compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         """
-        output_path = kwargs.get("output") or os.path.join(self.dir_name, f"_{self.basename}")
+        output_path = kwargs.get("output") or os.path.join(self.dir_name, f"_{self.filename}")
         subprocess.check_output(
             [
                 "ffmpeg",
@@ -328,7 +374,7 @@ class Video(File):
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted string representation of the file."""
-        name = self.basename
+        name = self.filename
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
             if "-" in name:
@@ -348,22 +394,6 @@ class Video(File):
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
         )
         return f"\033[1m{header}\033[0m\n{linebreak}"
-
-
-class FFMpegManager:
-    def __init__(self, movie: Video) -> None:
-        self.file = movie
-
-    def __enter__(self) -> None:
-        pass
-
-    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
-        if exc_type is not None:
-            with contextlib.suppress(OSError):
-                os.remove(self.file.path)
-            return True
-        else:
-            return False
 
 
 if __name__ == "__main__":

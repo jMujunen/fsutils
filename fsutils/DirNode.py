@@ -58,7 +58,7 @@ class Dir(File):
     @property
     def files(self) -> list[str]:
         """Return a list of file names in the directory represented by this object."""
-        return [f.basename for f in self if not os.path.isdir(f.path)]
+        return [f.filename for f in self if not os.path.isdir(f.path)]
 
     @property
     def file_objects(self) -> list[File | Exe | Log | Img | Video | Git]:
@@ -162,7 +162,7 @@ class Dir(File):
 
         def process_dir(file: "File"):
             if hash(file) in hash_set:
-                return file.path, dir1.file_info(file.basename).path
+                return file.path, dir1.file_info(file.filename).path
             return None
 
         # Create a dictionary to store the hashes of files in dir1

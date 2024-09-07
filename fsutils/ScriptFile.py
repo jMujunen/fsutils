@@ -35,7 +35,7 @@ class Exe(File):
                 f.seek(0)
                 f.write("\n".join(self._content))
 
-            print(f"{self.basename}\n{self.shebang} -> {shebang}")
+            print(f"{self.filename}\n{self.shebang} -> {shebang}")
             print(self.tail(2))
             self._shebang = shebang
             return self._content

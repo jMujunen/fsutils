@@ -8,6 +8,7 @@ from datetime import datetime
 from io import BytesIO
 from typing import Never
 
+import chardet
 import cv2
 import imagehash
 from PIL import Image, UnidentifiedImageError
@@ -190,7 +191,7 @@ class Img(File):
     def render(self, render_size=320, title=True) -> int:
         try:
             if title:
-                title = f"{self.basename}\t{self.capture_date!s}"
+                title = f"{self.filename}\t{self.capture_date!s}"
                 pos = round(
                     (render_size / 10) - (render_size % 360 / 10)
                 )  # Vain attempt to center the title
@@ -222,7 +223,7 @@ class Img(File):
         file_path: str | None = None,
     ) -> "Img":
         """Resize the image to specified width and height."""
-        saved_image_path = os.path.join(self.dir_name, f"_resized-{self.basename}")
+        saved_image_path = os.path.join(self.dir_name, f"_resized-{self.filename}")
         if file_path is not None:
             saved_image_path = file_path
         if (
@@ -258,28 +259,22 @@ class Img(File):
         -------
             - `Img`: A new instance of the Img class with the compressed image path and dimensions
 
-        Raises
-        ------
-            - `OSError` : If an error occurred while saving the compressed image file to disk
-            - `IOError` : If an error occurred while opening the image file from disk
-            - `ValueError` : If an invalid value was passed for width, height or new_size_ratio parameters
-
         """
         # Make new filename prepending _compressed to the original file name
-        new_filename = f"_compressed{self.basename}"
+        new_filename = f"_compressed{self.filename}"
         # Load the image to memory
         with Image.open(self.path) as img:
             if to_jpg:
                 # convert the image to RGB mode
-                img = img.convert("RGB")
-                new_filename = f"{self.basename}_compressed.jpg"
+                img.convert("RGB")
+                new_filename = f"{self.filename}_compressed.jpg"
             # Multiply width & height with `ratio`` to reduce image size
             if new_size_ratio < 1.0:
-                img = img.resize(
+                img.resize(
                     (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio)),
                 )
             elif width and height:
-                img = img.resize((width, height))
+                img.resize((width, height))
             try:
                 new_file_path = os.path.join(self.dir_name, new_filename)
                 img.save(new_file_path, quality=quality, optimize=True)
@@ -292,6 +287,19 @@ class Img(File):
         print(f"The image was reduced by {size_diff:.2f}%.")
         return resized_img  # type: ignore
 
+    def detect_encoding(self):
+        """Detects the encoding of a file.
+
+        Returns:
+            str: The detected encoding.
+        Raises:
+            Exception: If an error occurs while reading the file or detecting its encoding.
+        """
+        with open(self.path, "rb") as f:
+            raw_data = f.read()
+        result = chardet.detect(raw_data)
+        return result["encoding"]
+
     def encode(self) -> str:
         """Base64 encode the image for LLM processing."""
         resized = self.resize()
@@ -299,7 +307,7 @@ class Img(File):
             try:
                 if self.extension == ".png":
                     # change the extension to JPEG
-                    img = img.convert("RGB")
+                    img.convert("RGB")
                 buffered = BytesIO()
                 img.save(buffered, format=ENCODE_SPEC.get(self.extension, "JPEG"))
                 img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -308,7 +316,7 @@ class Img(File):
                 print(
                     f"OSError  while converting to base64: {self.extension}: spec=({ENCODE_SPEC.get(self.extension)})"
                 )
-                return str(e)
+                return format(e, "r")
         return img_str
 
     def grayscale(self, output: str) -> "Img":
@@ -326,7 +334,7 @@ class Img(File):
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted table representation of the file."""
-        name = self.basename
+        name = self.filename
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
             if "-" in name:
@@ -347,6 +355,6 @@ class Img(File):
         return f"\033[1m{header}\033[0m\n{linebreak}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
+        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.filename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
             **vars(self),
         )
