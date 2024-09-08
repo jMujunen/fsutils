@@ -1,12 +1,5 @@
 FILE_TYPES = {
-    "img": [
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".gif",
-        ".heic",
-        ".nef",
-    ],
+    "img": [".jpg", ".jpeg", ".png", ".gif", ".heic", ".nef"],
     "config": [
         ".ini",
         ".xml",

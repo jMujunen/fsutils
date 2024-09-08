@@ -3,10 +3,10 @@
 import datetime
 import os
 import re
+import sys
 from collections import defaultdict
 from collections.abc import Iterator
 
-import cv2
 import numpy as np
 from PIL import Image
 from size import Size
@@ -17,6 +17,7 @@ from .GenericFile import File
 from .GitObject import Git
 from .ImageFile import Img
 from .LogFile import Log
+from .mimecfg import FILE_TYPES
 from .ScriptFile import Exe
 from .VideoFile import Video
 
@@ -53,6 +54,13 @@ class Dir(File):
     _metadata: dict = {}
 
     def __init__(self, path: str):
+        """
+        Initialize a new instance of the Dir class.
+
+        Parameters
+        ----------
+            - `path (str)` : The path to the directory.
+        """
         super().__init__(path)
 
     @property
@@ -101,7 +109,7 @@ class Dir(File):
     def file_info(self, file_name: str) -> File | None:
         """Query the object for files with the given name.
 
-        Return an instance of the appropriate sub0class of File if a matching file is found."""
+        Return an instance of the appropriate subclass of File if a matching file is found."""
         try:
             if file_name in os.listdir(self.path):
                 return obj(os.path.join(self.path, file_name))
@@ -111,7 +119,6 @@ class Dir(File):
             content = os.listdir(os.path.join(self.path, d.path))
             if file_name in content:
                 return obj(os.path.join(self.path, d.path, file_name))
-            # return obj(os.path.join(self.path, d, file_name))
         return None
 
     def query_image(self, image: Img, threshold=3, method="phash") -> list[Img]:
@@ -139,6 +146,7 @@ class Dir(File):
 
     @staticmethod
     def compare(dir1: "Dir", dir2: "Dir"):
+        # INCOMPLETE: implement this
         def calculate_dhash(image: Img):
             # Resize the image to a fixed size
             img = Image.open(image.path).convert("L")
@@ -224,7 +232,7 @@ class Dir(File):
     def detect_duplicates():
         """Detect duplicate files in a directory and its subdirectories."""
 
-    def sort(self, specifier, reversed=True) -> None:
+    def sort(self, specifier: str, reversed=True) -> None:
         """Sort the files and directories by the specifying attribute."""
         specs = {
             "mtime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_mtime).strftime(
@@ -260,13 +268,12 @@ class Dir(File):
             return "\n".join(
                 result for result in pool.execute(format, self.videos, progress_bar=False)
             )
-        elif format_spec == "images":
+        if format_spec == "images":
             print(Img.fmtheader())
             return "\n".join(
                 result for result in pool.execute(format, self.images, progress_bar=False)
             )
-        else:
-            return "Formatting Dir is not supported yet"
+        return "Formatting Dir is not supported yet"
 
     def __contains__(self, item: File) -> bool:
         """Compare items in two DirectoryObjects."""
@@ -303,18 +310,31 @@ class Dir(File):
             )
         )
 
-    # def fmt(self, *args) -> str:
-    #     """Print a formatted string representation of each object in self."""
-    #     return f"{self.__class__.__name__}({self.path})"
-
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(dir_name={self.path}, path={self.path}, is_empty={self.is_empty})".format(
             **vars(self)
         )
 
 
+def _obj(path: str) -> File:
+    """Return a File object for the given path."""
+    # INCOMPLETE : In development
+    _, ext = os.path.splitext(path.lower())
+
+    for file_type, extensions in FILE_TYPES.items():
+        if ext in extensions:
+            # Dynamically create the class name and instantiate it
+            class_name = file_type.capitalize()
+            module = sys.modules[__name__]
+            FileClass = getattr(module, class_name)
+            return FileClass(path)
+
+    # If no match is found, return a default instance or raise an error
+    raise ValueError(f"Unsupported file type: {ext}")
+
+
 def obj(path: str) -> File:
-    """Returns the appropriate subclass if File."""
+    """Return the appropriate subclass if File."""
     if not os.path.exists(path):
         raise FileNotFoundError(path, " does not exist")
     ext = os.path.splitext(path)[1].lower()
@@ -341,6 +361,9 @@ def obj(path: str) -> File:
         ".bat": Exe,
         ".sh": Exe,
     }
+
+    clsses = {}
+
     others = {
         re.compile(r"(\d+mhz|\d\.\d+v)"): Log,
         re.compile(r"([a-f0-9]{37,41})"): Git,
@@ -355,14 +378,3 @@ def obj(path: str) -> File:
             return Dir(path)
         return File(path)
     return cls(path)
-
-
-if __name__ == "__main__":
-    path = Dir("/home/joona/.dotfiles")
-    from ExecutionTimer import ExecutionTimer
-
-    with ExecutionTimer():
-        for item in path.videos:
-            if item.is_dir:
-                print(item)
-                print(item)

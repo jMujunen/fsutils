@@ -18,9 +18,11 @@ GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 @dataclass
 class FileMetaData:
-    """This class holds metadata about a file"""
+    """Hold metadata about a file."""
 
-    path: str
+    path: str = field(repr=False)
+    size: int = field(default_factory=int)
+    encoding: str = field(default="utf-8")
 
 
 class File:
@@ -64,7 +66,7 @@ class File:
     _content: list[Any] = []
 
     def __init__(self, path: str, encoding: str = "utf-8") -> None:
-        """Constructor for the FileObject class.
+        """Construct the FileObject object.
 
         Paramaters:
         ----------
@@ -160,19 +162,20 @@ class File:
         ----------
             str: The content of the file
         """
-        x, y = None, None
-        if len(args) == 2:
+        try:
             # Define list slice
             x, y = args
-            try:
-                with open(self.path, "rb") as f:
-                    lines = f.read().decode(self.encoding).split("\n")
-                    self._content = list(lines[x:y])
+        except ValueError:
+            x, y = None, None
 
-            except UnicodeDecodeError as e:
-                print(f"{e!r}: {self.filename} could not be decoded as {self.encoding}")
-            except Exception:
-                print(f"Reading of type {self.__class__.__name__} is unsupported")
+        try:
+            with open(self.path, "rb") as f:
+                lines = f.read().decode(self.encoding).split("\n")
+                self._content = list(lines[x:y])
+        except UnicodeDecodeError as e:
+            print(f"{e!r}: {self.filename} could not be decoded as {self.encoding}")
+        except Exception:
+            print(f"Reading of type {self.__class__.__name__} is unsupported")
         return self._content
 
     def _read_chunk(self, size=8192) -> bytes:

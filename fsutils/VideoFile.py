@@ -1,7 +1,5 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
-import contextlib
-import hashlib
 import json
 import os
 import subprocess
@@ -13,10 +11,9 @@ from typing import Any
 import cv2
 from size import Size
 
-from .exceptions import CorruptMediaError, FFProbeError
+from .Exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
-from .ImageFile import Img
 
 
 class Video(File):
@@ -46,6 +43,13 @@ class Video(File):
     """
 
     def __init__(self, path: str) -> None:
+        """Initialize a new Video object.
+
+        Paramaters:
+        -------------
+            - `path (str)` : The absolute path to the video file.
+
+        """
         self._metadata = None
         self._info = None
         super().__init__(path)
@@ -134,10 +138,9 @@ class Video(File):
         except IndexError:
             if self.is_corrupt:
                 raise CorruptMediaError(f"{self.path} is corrupt.") from IndexError
-            else:
-                raise FFProbeError(
-                    f"FFprobe did not find any video streams for {self.path}."
-                ) from IndexError
+            raise FFProbeError(
+                f"FFprobe did not find any video streams for {self.path}."
+            ) from IndexError
 
     @property
     def fps(self) -> int:
@@ -276,7 +279,6 @@ class Video(File):
         #         "error",
         #     ]
         # )
-
         return self
 
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
@@ -338,31 +340,6 @@ class Video(File):
         )
         return Video(output_path)
 
-    # NOTE:  Untested
-    def extract_audio(self, output_path: str | None = None) -> int:
-        return subprocess.call(
-            [
-                "ffmpeg",
-                "-i",
-                f"{self.path}",
-                "-vn",
-                "-y",
-                f"{os.path.splitext(self.path)[0]}_audio.wav",
-            ]
-        )
-
-    # NOTE:  Untested
-    def extract_subtitle(self, output_path: str | None = None) -> int:
-        return subprocess.call(
-            f"ffmpeg -i {self.path} -map s -c copy {os.path.splitext(self.path)[0]}_subtitle.srt",
-            shell=True,
-        )
-
-    # NOTE:  Untested
-    def extract_frames(self, output_path: str | None = None) -> int:
-        # [ ] - WIP
-        return subprocess.call(f"ffmpeg  -i {self.path}  image%03d.jpg", shell=True)
-
     def __repr__(self) -> str:
         """Return a string representation of the file."""
         return f"{self.__class__.__name__}(size={self.size_human}, bitrate={self.bitrate_human}, codec={self.codec},)".format(
@@ -396,9 +373,30 @@ class Video(File):
         return f"\033[1m{header}\033[0m\n{linebreak}"
 
 
-if __name__ == "__main__":
-    from . import Dir
+"""
 
-    videos = Dir("/mnt/ssd/OBS/muru/PUBG/_PLAYERUNKNOWN'S BATTLEGROUNDS/").videos[:-2]
-    for vid in videos:
-        compressed = vid.compress()
+    # NOTE:  Untested
+    def extract_audio(self, output_path: str | None = None) -> int:
+        return subprocess.call(
+            [
+                "ffmpeg",
+                "-i",
+                f"{self.path}",
+                "-vn",
+                "-y",
+                f"{os.path.splitext(self.path)[0]}_audio.wav",
+            ]
+        )
+
+    # NOTE:  Untested
+    def extract_subtitle(self, output_path: str | None = None) -> int:
+        return subprocess.call(
+            f"ffmpeg -i {self.path} -map s -c copy {os.path.splitext(self.path)[0]}_subtitle.srt",
+            shell=True,
+        )
+
+    # NOTE:  Untested
+    def extract_frames(self, output_path: str | None = None) -> int:
+        # [ ] - WIP
+        return subprocess.call(f"ffmpeg  -i {self.path}  image%03d.jpg", shell=True)
+        """

@@ -244,7 +244,7 @@ class Img(File):
         width: int | None = None,
         height: int | None = None,
         to_jpg=False,
-    ) -> "Img":
+    ) -> "Img | None":
         """Compresses an image.
 
         Paramaters:
@@ -279,16 +279,19 @@ class Img(File):
                 new_file_path = os.path.join(self.dir_name, new_filename)
                 img.save(new_file_path, quality=quality, optimize=True)
                 resized_img = self.__class__(new_file_path)
-            except OSError as e:
-                print(f"Error while saving the compressed image.\n{e!r}")
-
+            except (OSError, PermissionError):
+                print("Permission Denied")
+                return None
+            except Exception as e:
+                print(f"Error: {e:!r}")
+                return None
         # Calculate file size reduction
-        size_diff = (resized_img.size - self.size) / self.size * 100  # type: ignore
+        size_diff = (resized_img.size - self.size) / self.size * 100
         print(f"The image was reduced by {size_diff:.2f}%.")
-        return resized_img  # type: ignore
+        return resized_img
 
-    def detect_encoding(self):
-        """Detects the encoding of a file.
+    def detect_encoding(self) -> str | None:
+        """Detect the encoding of a file.
 
         Returns:
             str: The detected encoding.
@@ -301,7 +304,7 @@ class Img(File):
         return result["encoding"]
 
     def encode(self) -> str:
-        """Base64 encode the image for LLM processing."""
+        """Base64 encode the image."""
         resized = self.resize()
         with Image.open(resized.path) as img:
             try:

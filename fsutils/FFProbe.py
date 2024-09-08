@@ -11,7 +11,7 @@ import re
 import subprocess
 
 # from ..fsutils import Video
-from .exceptions import CorruptMediaError, FFProbeError
+from .Exceptions import CorruptMediaError, FFProbeError
 
 
 class FFProbe:
@@ -35,7 +35,7 @@ class FFProbe:
             else:
                 cmd = ["ffprobe -show_streams " + pipes.quote(self.path_to_video)]
 
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
             stream = False
             ignoreLine = False
@@ -45,9 +45,8 @@ class FFProbe:
             self.subtitle = []
             self.attachment = []
 
-            for line in iter(p.stdout.readline, b""):
+            for line in iter(proc.stdout.readline, b""):
                 line = line.decode("UTF-8", "ignore")
-
                 if "[STREAM]" in line:
                     stream = True
                     ignoreLine = False
@@ -55,7 +54,6 @@ class FFProbe:
                 elif "[/STREAM]" in line and stream:
                     stream = False
                     ignoreLine = False
-                    # noinspection PyUnboundLocalVariable
                     self.streams.append(FFStream(data_lines))
                 elif stream:
                     if "[SIDE_DATA]" in line:
@@ -69,7 +67,7 @@ class FFProbe:
             is_metadata = False
             stream_metadata_met = False
 
-            for line in iter(p.stderr.readline, b""):
+            for line in iter(proc.stderr.readline, b""):
                 line = line.decode("UTF-8", "ignore")
 
                 if "Metadata:" in line and not stream_metadata_met:
@@ -94,8 +92,8 @@ class FFProbe:
                 elif stream:
                     data_lines.append(line)
 
-            p.stdout.close()
-            p.stderr.close()
+            proc.stdout.close()
+            proc.stderr.close()
 
             for stream in self.streams:
                 if stream.is_audio():
@@ -187,8 +185,8 @@ class FFStream:
 
     def frame_size(self) -> tuple[int, int] | None:
         """
-        Returns the pixel frame size as an integer tuple (width,height) if the stream is a video stream.
-        Returns None if it is not a video stream.
+        Return the pixel frame size as an integer tuple (width,height) if the stream is a video stream.
+        Return None if it is not a video stream.
         """
         size = None
         if self.is_video():
@@ -207,14 +205,14 @@ class FFStream:
 
     def pixel_format(self) -> str | None:
         """
-        Returns a string representing the pixel format of the video stream. e.g. yuv420p.
-        Returns none is it is not a video stream.
+        Return a string representing the pixel format of the video stream. e.g. yuv420p.
+        Return none is it is not a video stream.
         """
         return self.__dict__.get("pix_fmt", None)
 
     def frames(self) -> int:
         """
-        Returns the length of a video stream in frames. Returns 0 if not a video stream.
+        Return the length of a video stream in frames. Return 0 if not a video stream.
         """
         if self.is_video() or self.is_audio():
             if self.__dict__.get("nb_frames", "") != "N/A":
@@ -232,8 +230,8 @@ class FFStream:
 
     def duration_seconds(self) -> float:
         """
-        Returns the runtime duration of the video stream as a floating point number of seconds.
-        Returns 0.0 if not a video stream.
+        Return the runtime duration of the video stream as a floating point number of seconds.
+        Return 0.0 if not a video stream.
         """
         if self.is_video() or self.is_audio():
             try:
@@ -247,31 +245,31 @@ class FFStream:
 
     def language(self) -> str | None:
         """
-        Returns language tag of stream. e.g. eng.
+        Return language tag of stream. e.g. eng.
         """
         return self.__dict__.get("TAG:language", None)
 
     def codec(self) -> str | None:
         """
-        Returns a string representation of the stream codec.
+        Return a string representation of the stream codec.
         """
         return self.__dict__.get("codec_name", None)
 
     def codec_description(self) -> str:
         """
-        Returns a long representation of the stream codec.
+        Return a long representation of the stream codec.
         """
         return self.__dict__.get("codec_long_name", None)
 
     def codec_tag(self) -> str | None:
         """
-        Returns a short representative tag of the stream codec.
+        Return a short representative tag of the stream codec.
         """
         return self.__dict__.get("codec_tag_string", None)
 
     def bit_rate(self) -> int | None:
         """
-        Returns bit_rate as an integer in bps.
+        Return bit_rate as an integer in bps.
         """
         try:
             return int(self.__dict__.get("bit_rate", ""))
@@ -279,12 +277,12 @@ class FFStream:
             raise FFProbeError("None integer bit_rate") from ValueError
 
     def frame_rate(self) -> int:
-        """Returns the frames per second as an integer."""
+        """Return the frames per second as an integer."""
         try:
             return int(self.__dict__.get("r_frame_rate", "").split("/")[0])
         except ValueError:
             raise FFProbeError("None numeric frame rate") from ValueError
 
     def aspect_ratio(self) -> str | None:
-        """Returns the stream's display aspect ratio."""
+        """Return the stream's display aspect ratio."""
         return self.__dict__.get("display_aspect_ratio", None)
