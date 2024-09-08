@@ -133,6 +133,7 @@ class Video(File):
 
     @property
     def ffprobe(self) -> FFStream:
+        """Return the first video stream."""
         try:
             return next(stream for stream in FFProbe(self.path).streams if stream.is_video())
         except IndexError:
@@ -148,16 +149,12 @@ class Video(File):
         return self.ffprobe.frame_rate()
 
     @property
-    def quality(self) -> str:  # -> float:
-        return f"{round(self.num_frames / self.bitrate, 2)}"
-
-    @property
     def num_frames(self) -> int:
         """Return the number of frames in the video."""
         return self.ffprobe.frames()
 
     def render(self) -> None:
-        """Render the video using in the shell using kitty protocols."""
+        """Render the video."""
         if os.environ.get("TERM") == "xterm-kitty":
             try:
                 subprocess.call(["mpv", self.path])

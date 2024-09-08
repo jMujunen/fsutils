@@ -21,6 +21,12 @@ class FFProbe:
     """
 
     def __init__(self, path_to_video: str) -> None:
+        """Initialize the FFProbe object.
+
+        Parameters:
+        ------------
+            - `path_to_video (str)` : Path to video file.
+        """
         self.path_to_video = path_to_video
 
         try:
@@ -110,10 +116,6 @@ class FFProbe:
             raise IsADirectoryError("Given path is a directory, not a file.")
         else:
             raise CorruptMediaError(f"{self.path_to_video} is corrupt")
-            # else:
-            #     raise OSError(
-            #         "No such media file or stream is not responding: " + self.path_to_video
-            #     ) from FileNotFoundError
 
     def __repr__(self) -> str:
         return "FFprobe(metadata={metadata}, video={video}, audio={audio})".format(**vars(self))

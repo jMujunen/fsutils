@@ -75,10 +75,10 @@ class File:
         """
         self.encoding = encoding
         self.path = os.path.abspath(os.path.expanduser(path))
-        self._exsits = self.exists
-        # self._content = []
-        # print(f"{self.__class__.__name__}(exists={self.exists}, basename={self.basename})")
-        # print(self.__doc__)
+        self.exists = os.path.exists(self.path)
+        if not self.exists:
+            raise FileNotFoundError(f"File '{self.path}' does not exist")
+        self._content = []
 
     def head(self, n: int = 5) -> list[str]:
         """Return the first n lines of the file."""
@@ -137,10 +137,6 @@ class File:
             print(f"Error while saving {self.filename}: {e}")
             return 1
         return 0
-
-    @property
-    def exists(self) -> bool:
-        return os.path.exists(self.path)
 
     @property
     def content(self) -> list[Any]:
@@ -238,14 +234,9 @@ class File:
         os.chmod(self.path, value)
 
     def detect_encoding(self) -> str | None:
-        """Detects encoding of the file."""
+        """Detect encoding of the file."""
         with open(self.path, "rb") as f:
             return chardet.detect(f.read())["encoding"]
-
-    # def unixify(self) -> List[str]:
-    #     """Convert DOS line endings to UNIX - \\r\\n -> \\n"""
-    #     self._content = "".split(re.sub(r"\r\n$|\r$", "\n", "".join(self.content)))
-    #     return self._content
 
     def __hash__(self) -> int:
         try:
@@ -262,12 +253,12 @@ class File:
             except TypeError as e:
                 raise TypeError(f"Object of type {type(self)} is not iterable: {e}") from e
 
-    def __len__(self) -> int:
-        """Get the number of lines in a file."""
-        try:
-            return len(list(iter(self)))
-        except Exception as e:
-            raise TypeError(f"Object of type {type(self)} does not support len(): {e}") from e
+    # def __len__(self) -> int:
+    #     """Get the number of lines in a file."""
+    #     try:
+    #         return len(list(iter(self)))
+    #     except Exception as e:
+    #         raise TypeError(f"Object of type {type(self)} does not support len(): {e}") from e
 
     def __contains__(self, item: Any) -> bool:
         """Check if a line exists in the file.
@@ -296,11 +287,11 @@ class File:
             **vars(self)
         )
 
-    def __str__(self) -> str:
-        try:
-            return "\n".join(self.content)
-        except TypeError:
-            return self.__repr__()
+    # def __str__(self) -> str:
+    #     try:
+    #         return "\n".join(self.content)
+    #     except TypeError:
+    #         return self.__repr__()
 
     # def __getattribute__(self, name: str, /) -> Any:
     # """Get an attribute of the File Object"""

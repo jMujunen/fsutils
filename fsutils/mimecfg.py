@@ -25,7 +25,7 @@ FILE_TYPES = {
     ],
     "img_other": [".heatmap", ".ico", ".svg", ".webp"],
     "metadata": [".xml", ".aae", ".exif", ".iptc", ".tiff", ".xmp"],
-    "doc": [".pdf", ".doc", ".docx", ".txt", ".odt", ".pptx"],
+    "doc": [".pdf", ".doc", ".docx", ".odt", ".pptx"],
     "video": [".mp4", ".avi", ".mkv", ".wmv", ".webm", ".m4v", ".flv", ".mpg", ".mov"],
     "audio": [
         ".3ga",
@@ -69,8 +69,9 @@ FILE_TYPES = {
         ".zipx",
     ],
     "raw": [".cr2", ".nef", ".raf", ".dng", ".raf"],
-    "text": [".txt", ".md", ".log", ".csv", ".out", ".note"],
-    "code": [
+    "log": [".csv", ".json", ".log"],
+    "file": [".txt", ".md", ".csv", ".out", ".note"],
+    "exe": [
         ".py",
         ".bat",
         ".sh",

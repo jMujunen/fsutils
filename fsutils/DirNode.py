@@ -12,7 +12,7 @@ from PIL import Image
 from size import Size
 from ThreadPoolHelper import Pool
 
-# from fsutils import File, Log, Exe, Video, Img
+# from fsutils import Exe, File, Img, Log, Video
 from .GenericFile import File
 from .GitObject import Git
 from .ImageFile import Img
@@ -112,13 +112,13 @@ class Dir(File):
         Return an instance of the appropriate subclass of File if a matching file is found."""
         try:
             if file_name in os.listdir(self.path):
-                return obj(os.path.join(self.path, file_name))
+                return _obj(os.path.join(self.path, file_name))
         except (NotADirectoryError, FileNotFoundError):
             pass
         for d in self.dirs:
             content = os.listdir(os.path.join(self.path, d.path))
             if file_name in content:
-                return obj(os.path.join(self.path, d.path, file_name))
+                return _obj(os.path.join(self.path, d.path, file_name))
         return None
 
     def query_image(self, image: Img, threshold=3, method="phash") -> list[Img]:
@@ -169,8 +169,9 @@ class Dir(File):
             return dhash, image
 
         def process_dir(file: "File"):
-            if hash(file) in hash_set:
-                return file.path, dir1.file_info(file.filename).path
+            other = dir1.file_info(file.filename)
+            if hash(file) in hash_set and other is not None:
+                return file.path, other.path
             return None
 
         # Create a dictionary to store the hashes of files in dir1
@@ -228,12 +229,23 @@ class Dir(File):
         for key, value in sorted_stat.items():
             print(f"{key: <{max_key_length}} {value}")
 
+    @property
+    def size(self) -> Size:
+        """Return the total size of all files and directories in the current directory."""
+
+        def _(file: File) -> int:
+            return file.size
+
+        pool = Pool()
+        return Size(sum(pool.execute(_, self.file_objects)))
+
     @staticmethod
     def detect_duplicates():
         """Detect duplicate files in a directory and its subdirectories."""
 
-    def sort(self, specifier: str, reversed=True) -> None:
+    def sort(self, specifier: str, reverse=True) -> list[str]:
         """Sort the files and directories by the specifying attribute."""
+
         specs = {
             "mtime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_mtime).strftime(
                 "%Y-%m-%d %H:%M:%S"
@@ -248,18 +260,18 @@ class Dir(File):
             "name": lambda x: x.basename,
             "ext": lambda x: x.extension,
         }
-
         _fmt = []
         for file in self.file_objects:
             _fmt.append((specs.get(specifier, "mtime")(file), file.path))
 
-        result = sorted(_fmt, key=lambda x: x[0], reverse=reversed)
+        result = sorted(_fmt, key=lambda x: x[0], reverse=reverse)
 
-        # Print the table
-        format_string = "{:<60}{:<40}"
+        # # Print the table
+        format_string = "{:<25}{:<40}"
         print(format_string.format(specifier, "File"))
         for f in result:
             print(format_string.format(*f))
+        return result
 
     def __format__(self, format_spec: str, /) -> str:
         pool = Pool()
@@ -276,10 +288,8 @@ class Dir(File):
         return "Formatting Dir is not supported yet"
 
     def __contains__(self, item: File) -> bool:
-        """Compare items in two DirectoryObjects."""
-        if isinstance(item, File):
-            return item in self.file_objects or item in self.dirs
-        return None
+        """Is `File` in self?"""  # noqa
+        return item in self.file_objects or item in self.dirs if isinstance(item, File) else False
 
     def __hash__(self) -> int:
         return hash((tuple(self.content), self.stat, self.is_empty))
@@ -297,7 +307,9 @@ class Dir(File):
 
             for file in files:
                 path = os.path.join(root, file)  # full path of the file
-                yield obj(path)
+                obj = _obj(path)
+                if obj:
+                    yield obj
 
     def __eq__(self, other: "Dir", /) -> bool:
         """Compare the contents of two Dir objects."""
@@ -316,9 +328,13 @@ class Dir(File):
         )
 
 
-def _obj(path: str) -> File:
+def _obj(path: str) -> File | None:
     """Return a File object for the given path."""
     # INCOMPLETE : In development
+    if not os.path.exists(path):
+        return None
+    if os.path.isdir(path):
+        return Dir(path)
     _, ext = os.path.splitext(path.lower())
 
     for file_type, extensions in FILE_TYPES.items():
@@ -326,11 +342,22 @@ def _obj(path: str) -> File:
             # Dynamically create the class name and instantiate it
             class_name = file_type.capitalize()
             module = sys.modules[__name__]
-            FileClass = getattr(module, class_name)
-            return FileClass(path)
+            try:
+                FileClass = getattr(module, class_name)
+                return FileClass(path)
+            except FileNotFoundError as e:
+                print(f"{e!r}")
+            except AttributeError:
+                return File(path)
+    # If no match is found, return a default instance
+    try:
+        FileClass = File(path)
+    except FileNotFoundError as e:
+        print(f"{e!r}")
+        return None
+    return File(path)
 
-    # If no match is found, return a default instance or raise an error
-    raise ValueError(f"Unsupported file type: {ext}")
+    # raise ValueError(f"Unsupported file type: {ext}")
 
 
 def obj(path: str) -> File:
@@ -378,3 +405,9 @@ def obj(path: str) -> File:
             return Dir(path)
         return File(path)
     return cls(path)
+
+
+if __name__ == "__main__":
+    path = Dir("/home/joona/Logs")
+    print(path)
+    print(path.size)
