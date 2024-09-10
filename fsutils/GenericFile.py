@@ -180,7 +180,7 @@ class File:
             return f.read(size)
 
     @property
-    def md5_checksum(self, size=8192) -> str:
+    def md5_check1sum(self, size=8192) -> str:
         """Return the MD5 checksum of a portion of the image file."""
         data = self._read_chunk(size)
         return hashlib.md5(data).hexdigest()
@@ -253,12 +253,12 @@ class File:
             except TypeError as e:
                 raise TypeError(f"Object of type {type(self)} is not iterable: {e}") from e
 
-    # def __len__(self) -> int:
-    #     """Get the number of lines in a file."""
-    #     try:
-    #         return len(list(iter(self)))
-    #     except Exception as e:
-    #         raise TypeError(f"Object of type {type(self)} does not support len(): {e}") from e
+    def __len__(self) -> int:
+        """Get the number of lines in a file."""
+        try:
+            return len(list(iter(self)))
+        except Exception as e:
+            raise TypeError(f"Object of type {type(self)} does not support len(): {e}") from e
 
     def __contains__(self, item: Any) -> bool:
         """Check if a line exists in the file.

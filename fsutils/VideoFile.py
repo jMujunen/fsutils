@@ -368,32 +368,3 @@ class Video(File):
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
         )
         return f"\033[1m{header}\033[0m\n{linebreak}"
-
-
-"""
-
-    # NOTE:  Untested
-    def extract_audio(self, output_path: str | None = None) -> int:
-        return subprocess.call(
-            [
-                "ffmpeg",
-                "-i",
-                f"{self.path}",
-                "-vn",
-                "-y",
-                f"{os.path.splitext(self.path)[0]}_audio.wav",
-            ]
-        )
-
-    # NOTE:  Untested
-    def extract_subtitle(self, output_path: str | None = None) -> int:
-        return subprocess.call(
-            f"ffmpeg -i {self.path} -map s -c copy {os.path.splitext(self.path)[0]}_subtitle.srt",
-            shell=True,
-        )
-
-    # NOTE:  Untested
-    def extract_frames(self, output_path: str | None = None) -> int:
-        # [ ] - WIP
-        return subprocess.call(f"ffmpeg  -i {self.path}  image%03d.jpg", shell=True)
-        """
