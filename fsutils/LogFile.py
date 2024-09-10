@@ -10,36 +10,6 @@ from .GenericFile import File
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
 
 
-<<<<<<< HEAD
-@dataclass
-class LogMetaData:
-    """A class to represent a log entry."""
-
-    path: str = field(default_factory=str, repr=False)
-    sep: str = field(default=",")
-    encoding: str = field(default="iso-8859-1")
-
-    df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
-
-
-class Log(File, LogMetaData):
-    """A class to represent a log file."""
-
-    def __init__(self, path: str, sep: str = ",", encoding: str = "iso-8859-1"):
-        """Initialize the File and Log classes with the given parameters."""
-        File.__init__(self, path, encoding=encoding)
-        LogMetaData.__init__(self, path, sep, encoding)
-
-    def parse(self) -> pd.DataFrame:
-        """Parse the log file into a DataFrame."""
-        self.df = pd.read_csv(
-            self.path,
-            sep=self.sep,
-            encoding=self.encoding,
-            engine="python",
-        )
-        return self.df
-=======
 class Log(File):
     """
     A class to represent a hwlog file.
@@ -172,4 +142,3 @@ class Log(File):
         """Save the (updated) content to the log file (overwrites original content)."""
         with open(self.path, "w", encoding=self.encoding) as f:
             f.write("\n".join(self._content))
->>>>>>> parent of baad055 (Refactor and housekeeping)

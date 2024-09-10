@@ -169,14 +169,8 @@ class Dir(File):
             return dhash, image
 
         def process_dir(file: "File"):
-<<<<<<< HEAD
-            other = dir1.file_info(file.filename)
-            if hash(file) in hash_set and other is not None:
-                return file.path, other.path
-=======
             if hash(file) in hash_set:
                 return file.path, dir1.file_info(file.basename).path
->>>>>>> parent of baad055 (Refactor and housekeeping)
             return None
 
         # Create a dictionary to store the hashes of files in dir1

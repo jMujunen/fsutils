@@ -295,22 +295,6 @@ class Img(File):
         print(f"The image was reduced by {size_diff:.2f}%.")
         return resized_img
 
-<<<<<<< HEAD
-    def detect_encoding(self) -> str | None:
-        """Detect the encoding of a file.
-
-        Returns:
-            str: The detected encoding.
-        Raises:
-            Exception: If an error occurs while reading the file or detecting its encoding.
-        """
-        with open(self.path, "rb") as f:
-            raw_data = f.read()
-        result = chardet.detect(raw_data)
-        return result["encoding"]
-
-=======
->>>>>>> parent of baad055 (Refactor and housekeeping)
     def encode(self) -> str:
         """Base64 encode the image."""
         resized = self.resize()
@@ -341,7 +325,7 @@ class Img(File):
         return super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((self.md5_checksum, self.dimensions, self.size))
+        return hash((self.md5_checksum(), self.dimensions, self.size))
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted table representation of the file."""

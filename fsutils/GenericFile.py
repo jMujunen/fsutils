@@ -15,18 +15,6 @@ from .mimecfg import FILE_TYPES
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
-<<<<<<< HEAD
-@dataclass
-class FileMetaData:
-    """Hold metadata about a file."""
-
-    path: str = field(repr=False)
-    size: int = field(default_factory=int)
-    encoding: str = field(default="utf-8")
-
-
-=======
->>>>>>> parent of baad055 (Refactor and housekeeping)
 class File:
     """This is the base class for all of the following objects.
 
@@ -148,7 +136,7 @@ class File:
         return self._content
 
     def read(self, **kwargs) -> list[Any]:
-        """Method for reading the content of a file.
+        """Read the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
         practice to override this method in subclasses that deal with binary files.
@@ -161,23 +149,6 @@ class File:
         ----------
             str: The content of the file
         """
-<<<<<<< HEAD
-        try:
-            # Define list slice
-            x, y = args
-        except ValueError:
-            x, y = None, None
-
-        try:
-            with open(self.path, "rb") as f:
-                lines = f.read().decode(self.encoding).split("\n")
-                self._content = list(lines[x:y])
-        except UnicodeDecodeError as e:
-            print(f"{e!r}: {self.filename} could not be decoded as {self.encoding}")
-        except Exception:
-            print(f"Reading of type {self.__class__.__name__} is unsupported")
-        return self._content
-=======
         if not self._content or kwargs.get("refresh", False):
             try:
                 with open(self.path, "rb") as f:
@@ -199,15 +170,13 @@ class File:
             if kwargs
             else self._content
         )
->>>>>>> parent of baad055 (Refactor and housekeeping)
 
     def _read_chunk(self, size=8192) -> bytes:
         """Read a chunk of the file and return it as bytes."""
         with open(self.path, "rb") as f:
             return f.read(size)
 
-    @property
-    def md5_check1sum(self, size=8192) -> str:
+    def md5_checksum(self, size=8192) -> str:
         """Return the MD5 checksum of a portion of the image file."""
         data = self._read_chunk(size)
         return hashlib.md5(data).hexdigest()
@@ -269,14 +238,14 @@ class File:
         try:
             return hash(("\n".join(self.content), self.size))
         except TypeError:
-            return hash((self.md5_checksum, self.size))
+            return hash((self.md5_checksum(), self.size))
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""
         if self.content is not None:
             try:
                 for line in self.content:
-                    yield (str(line).strip())
+                    yield str(line).strip()
             except TypeError as e:
                 raise TypeError(f"Object of type {type(self)} is not iterable: {e}") from e
 

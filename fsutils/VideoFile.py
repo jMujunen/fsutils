@@ -1,9 +1,7 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
-<<<<<<< HEAD
-=======
+import contextlib
 import hashlib
->>>>>>> parent of baad055 (Refactor and housekeeping)
 import json
 import os
 import subprocess
@@ -18,11 +16,7 @@ from size import Size
 from .Exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
-<<<<<<< HEAD
-=======
 from .ImageFile import Img
-import contextlib
->>>>>>> parent of baad055 (Refactor and housekeeping)
 
 
 class Video(File):
@@ -208,34 +202,6 @@ class Video(File):
         # w = scale
         # h = round(scale * 0.5625)
         # scale = f"{w}x{h}"
-<<<<<<< HEAD
-        # match kwargs.keys():
-        #     case _:
-        #         pass
-        # subprocess.check_output(
-        #     [
-        #         "ffmpeg",
-        #         "-i",
-        #         self.path,
-        #         # "-vf",
-        #         # f"fps={fps},scale=-1:{str(scale)}:flags=lanczos",
-        #         "-vf",
-        #         '"framerate=12"' "-r",
-        #         str(fps),
-        #         "-s",
-        #         str(scale),
-        #         "-c:v",
-        #         "gif",
-        #         "-pix_fmt",
-        #         "rgb8",
-        #         "-y",
-        #         output,
-        #         "-v",
-        #         "error",
-        #     ]
-        # )
-        return self
-=======
         # "-r",
         # str(fps),
         # "-s",
@@ -269,7 +235,6 @@ class Video(File):
         )
 
         return Img(output)
->>>>>>> parent of baad055 (Refactor and housekeeping)
 
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
         """Trim the video from start to end time (seconds).
@@ -337,7 +302,7 @@ class Video(File):
         )
 
     def __hash__(self) -> int:
-        return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum))
+        return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum()))
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted string representation of the file."""
@@ -361,24 +326,6 @@ class Video(File):
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
         )
         return f"\033[1m{header}\033[0m\n{linebreak}"
-<<<<<<< HEAD
-=======
-
-
-class FFMpegManager:
-    def __init__(self, movie: Video) -> None:
-        self.file = movie
-
-    def __enter__(self) -> None:
-        pass
-
-    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
-        if exc_type is not None:
-            with contextlib.suppress(OSError):
-                os.remove(self.file.path)
-            return True
-        else:
-            return False
 
 
 if __name__ == "__main__":
@@ -387,4 +334,3 @@ if __name__ == "__main__":
     videos = Dir("/mnt/ssd/OBS/muru/PUBG/_PLAYERUNKNOWN'S BATTLEGROUNDS/").videos[:-2]
     for vid in videos:
         compressed = vid.compress()
->>>>>>> parent of baad055 (Refactor and housekeeping)

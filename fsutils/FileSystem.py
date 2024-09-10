@@ -1,14 +1,11 @@
-#!/usr/bin/env python3
-
-
 # FileSystem.py - A file system implemented as a tree of nodes.
 # Examples:
 #       FileTree()                                                   -> A new empty file system.
 #       FileTreeNode('file1', '/path/to/file1')                      -> Create a new file node.
 #       FileTree().add_node(FileTreeNode('file2', '/path/to/file2')) -> Add a file to the tree.
 #       FileTree().traverse()                                        -> Iterate over all nodes in the tree.
-
 import os
+from collections.abc import Generator
 
 
 class FileTreeNode:
@@ -100,7 +97,7 @@ class FileTree:
                     print(e)
                     break
 
-    def traverse(self) -> iter:
+    def traverse(self) -> Generator:
         """
         Traverse the tree, yielding each node in order.
 
@@ -108,7 +105,7 @@ class FileTree:
             FileTreeNode: Each node in the file tree.
         """
 
-        def recursive_traversal(node: "FileTreeNode") -> iter:
+        def recursive_traversal(node: "FileTreeNode") -> Generator:
             yield node
             for child in node.children:
                 yield from recursive_traversal(child)
