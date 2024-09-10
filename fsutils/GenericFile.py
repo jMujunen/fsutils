@@ -5,7 +5,6 @@ import os
 import re
 import shutil
 from collections.abc import Iterator
-from dataclasses import dataclass, field
 from typing import Any
 
 import chardet
@@ -16,6 +15,7 @@ from .mimecfg import FILE_TYPES
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
+<<<<<<< HEAD
 @dataclass
 class FileMetaData:
     """Hold metadata about a file."""
@@ -25,6 +25,8 @@ class FileMetaData:
     encoding: str = field(default="utf-8")
 
 
+=======
+>>>>>>> parent of baad055 (Refactor and housekeeping)
 class File:
     """This is the base class for all of the following objects.
 
@@ -118,7 +120,7 @@ class File:
         return str(os.path.splitext(self.path)[0])
 
     @property
-    def filename(self) -> str:
+    def basename(self) -> str:
         """Return the file name with the extension."""
         return str(os.path.basename(self.path))
 
@@ -134,7 +136,7 @@ class File:
         try:
             shutil.move(self.path, new_path, copy_function=shutil.copy2)
         except OSError as e:
-            print(f"Error while saving {self.filename}: {e}")
+            print(f"Error while saving {self.basename}: {e}")
             return 1
         return 0
 
@@ -145,19 +147,21 @@ class File:
             self._content = self.read()
         return self._content
 
-    def read(self, *args: Any) -> list[Any]:
-        """Read the content of a file.
+    def read(self, **kwargs) -> list[Any]:
+        """Method for reading the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
         practice to override this method in subclasses that deal with binary files.
 
-        args:
+        Kwargs:
         ------------
-            - `int, int` : Return lines content[x:y]
+            a=0, b=~ (optional): Return lines[a:b]
+            refresh (optional): If True, the method will re-read the file from disk. Defaults to False.
         Returns:
         ----------
             str: The content of the file
         """
+<<<<<<< HEAD
         try:
             # Define list slice
             x, y = args
@@ -173,6 +177,29 @@ class File:
         except Exception:
             print(f"Reading of type {self.__class__.__name__} is unsupported")
         return self._content
+=======
+        if not self._content or kwargs.get("refresh", False):
+            try:
+                with open(self.path, "rb") as f:
+                    lines = f.read().decode(self.encoding).split("\n")
+                    content = list(lines[kwargs.get("a", 0) : kwargs.get("b", len(lines))])
+            except Exception:
+                try:
+                    with open(self.path, encoding=self.encoding) as f:
+                        content = f.readlines()
+                except Exception:
+                    try:
+                        with open(self.path, "rb") as f:
+                            content = f.readlines()
+                    except Exception as e:
+                        raise TypeError(f"Reading {type(self)} is unsupported") from e
+            self._content = content or self._content
+        return (
+            self._content[kwargs.get("a", 0) : kwargs.get("b", len(self._content))]
+            if kwargs
+            else self._content
+        )
+>>>>>>> parent of baad055 (Refactor and housekeeping)
 
     def _read_chunk(self, size=8192) -> bytes:
         """Read a chunk of the file and return it as bytes."""
@@ -188,7 +215,7 @@ class File:
     @property
     def is_file(self) -> bool:
         """Check if the object is a file."""
-        if GIT_OBJECT_REGEX.match(self.filename):
+        if GIT_OBJECT_REGEX.match(self.basename):
             return False
         return os.path.isfile(self.path)
 
@@ -210,7 +237,7 @@ class File:
     @property
     def is_gitobject(self) -> bool:
         """Check if the file is a git object."""
-        return GIT_OBJECT_REGEX.match(self.filename) is not None
+        return GIT_OBJECT_REGEX.match(self.basename) is not None
 
     @property
     def is_image(self) -> bool:
@@ -272,6 +299,17 @@ class File:
             item in word for word in item.split(" ") for line in self
         )
 
+    # def __eq__(self, other: object) -> bool:
+    #     """Compare two FileObjectsfor
+
+    #     Paramaters:
+    #     ----------
+    #         other (Object): The Object to compare (FileObject, VideoObject, etc.)
+    #     """
+    #     if not isinstance(other, self.__class__ | File):
+    #         return False
+    #     self._content = self.read()
+    #     return self._content == other.content
     def __eq__(self, other: "File", /) -> bool:
         """Compare two FileObjects.
 
@@ -283,7 +321,7 @@ class File:
         return all((other.exists, self.exists, hash(self) == hash(other)))
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.filename}, extension={self.extension})".format(
+        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
             **vars(self)
         )
 

@@ -66,7 +66,7 @@ class Dir(File):
     @property
     def files(self) -> list[str]:
         """Return a list of file names in the directory represented by this object."""
-        return [f.filename for f in self if not os.path.isdir(f.path)]
+        return [f.basename for f in self if not os.path.isdir(f.path)]
 
     @property
     def file_objects(self) -> list[File | Exe | Log | Img | Video | Git]:
@@ -169,9 +169,14 @@ class Dir(File):
             return dhash, image
 
         def process_dir(file: "File"):
+<<<<<<< HEAD
             other = dir1.file_info(file.filename)
             if hash(file) in hash_set and other is not None:
                 return file.path, other.path
+=======
+            if hash(file) in hash_set:
+                return file.path, dir1.file_info(file.basename).path
+>>>>>>> parent of baad055 (Refactor and housekeeping)
             return None
 
         # Create a dictionary to store the hashes of files in dir1
