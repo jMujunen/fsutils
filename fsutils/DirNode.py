@@ -2,7 +2,6 @@
 
 import datetime
 import os
-import re
 import sys
 from collections import defaultdict
 from collections.abc import Iterator
@@ -50,9 +49,8 @@ class Dir(File):
     _files: list[str] = []
     _metadata: dict = {}
 
-    def __init__(self, path: str):
-        """
-        Initialize a new instance of the Dir class.
+    def __init__(self, path: str = "./") -> None:
+        """Initialize a new instance of the Dir class.
 
         Parameters
         ----------
@@ -109,16 +107,16 @@ class Dir(File):
         Return an instance of the appropriate subclass of File if a matching file is found."""
         try:
             if file_name in os.listdir(self.path):
-                return _obj(os.path.join(self.path, file_name))
+                return obj(os.path.join(self.path, file_name))
         except (NotADirectoryError, FileNotFoundError):
             pass
         for d in self.dirs:
             content = os.listdir(os.path.join(self.path, d.path))
             if file_name in content:
-                return _obj(os.path.join(self.path, d.path, file_name))
+                return obj(os.path.join(self.path, d.path, file_name))
         return None
 
-    def query_image(self, image: Img, threshold=3, method="phash") -> list[Img]:
+    def query_image(self, image: Img, threshold=10, method="phash") -> list[Img]:
         """Scan self for images with has values similar to the one of the given image."""
         pool = Pool()
         similar_images = []
@@ -128,14 +126,14 @@ class Dir(File):
             return img.calculate_hash(method), img
 
         hash_to_query = image.calculate_hash(method)
-        for result in pool.execute(hash_extracter, self.images, progress_bar=False):
+        for result in pool.execute(hash_extracter, self.images, method, progress_bar=True):
             if result:
                 h, img = result
                 try:
                     distance = abs(hash_to_query - h)
                     print(distance, end="\r")
                     if distance < threshold:
-                        similar_images.append(img)
+                        similar_images.append((img, threshold))
                         print(f"\n\033[1;33m{img.basename}\033[0m")
                 except Exception:
                     print("\033[31mError while calculating hash difference: {e!r}\033[0m")
@@ -183,12 +181,18 @@ class Dir(File):
     @property
     def size(self) -> Size:
         """Return the total size of all files and directories in the current directory."""
+        if "_size" in self.__dict__:
+            return self.__dict__["_size"]
 
         def _(file: File) -> int:
             return file.size
 
         pool = Pool()
-        return Size(sum(pool.execute(_, self.file_objects)))
+        return Size(sum(pool.execute(_, self.file_objects, progress_bar=False)))
+
+    @property
+    def size_human(self) -> str:
+        return str(self.size)
 
     @staticmethod
     def detect_duplicates():
@@ -258,9 +262,9 @@ class Dir(File):
 
             for file in files:
                 path = os.path.join(root, file)  # full path of the file
-                obj = _obj(path)
-                if obj:
-                    yield obj
+                _obj = obj(path)
+                if _obj:
+                    yield _obj
 
     def __eq__(self, other: "Dir", /) -> bool:
         """Compare the contents of two Dir objects."""
@@ -274,14 +278,15 @@ class Dir(File):
         )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(dir_name={self.path}, path={self.path}, is_empty={self.is_empty})".format(
-            **vars(self)
+        return (
+            f"{self.__class__.__name__}(size={self.size_human}, is_empty={self.is_empty})".format(
+                **vars(self)
+            )
         )
 
 
-def _obj(path: str) -> File | None:
+def obj(path: str) -> File | None:
     """Return a File object for the given path."""
-    # INCOMPLETE : In development
     if not os.path.exists(path):
         return None
     if os.path.isdir(path):
@@ -307,52 +312,3 @@ def _obj(path: str) -> File | None:
         print(f"{e!r}")
         return None
     return File(path)
-
-    # raise ValueError(f"Unsupported file type: {ext}")
-
-
-def obj(path: str) -> File:
-    """Return the appropriate subclass if File."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(path, " does not exist")
-    ext = os.path.splitext(path)[1].lower()
-    classes = {
-        # Images
-        ".jpg": Img,
-        ".jpeg": Img,
-        ".png": Img,
-        ".nef": Img,
-        # ".heic": Img,
-        ".gif": Img,
-        # Logs
-        ".log": Log,
-        ".csv": Log,
-        # Videos
-        ".mp4": Video,
-        ".avi": Video,
-        ".mkv": Video,
-        ".wmv": Video,
-        ".webm": Video,
-        ".mov": Video,
-        # Code
-        ".py": Exe,
-        ".bat": Exe,
-        ".sh": Exe,
-    }
-
-    clsses = {}
-
-    others = {
-        re.compile(r"(\d+mhz|\d\.\d+v)"): Log,
-        re.compile(r"([a-f0-9]{37,41})"): Git,
-    }
-
-    cls = classes.get(ext)
-    if not cls:
-        for k, v in others.items():
-            if k.match(path.split(os.sep)[-1]):
-                return v(path)
-        if os.path.isdir(path):
-            return Dir(path)
-        return File(path)
-    return cls(path)

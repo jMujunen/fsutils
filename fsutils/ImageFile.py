@@ -78,13 +78,7 @@ class Img(File):
 
     @property
     def dimensions(self) -> tuple[int, int]:
-        """Extract the dimensions of the image.
-
-        Returns
-        -------
-            - `Tuple(int, int)` : width x height of the image in pixels.
-
-        """
+        """Extract the dimensions of the image as a tuple."""
         with Image.open(self.path) as img:
             width, height = img.size
         return width, height
@@ -357,6 +351,6 @@ class Img(File):
         return f"\033[1m{header}\033[0m\n{linebreak}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension}, dimensions={self.dimensions}, capture_date={self.capture_date})".format(
+        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, dimensions={self.dimensions})".format(
             **vars(self),
         )

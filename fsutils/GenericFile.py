@@ -274,6 +274,6 @@ class File:
         return self.exists
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
+        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, ext={self.extension})".format(
             **vars(self)
         )
