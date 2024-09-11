@@ -12,14 +12,13 @@ from PIL import Image
 from size import Size
 from ThreadPoolHelper import Pool
 
-# from fsutils import Exe, File, Img, Log, Video
-from .GenericFile import File
-from .GitObject import Git
-from .ImageFile import Img
-from .LogFile import Log
-from .mimecfg import FILE_TYPES
-from .ScriptFile import Exe
-from .VideoFile import Video
+from fsutils.GenericFile import File
+from fsutils.GitObject import Git
+from fsutils.ImageFile import Img
+from fsutils.LogFile import Log
+from fsutils.mimecfg import FILE_TYPES
+from fsutils.ScriptFile import Exe
+from fsutils.VideoFile import Video
 
 
 class Dir(File):
@@ -407,6 +406,5 @@ def obj(path: str) -> File:
 
 
 if __name__ == "__main__":
-    path = Dir("/home/joona/Logs")
-    print(path)
+    path = Dir("/home/joona/Logs/Network/nmap")
     print(path.size)

@@ -53,7 +53,7 @@ class File:
 
     """
 
-    _content: list[Any] = []
+    # _content: list[Any] = []
 
     def __init__(self, path: str, encoding: str = "utf-8") -> None:
         """Construct the FileObject object.
@@ -268,17 +268,6 @@ class File:
             item in word for word in item.split(" ") for line in self
         )
 
-    # def __eq__(self, other: object) -> bool:
-    #     """Compare two FileObjectsfor
-
-    #     Paramaters:
-    #     ----------
-    #         other (Object): The Object to compare (FileObject, VideoObject, etc.)
-    #     """
-    #     if not isinstance(other, self.__class__ | File):
-    #         return False
-    #     self._content = self.read()
-    #     return self._content == other.content
     def __eq__(self, other: "File", /) -> bool:
         """Compare two FileObjects.
 
@@ -288,6 +277,10 @@ class File:
 
         """
         return all((other.exists, self.exists, hash(self) == hash(other)))
+
+    def __bool__(self) -> bool:
+        """Check if the file exists."""
+        return self.exists
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension})".format(

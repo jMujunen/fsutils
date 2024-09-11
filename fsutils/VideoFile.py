@@ -128,10 +128,7 @@ class Video(File):
         """Check if the video is corrupt."""
         try:
             cap = cv2.VideoCapture(self.path)
-            if not cap.isOpened():
-                return True  # Video is corrupt
-            else:
-                return False  # Video is not corrupt
+            return cap.isOpened()
         except (OSError, SyntaxError):
             return True  # Video is corrupt
         except KeyboardInterrupt:
@@ -326,11 +323,3 @@ class Video(File):
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
         )
         return f"\033[1m{header}\033[0m\n{linebreak}"
-
-
-if __name__ == "__main__":
-    from . import Dir
-
-    videos = Dir("/mnt/ssd/OBS/muru/PUBG/_PLAYERUNKNOWN'S BATTLEGROUNDS/").videos[:-2]
-    for vid in videos:
-        compressed = vid.compress()
