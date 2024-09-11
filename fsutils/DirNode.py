@@ -7,8 +7,6 @@ import sys
 from collections import defaultdict
 from collections.abc import Iterator
 
-import numpy as np
-from PIL import Image
 from size import Size
 from ThreadPoolHelper import Pool
 
@@ -142,51 +140,6 @@ class Dir(File):
                 except Exception:
                     print("\033[31mError while calculating hash difference: {e!r}\033[0m")
         return similar_images
-
-    @staticmethod
-    def compare(dir1: "Dir", dir2: "Dir"):
-        # INCOMPLETE: implement this
-        def calculate_dhash(image: Img):
-            # Resize the image to a fixed size
-            img = Image.open(image.path).convert("L")
-            img = img.resize((9, 8))
-
-            # Convert the image to an array of pixels
-            pixel_array = np.array(img)
-
-            # Calculate the difference hash (DHash)
-            diff_hash = ""
-            for i in range(pixel_array.shape[0] - 1):
-                for j in range(pixel_array.shape[1]):
-                    if pixel_array[i, j] > pixel_array[i + 1, j]:
-                        diff_hash += "1"
-                    else:
-                        diff_hash += "0"
-
-            # Convert the binary string to an integer
-            dhash = int(diff_hash, 2)
-            return dhash, image
-
-        def process_dir(file: "File"):
-            if hash(file) in hash_set:
-                return file.path, dir1.file_info(file.basename).path
-            return None
-
-        # Create a dictionary to store the hashes of files in dir1
-        hash_set = set()
-        identical_files = []
-        # Execute the threaded operation and
-        # calculate hashes for all files in dir1 and store them in hash_dict
-        pool = Pool()
-        print(f"Calculating dhashes for {len(dir1.images)} files...")
-        for result in pool.execute(calculate_dhash, dir1.images):
-            if result:
-                dhash, img = result
-                if dhash in hash_set:
-                    identical_files.append(img)
-                    continue
-                hash_set.add(dhash)
-        return identical_files
 
     @property
     def is_dir(self) -> bool:
@@ -403,8 +356,3 @@ def obj(path: str) -> File:
             return Dir(path)
         return File(path)
     return cls(path)
-
-
-if __name__ == "__main__":
-    path = Dir("/home/joona/Logs/Network/nmap")
-    print(path.size)

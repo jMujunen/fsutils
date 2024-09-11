@@ -40,7 +40,14 @@ class Img(File):
         - `is_corrupted` (bool): Return True if the file is corrupted, False otherwise
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, encoding="utf-8") -> None:
+        """Initialize an Img object.
+
+        Parameters:
+        ----------
+            - `path (str)` : The absolute path to the file.
+            - `encoding (str)` : Encoding for reading metadata from image files, default is utf-8
+        """
         self._exif: Image.Exif = Image.Exif()
         self._tags = []
         super().__init__(path)
@@ -271,15 +278,15 @@ class Img(File):
         with Image.open(self.path) as img:
             if to_jpg:
                 # convert the image to RGB mode
-                img = img.convert("RGB")
+                img.convert("RGB")
                 new_filename = f"{self.basename}_compressed.jpg"
             # Multiply width & height with `ratio`` to reduce image size
             if new_size_ratio < 1.0:
-                img = img.resize(
+                img.resize(
                     (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio)),
                 )
             elif width and height:
-                img = img.resize((width, height))
+                img.resize((width, height))
             try:
                 new_file_path = os.path.join(self.dir_name, new_filename)
                 img.save(new_file_path, quality=quality, optimize=True)
@@ -302,7 +309,7 @@ class Img(File):
             try:
                 if self.extension == ".png":
                     # change the extension to JPEG
-                    img = img.convert("RGB")
+                    img.convert("RGB")
                 buffered = BytesIO()
                 img.save(buffered, format=ENCODE_SPEC.get(self.extension, "JPEG"))
                 img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")

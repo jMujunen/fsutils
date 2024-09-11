@@ -1,7 +1,5 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
-import contextlib
-import hashlib
 import json
 import os
 import subprocess
@@ -16,7 +14,6 @@ from size import Size
 from .Exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
-from .ImageFile import Img
 
 
 class Video(File):
@@ -169,7 +166,12 @@ class Video(File):
             except Exception as e:
                 print(f"Error: {e}")
 
-    def make_gif(self, scale: str | int = 320, fps=24, output="./output.gif") -> Img:
+    def make_gif(
+        self,
+        scale: int | str | tuple[int, int] = 640,
+        fps=24,
+        **kwargs: Any,
+    ):
         """Convert the video to a gif using FFMPEG.
 
         Parameters:
@@ -193,45 +195,89 @@ class Video(File):
         --------
             - `Img` : subprocess return code
         """
-        output = os.path.join(self.dir_name, output) or os.path.join(
-            self.dir_name, self.basename[:-4] + ".gif"
-        )
-        # w = scale
-        # h = round(scale * 0.5625)
-        # scale = f"{w}x{h}"
-        # "-r",
-        # str(fps),
-        # "-s",
-        # scale,
-        subprocess.check_output(
-            [
-                "ffmpeg",
-                "-i",
-                self.path,
-                # "-vf",
-                # f"fps={fps},scale=-1:{str(scale)}:flags=lanczos",
-                "-c:v",
-                "gif",
-                "-r",
-                f"{fps}",
-                "-s",
-                f"{scale}",
-                "-c:v",
-                "gif",
-                "-r",
-                f"{fps}",
-                "-s",
-                f"{scale}",
-                "-pix_fmt",
-                "rgb8",
-                "-y",
-                output,
-                "-v",
-                "error",
-            ]
-        )
+        # f"scale=-1:{str(scale)}:flags=lanczos",
+        # subprocess.check_output(
+        #     [
+        #         "ffmpeg",
+        #         "-i",
+        #         f"{self.path}",
+        #         "-vf",
+        #         f"scale=-1:{str(scale)}:flags=lanczos",
+        #         "-r",
+        #         f"{str(fps)}",
+        #         f"{output}",
+        #         "-loglevel",
+        #         "quiet",
+        #     ]
+        # )
 
-        return Img(output)
+        # Other options: "-pix_fmt","rgb24" |
+
+        _cmd = [
+            "ffmpeg",
+            "-i",
+            "{i}",
+            "-vf",
+            "scale=-1:{scale}:flags=lanczos",
+            "-y",
+            "-v",
+            "error",
+            "{output}",
+        ]
+
+        _cmd2 = [
+            "ffmpeg",
+            "-i",
+            "{in}",
+            "-vf",
+            "framerate={fps}",
+            "-s",
+            "{scale",
+            "-y",
+            "-v",
+            "error",
+            "{output}",
+        ]
+        # cmd = _cmd.format(**kwargs)
+        # match kwargs:
+        #     case {"output": value}:
+
+        # output = kwargs.get("output", os.path.join(self.dir_name, f"{self.filename[:-4]}.gif"))
+        # if isinstance(scale, int):
+        #     w = scale
+        #     h = round(scale * 0.5625)
+        # elif isinstance(scale, tuple):
+        #     w, h = scale
+        # else:
+        #     raise ValueError(f"{scale} is not a valid value for scale")
+        # scale = f"{w}x{h}"
+        # match kwargs.keys():
+        #     case _:
+        #         pass
+        # subprocess.check_output(
+        #     [
+        #         "ffmpeg",
+        #         "-i",
+        #         self.path,
+        #         # "-vf",
+        #         # f"fps={fps},scale=-1:{str(scale)}:flags=lanczos",
+        #         "-vf",
+        #         '"framerate=12"' "-r",
+        #         str(fps),
+        #         "-s",
+        #         str(scale),
+        #         "-c:v",
+        #         "gif",
+        #         "-pix_fmt",
+        #         "rgb8",
+        #         "-y",
+        #         output,
+        #         "-v",
+        #         "error",
+        #     ]
+        # )
+
+        return self
 
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
         """Trim the video from start to end time (seconds).

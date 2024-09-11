@@ -1,5 +1,4 @@
 import argparse
-import os
 
 from ThreadPoolHelper import Pool
 
@@ -7,7 +6,7 @@ from .DirNode import obj
 from .VideoFile import Video
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     # ======== MAIN PARSER =============
     main_parser = argparse.ArgumentParser(
         prog="fsutils", description="A collection of command line utilities"
@@ -162,13 +161,12 @@ def video_parser(arguments: argparse.Namespace) -> int:
     """
 
     if arguments.video_command == "makegif" and isinstance(arguments.file, str):
-        return (
-            Video(arguments.file)
-            .make_gif(arguments.scale, arguments.fps, arguments.output)
-            .render()
+        gif = Video(arguments.file).make_gif(
+            arguments.scale, arguments.fps, output=arguments.output
         )
+        gif.render()
 
-    elif arguments.video_command == "info":
+    if arguments.video_command == "info":
         files = arguments.file
         if isinstance(arguments.file, str):
             files = [arguments.file]

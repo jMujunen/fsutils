@@ -135,41 +135,32 @@ class File:
             self._content = self.read()
         return self._content
 
-    def read(self, **kwargs) -> list[Any]:
+    def read(self, *args) -> list[Any]:
         """Read the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
         practice to override this method in subclasses that deal with binary files.
 
-        Kwargs:
+        args:
         ------------
-            a=0, b=~ (optional): Return lines[a:b]
-            refresh (optional): If True, the method will re-read the file from disk. Defaults to False.
+            - `int, int` : Return lines content[x:y]
         Returns:
         ----------
             str: The content of the file
         """
-        if not self._content or kwargs.get("refresh", False):
-            try:
-                with open(self.path, "rb") as f:
-                    lines = f.read().decode(self.encoding).split("\n")
-                    content = list(lines[kwargs.get("a", 0) : kwargs.get("b", len(lines))])
-            except Exception:
-                try:
-                    with open(self.path, encoding=self.encoding) as f:
-                        content = f.readlines()
-                except Exception:
-                    try:
-                        with open(self.path, "rb") as f:
-                            content = f.readlines()
-                    except Exception as e:
-                        raise TypeError(f"Reading {type(self)} is unsupported") from e
-            self._content = content or self._content
-        return (
-            self._content[kwargs.get("a", 0) : kwargs.get("b", len(self._content))]
-            if kwargs
-            else self._content
-        )
+        try:
+            x, y = args
+        except ValueError:
+            x, y = None, None
+        try:
+            with open(self.path, "rb") as f:
+                lines = f.read().decode(self.encoding).split("\n")
+                self._content = list(lines[x:y])
+        except UnicodeDecodeError as e:
+            print(f"{e!r}: {self.basename} could not be decoded as {self.encoding}")
+        except Exception:
+            print(f"Reading of type {self.__class__.__name__} is unsupported")
+        return self._content
 
     def _read_chunk(self, size=8192) -> bytes:
         """Read a chunk of the file and return it as bytes."""
@@ -286,13 +277,3 @@ class File:
         return f"{self.__class__.__name__}(size={self.size_human}, path={self.path}, basename={self.basename}, extension={self.extension})".format(
             **vars(self)
         )
-
-    # def __str__(self) -> str:
-    #     try:
-    #         return "\n".join(self.content)
-    #     except TypeError:
-    #         return self.__repr__()
-
-    # def __getattribute__(self, name: str, /) -> Any:
-    # """Get an attribute of the File Object"""
-    # return self.__dict__.get(name, None)
