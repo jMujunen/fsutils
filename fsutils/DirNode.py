@@ -101,10 +101,11 @@ class Dir(File):
             self._objects = list(self.__iter__())
         return self._objects
 
-    def file_info(self, file_name: str) -> File | None:
+    def query_file_name(self, file_name: str) -> File | None:
         """Query the object for files with the given name.
 
-        Return an instance of the appropriate subclass of File if a matching file is found."""
+        Return an instance of `File` if a match is found."""
+        pool = Pool()
         try:
             if file_name in os.listdir(self.path):
                 return obj(os.path.join(self.path, file_name))
@@ -116,25 +117,31 @@ class Dir(File):
                 return obj(os.path.join(self.path, d.path, file_name))
         return None
 
+    def query_file(self, file: File) -> File | None:
+        """Query the object for files that are identical to the provided object."""
+        if file in self:
+            return self.query_file_name(file.basename)
+        return None
+
     def query_image(self, image: Img, threshold=10, method="phash") -> list[Img]:
         """Scan self for images with has values similar to the one of the given image."""
         pool = Pool()
         similar_images = []
 
         def hash_extracter(img: Img, method: str):
-            abs(hash_to_query - img.calculate_hash(method))
             return img.calculate_hash(method), img
 
         hash_to_query = image.calculate_hash(method)
+        count = 0
         for result in pool.execute(hash_extracter, self.images, method, progress_bar=True):
             if result:
                 h, img = result
                 try:
                     distance = abs(hash_to_query - h)
-                    print(distance, end="\r")
+                    print(f"{count:60}", end="\r")
                     if distance < threshold:
-                        similar_images.append((img, threshold))
-                        print(f"\n\033[1;33m{img.basename}\033[0m")
+                        similar_images.append((img, distance))
+                        count += 1
                 except Exception:
                     print("\033[31mError while calculating hash difference: {e!r}\033[0m")
         return similar_images
@@ -171,6 +178,9 @@ class Dir(File):
             self._metadata = defaultdict(int)
             for item in self.file_objects:
                 ext = item.extension or ""
+                if ext == "":
+                    self._metadata["None"] += 1
+                    continue
                 self._metadata[ext[1:]] += 1  # Remove the dot from extention
         sorted_stat = dict(sorted(self._metadata.items(), key=lambda x: x[1]))
         # Print the sorted table
@@ -247,7 +257,7 @@ class Dir(File):
         return item in self.file_objects or item in self.dirs if isinstance(item, File) else False
 
     def __hash__(self) -> int:
-        return hash((tuple(self.content), self.stat, self.is_empty))
+        return hash((tuple(self.content), self.is_empty, tuple(self.rel_directories)))
 
     def __len__(self) -> int:
         """Return the number of items in the object."""
@@ -278,10 +288,8 @@ class Dir(File):
         )
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(size={self.size_human}, is_empty={self.is_empty})".format(
-                **vars(self)
-            )
+        return f"{self.__class__.__name__}(name={self.basename}, size={self.size_human}, is_empty={self.is_empty})".format(
+            **vars(self)
         )
 
 

@@ -55,7 +55,7 @@ class File:
 
     # _content: list[Any] = []
 
-    def __init__(self, path: str, encoding: str = "utf-8") -> None:
+    def __init__(self, path: str, encoding="utf-8") -> None:
         """Construct the FileObject object.
 
         Paramaters:
@@ -63,8 +63,8 @@ class File:
             - `path (str)` : The path to the file
             - `encoding (str)` : Encoding type of the file (default is utf-8)
         """
-        self.encoding = encoding
         self.path = os.path.abspath(os.path.expanduser(path))
+        self.encoding = encoding
         self.exists = os.path.exists(self.path)
         if not self.exists:
             raise FileNotFoundError(f"File '{self.path}' does not exist")
@@ -148,6 +148,9 @@ class File:
         ----------
             str: The content of the file
         """
+        _ = self.detect_encoding()
+        if _ is not None:
+            self.encoding = _
         try:
             x, y = args
         except ValueError:
@@ -157,7 +160,7 @@ class File:
                 lines = f.read().decode(self.encoding).split("\n")
                 self._content = list(lines[x:y])
         except UnicodeDecodeError as e:
-            print(f"{e!r}: {self.basename} could not be decoded as {self.encoding}")
+            print(f"{self.basename} could not be decoded as {self.encoding}")
         except Exception:
             print(f"Reading of type {self.__class__.__name__} is unsupported")
         return self._content

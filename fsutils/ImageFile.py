@@ -340,7 +340,8 @@ class Img(File):
             else:
                 name = name.split(" ")[0]
             iterations += 1
-        return f"{name:<25} | {self.extension:<6} | {self.size_human:<10} | {self.dimensions!s:<15} | {self.capture_date!s:<25}"
+        return f"{name:<25} | {self.extension:<6} | {self.size_human:<10} | \
+            {self.dimensions!s:<15} | {self.capture_date!s:<25}"
 
     @staticmethod
     def fmtheader() -> str:
@@ -351,6 +352,5 @@ class Img(File):
         return f"\033[1m{header}\033[0m\n{linebreak}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, dimensions={self.dimensions})".format(
-            **vars(self),
-        )
+        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, \
+dimensions={self.dimensions})".format(**vars(self))
