@@ -11,7 +11,7 @@ import re
 import subprocess
 
 # from ..fsutils import Video
-from .Exceptions import CorruptMediaError, FFProbeError
+from Exceptions import CorruptMediaError, FFProbeError
 
 
 class FFProbe:

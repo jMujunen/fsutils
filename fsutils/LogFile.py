@@ -20,7 +20,7 @@ class LogMetaData:
     df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
 
 
-class Log(File, LogMetaData):
+class Log(LogMetaData, File):
     """A class to represent a log file."""
 
     def __init__(self, path: str, sep: str = ",", encoding: str = "iso-8859-1"):
@@ -37,3 +37,17 @@ class Log(File, LogMetaData):
             engine="python",
         )
         return self.df
+
+    def __hash__(self):
+        """Return a hash of the log file."""
+        return hash((type(self), self.encoding, self.md5_checksum()))
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            raise TypeError("Can only compare instances of the same class")
+
+        return self.path == other.path and self.sep == other.sep and self.encoding == other.encoding
+
+    def __ne__(self, other: object) -> bool:
+        """Check if two instances of the class are not equal."""
+        return not (self == other)

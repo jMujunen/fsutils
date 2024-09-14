@@ -1,19 +1,24 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
+import contextlib
 import json
 import os
+
+os.environ["LOG_LEVEL"] = "0"
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import cv2
+import numpy as np
 from size import Size
 
 from .Exceptions import CorruptMediaError, FFProbeError
 from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
+from .tools import format_timedelta, frametimes
 
 
 class Video(File):
@@ -42,21 +47,29 @@ class Video(File):
         - `bitrate`
     """
 
-    def __init__(self, path: str) -> None:
+    _tags: dict[str, str] | None = None
+    _fps: float
+    _num_frames: int
+    _duration: float
+    _dimensions: tuple[int, int]
+    _bitrate: int
+    _bitrate_human: str
+    _metadata: dict[str, Any]
+    _capture_date: datetime
+
+    def __init__(self, path: str, lazy_load=True) -> None:
         """Initialize a new Video object.
 
         Paramaters:
         -------------
             - `path (str)` : The absolute path to the video file.
-
+            - `lazy_load (bool)` : Whether or not to load metadata lazily. Defaults to True.
         """
-        self._metadata = None
-        self._info = None
         super().__init__(path)
 
     @property
     def metadata(self) -> dict:
-        if not self._metadata:
+        if not hasattr(self, "_metadata"):
             ffprobe_cmd = [
                 "ffprobe",
                 "-v",
@@ -72,43 +85,66 @@ class Video(File):
                 if ffprobe_output is None:
                     return {}
                 self._metadata = json.loads(ffprobe_output).get("format")
+                # self.__dict__.update(self._metadata)
             except subprocess.CalledProcessError:
                 print(f"Failed to run ffprobe on {self.path}.", file=sys.stderr)
                 self._metadata = {}
         return self._metadata
 
     @property
-    def tags(self) -> dict:
-        return self.metadata.get("tags", {}) if self.metadata else {}
+    def tags(self) -> dict[str, str]:
+        return self.metadata.get("tags", {})
+
+    @property
+    def fps(self) -> float:
+        """Return the frames per second of the video."""
+        if not hasattr(self, "_fps"):
+            self.__setattr__("_fps", self.ffprobe.frame_rate())
+        return self._fps
+
+    @property
+    def num_frames(self) -> int:
+        """Return the number of frames in the video."""
+        if not hasattr(self, "_num_frames"):
+            self.__setattr__("_num_frames", self.metadata.get("nb_frames", self.ffprobe.frames()))
+        return self._num_frames
 
     @property
     def bitrate(self) -> int:
         """Extract the bitrate/s with ffprobe."""
         try:
-            return round(int(self.metadata.get("bit_rate", -1)))
+            return self.metadata.get("bitrate", round(int(self.metadata.get("bit_rate", -1))))
         except ZeroDivisionError:
             if self.is_corrupt:
                 print(f"\033[31m{self.basename} is corrupt!\033[0m")
             return 0
 
     @property
-    def bitrate_human(self) -> str | None:
+    def bitrate_human(self) -> str:
         """Return the bitrate in a human readable format."""
         if self.bitrate is not None and self.bitrate > 0:
             return str(Size(self.bitrate))
-        return None
+        return "N/A"
 
     @property
     def duration(self) -> int:
-        return round(float(self.metadata.get("duration", 0)))
+        return self.metadata.get("duration", round(float(self.metadata.get("duration", 0))))
+
+    @property
+    def dimensions(self) -> tuple[int, int] | None:
+        """Return width and height of the video `(1920x1080)`."""
+        return self.__dict__.get("_dimensions", self.ffprobe.frame_size())
 
     @property
     def capture_date(self) -> datetime:
         """Return the capture date of the file."""
+        if hasattr(self, "_capture_date"):
+            return self._capture_date
         capture_date = str(
             self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getmtime(self.path))
         ).split(".")[0]
-        return datetime.fromisoformat(capture_date)
+        self._capture_date = datetime.fromisoformat(capture_date)
+        return self._capture_date
 
     @property
     def codec(self) -> str | None:
@@ -116,16 +152,14 @@ class Video(File):
         return self.ffprobe.codec()
 
     @property
-    def dimensions(self) -> tuple[int, int] | None:
-        """Return width and height of the video `(1920x1080)`."""
-        return self.ffprobe.frame_size()
-
-    @property
     def is_corrupt(self) -> bool:
         """Check if the video is corrupt."""
         try:
             cap = cv2.VideoCapture(self.path)
-            return cap.isOpened()
+            if cap.isOpened():
+                cap.release()
+                return False  # Video is not corrupted
+            return True
         except (OSError, SyntaxError):
             return True  # Video is corrupt
         except KeyboardInterrupt:
@@ -143,21 +177,20 @@ class Video(File):
                 f"FFprobe did not find any video streams for {self.path}."
             ) from IndexError
 
-    @property
-    def fps(self) -> int:
-        """Return the frames per second of the video."""
-        return self.ffprobe.frame_rate()
-
-    @property
-    def num_frames(self) -> int:
-        """Return the number of frames in the video."""
-        return self.ffprobe.frames()
-
     def render(self) -> None:
-        """Render the video."""
+        """Render the video using `mpv` | `vo` protocol if available with xdg-open as fallback."""
         if os.environ.get("TERM") == "xterm-kitty":
             try:
-                subprocess.call(["mpv", self.path])
+                subprocess.call(
+                    [
+                        "mpv",
+                        "--vo=kitty",
+                        "--vo-kitty-use-shm=yes",
+                        "--hwdec=cuda",
+                        "--cuda-decode-device=0",
+                        self.path,
+                    ]
+                )
             except Exception as e:
                 print(f"Error: {e}")
         else:
@@ -279,6 +312,55 @@ class Video(File):
 
         return self
 
+    def extract_frames(self, fps=1, **kwargs: Any) -> None:
+        """Extract frames from video.
+
+        ### Args:
+        -----------
+            `fps` : Frames per second to extract (default is `1`)
+
+        #### Keyword Args:
+        ------------------
+            `output` : Output directory for frames (default is `{filename}-frames/`)
+
+
+        """
+        # Define output
+        output_dir = kwargs.get("output", f"{self.filename}-frames/")
+        os.makedirs(output_dir, exist_ok=True)
+        # Init opencv video capture object and get properties
+        cap = cv2.VideoCapture(self.path)
+        clip_fps = round(cap.get(cv2.CAP_PROP_FPS))
+        num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        interval = round(min(clip_fps, fps))
+        frametime_refs = frametimes(num_frames, clip_fps, interval)
+
+        count = 0
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+            frametime = count / clip_fps
+            try:
+                # get the earliest duration to save
+                closest_duration = frametime_refs[0]
+            except IndexError:
+                # the list is empty, all duration frames were saved
+                break
+            if frametime >= closest_duration:
+                # if closest duration is less than or equals the frametime,
+                # then save the frame
+                frame_duration_formatted = format_timedelta(timedelta(seconds=frametime))
+                cv2.imwrite(
+                    os.path.join(f"{self.filename}-frames", f"frame{frame_duration_formatted}.jpg"),
+                    frame,
+                )
+                # drop the duration spot from the list, since this duration spot is already saved
+                with contextlib.suppress(IndexError):
+                    frametime_refs.pop(0)
+            # increment the frame count
+            count += 1
+
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
         """Trim the video from start to end time (seconds).
 
@@ -340,7 +422,7 @@ class Video(File):
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
-        return f"{self.__class__.__name__}(size={self.size_human}, bitrate={self.bitrate_human}, codec={self.codec},)".format(
+        return f"{self.__class__.__name__}(name={self.basename}, size={self.size_human})".format(
             **vars(self)
         )
 

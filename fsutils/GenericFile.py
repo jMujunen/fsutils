@@ -103,9 +103,9 @@ class File:
         return os.path.dirname(self.path) if not self.is_dir else self.path
 
     @property
-    def file_name(self) -> str:
+    def filename(self) -> str:
         """Return the file name without the extension."""
-        return str(os.path.splitext(self.path)[0])
+        return str(self.basename).split(".")[0] if "." in self.basename else self.basename
 
     @property
     def basename(self) -> str:
@@ -277,6 +277,6 @@ class File:
         return self.exists
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, ext={self.extension})".format(
+        return f"{self.__class__.__name__}(name={self.basename}, size={self.size_human}, ext={self.extension})".format(
             **vars(self)
         )

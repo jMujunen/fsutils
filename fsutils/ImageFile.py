@@ -6,7 +6,7 @@ import subprocess
 from collections.abc import Generator
 from datetime import datetime
 from io import BytesIO
-from typing import Never
+from typing import Any, Never
 
 import cv2
 import imagehash
@@ -82,6 +82,12 @@ class Img(File):
         with Image.open(self.path) as img:
             width, height = img.size
         return width, height
+
+    @property
+    def aspect_ratio(self) -> float:
+        """Calculate and return the aspect ratio of an image."""
+        width, height = self.dimensions
+        return round(width / height, 3)
 
     @property
     def exif(self) -> Image.Exif | None:
@@ -215,27 +221,32 @@ class Img(File):
         """Save the image to a specified location."""
         raise NotImplementedError(self.__class__.__name__ + ".save() is not yet implemented.")
 
-    def resize(
-        self,
-        width: int = 320,
-        height: int = 320,
-        overwrite=False,
-        file_path: str | None = None,
-    ) -> "Img":
-        """Resize the image to specified width and height."""
-        saved_image_path = os.path.join(self.dir_name, f"_resized-{self.basename}")
-        if file_path is not None:
-            saved_image_path = file_path
+    def resize(self, height: int = 480, overwrite=False, **kwargs: Any) -> "Img":
+        """Resize the image to specified size and mode.
+
+        Paramaters:
+        ------------
+            - width : The wifth to resize the image to. Defaults to 480px and maintains ratio.
+            - overwrite (bool): Whether to overwrite existing files with the same name. Defaults to False.
+            - file_path (str): The path to save the resized image at. Defaults to None.
+        """
+
+        # mode = kwargs.get("mode", "fit")
+        resized_img_path = kwargs.get(
+            "output", os.path.join(self.dir_name, f"_resized-{self.basename}")
+        )
+        # If the image already exists and is of the same dimensions, just return it.
         if (
-            os.path.exists(saved_image_path)
+            os.path.exists(resized_img_path)
             and not overwrite
-            and Img(saved_image_path).dimensions == (width, height)
+            and Img(resized_img_path).dimensions == height
         ):
-            return self.__class__(saved_image_path)
+            return self.__class__(resized_img_path)
+        width = round(height * self.aspect_ratio)
         with Image.open(self.path) as img:
             resized_img = img.resize((width, height))
-            resized_img.save(saved_image_path)
-            return self.__class__(saved_image_path)
+            resized_img.save(resized_img_path)
+            return self.__class__(resized_img_path)
 
     def compress(
         self,
@@ -352,5 +363,5 @@ class Img(File):
         return f"\033[1m{header}\033[0m\n{linebreak}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, \
+        return f"{self.__class__.__name__}(name={self.basename},size={self.size_human}, \
 dimensions={self.dimensions})".format(**vars(self))

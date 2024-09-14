@@ -4,7 +4,7 @@ import datetime
 import os
 import sys
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 
 from size import Size
 from ThreadPoolHelper import Pool
@@ -101,11 +101,10 @@ class Dir(File):
             self._objects = list(self.__iter__())
         return self._objects
 
-    def query_file_name(self, file_name: str) -> File | None:
+    def query_file(self, file_name: str) -> File | None:
         """Query the object for files with the given name.
 
         Return an instance of `File` if a match is found."""
-        pool = Pool()
         try:
             if file_name in os.listdir(self.path):
                 return obj(os.path.join(self.path, file_name))
@@ -115,12 +114,6 @@ class Dir(File):
             content = os.listdir(os.path.join(self.path, d.path))
             if file_name in content:
                 return obj(os.path.join(self.path, d.path, file_name))
-        return None
-
-    def query_file(self, file: File) -> File | None:
-        """Query the object for files that are identical to the provided object."""
-        if file in self:
-            return self.query_file_name(file.basename)
         return None
 
     def query_image(self, image: Img, threshold=10, method="phash") -> list[Img]:
@@ -164,10 +157,11 @@ class Dir(File):
     @property
     def videos(self) -> list[Video]:
         """A list of VideoObject instances found in the directory."""
+        # pool = Pool()
         return [item for item in self if isinstance(item, Video)]
 
     @property
-    def dirs(self) -> list[File]:
+    def dirs(self) -> list["Dir"]:
         """A list of DirectoryObject instances found in the directory."""
         return [item for item in self if isinstance(item, Dir)]
 
@@ -265,6 +259,7 @@ class Dir(File):
 
     def __iter__(self) -> Iterator[File]:
         """Yield a sequence of File instances for each item in self."""
+        pool = Pool()
         for root, _, files in os.walk(self.path):
             # Yield directories first to avoid unnecessary checks inside the loop
             for directory in _:
