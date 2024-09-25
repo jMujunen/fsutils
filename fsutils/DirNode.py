@@ -1,7 +1,10 @@
 """Represents a directory. Contains methods to list objects inside this directory."""
 
 import datetime
+import hashlib
 import os
+import pickle
+import re
 import sys
 from collections import defaultdict
 from collections.abc import Generator, Iterator
@@ -44,10 +47,11 @@ class Dir(File):
 
     """
 
-    _objects: list[File] = []
-    _directories: list["Dir"] = []
-    _files: list[str] = []
-    _metadata: dict = {}
+    _objects: list[File]
+    _directories: list["Dir"]
+    _files: list[str]
+    _metadata: dict
+    _db: dict[int, str]
 
     def __init__(self, path: str = "./") -> None:
         """Initialize a new instance of the Dir class.
@@ -57,6 +61,12 @@ class Dir(File):
             - `path (str)` : The path to the directory.
         """
         super().__init__(path)
+
+        self._objects = []
+        self._directories = []
+        self._files = []
+        self._metadata = {}
+        self._db = self.load_database()
 
     @property
     def files(self) -> list[str]:
@@ -101,20 +111,17 @@ class Dir(File):
             self._objects = list(self.__iter__())
         return self._objects
 
-    def query_file(self, file_name: str) -> File | None:
-        """Query the object for files with the given name.
+    def search(self, pattern: str, attr: str = "basename") -> list[File]:
+        """Query the object for files with the given `name | regex` pattern.
 
-        Return an instance of `File` if a match is found."""
-        try:
-            if file_name in os.listdir(self.path):
-                return obj(os.path.join(self.path, file_name))
-        except (NotADirectoryError, FileNotFoundError):
-            pass
-        for d in self.dirs:
-            content = os.listdir(os.path.join(self.path, d.path))
-            if file_name in content:
-                return obj(os.path.join(self.path, d.path, file_name))
-        return None
+        Paramaters:
+        -----------
+            - pattern (str): The regular expression to search for.
+            - attr (str): The attribute of the `File` object to search on.
+
+        Return an list of `File` instances if found"""
+        # results = list(pool.execute(re.searchx, attr)))
+        return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
 
     def query_image(self, image: Img, threshold=10, method="phash") -> list[Img]:
         """Scan self for images with has values similar to the one of the given image."""
@@ -198,10 +205,6 @@ class Dir(File):
     def size_human(self) -> str:
         return str(self.size)
 
-    @staticmethod
-    def detect_duplicates():
-        """Detect duplicate files in a directory and its subdirectories."""
-
     def sort(self, specifier: str, reverse=True) -> list[str]:
         """Sort the files and directories by the specifying attribute."""
 
@@ -232,6 +235,42 @@ class Dir(File):
             print(format_string.format(*f))
         return result
 
+    def load_database(self) -> dict[int, str]:
+        """Deserialize the pickled database."""
+        pkl_path = os.path.join(self.path, self.basename + ".pkl")
+        if os.path.exists(pkl_path):
+            with open(pkl_path, "rb") as f:
+                self._db = pickle.load(f)
+                return self._db
+        else:
+            return {}
+
+    def serialize(self, replace=False) -> dict[int, str]:
+        """Create an hash index of all files in self."""
+        pkl_file = f"{self.basename}.pkl"
+        pkl = os.path.join(self.path, pkl_file)
+        if os.path.exists(pkl):
+            if replace:
+                os.remove(pkl)
+            else:
+                return self.load_database()
+
+        hash_map = {}
+        pool = Pool()
+
+        for result in pool.execute(
+            lambda x: (x.sha256(), x.path), self.file_objects, progress_bar=True
+        ):
+            if result:
+                sha, path = result
+                hash_map[sha] = path
+        with open(pkl, "wb") as f:
+            pickle.dump(hash_map, f)
+        return hash_map
+
+    def sha256(self) -> str:
+        return super().sha256()
+
     def __format__(self, format_spec: str, /) -> str:
         pool = Pool()
         if format_spec == "videos":
@@ -248,6 +287,8 @@ class Dir(File):
 
     def __contains__(self, item: File) -> bool:
         """Is `File` in self?"""  # noqa
+
+        return item.sha256() in self.serialize()
         return item in self.file_objects or item in self.dirs if isinstance(item, File) else False
 
     def __hash__(self) -> int:
@@ -259,7 +300,6 @@ class Dir(File):
 
     def __iter__(self) -> Iterator[File]:
         """Yield a sequence of File instances for each item in self."""
-        pool = Pool()
         for root, _, files in os.walk(self.path):
             # Yield directories first to avoid unnecessary checks inside the loop
             for directory in _:
@@ -288,10 +328,8 @@ class Dir(File):
         )
 
 
-def obj(path: str) -> File | None:
+def obj(path: str) -> File:
     """Return a File object for the given path."""
-    if not os.path.exists(path):
-        return None
     if os.path.isdir(path):
         return Dir(path)
     _, ext = os.path.splitext(path.lower())
@@ -308,10 +346,5 @@ def obj(path: str) -> File | None:
                 print(f"{e!r}")
             except AttributeError:
                 return File(path)
-    # If no match is found, return a default instance
-    try:
-        FileClass = File(path)
-    except FileNotFoundError as e:
-        print(f"{e!r}")
-        return None
+    FileClass = File(path)
     return File(path)
