@@ -4,7 +4,7 @@ import pandas as pd
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, ClassVar
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,14 +14,40 @@ from .GenericFile import File
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
 
 
-class Presets(tuple[str, ...], Enum):
+@dataclass
+class Columns:
+    """Preset columns for plotting."""
+
+    MISC: tuple[str, ...] = field(default=("ping", "ram_usage", "gpu_core_usage"))
+    GPU: tuple[str, ...] = field(default=("gpu_temp", "gpu_core_usage", "gpu_power"))
+    TEMPS: tuple[str, ...] = field(default=("system_temp", "gpu_temp", "cpu_temp"))
+    CPU: tuple[str, ...] = field(default=("cpu_max_clock", "cpu_avg_clock"))
+    VOLTS: tuple[str, ...] = field(default=("gpu_voltage", "cpu_voltage"))
+
+
+@dataclass
+class Sep:
+    """Preset separators."""
+
+    GPUZ = r"\s+,\s+"
+    CUSTOM = r",\s+"
+
+
+@dataclass
+class Types:
+    """Preset file types."""
+
+    GPUZ: ClassVar = {"sep": Sep.GPUZ, "encoding": "iso-8859-1"}
+    CUSTOM: ClassVar = {"sep": Sep.CUSTOM, "encoding": "utf-8"}
+
+
+@dataclass
+class Presets:
     """A class to represent plotting presets."""
 
-    MISC = (" ping", " ram_usage", " gpu_core_usage")
-    GPU = (" gpu_temp", " gpu_core_usage", " gpu_power")
-    TEMPS = (" system_temp", " gpu_temp", " cpu_temp")
-    CPU = (" cpu_max_clock", " cpu_avg_clock")
-    VOLTS = (" gpu_voltage", " cpu_voltage")
+    COLUMNS = Columns()
+    SEP = Sep()
+    TYPE = Types()
 
 
 @dataclass
@@ -34,7 +60,7 @@ class LogMetaData:
     _df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
 
 
-class Log(LogMetaData, File):
+class Log(File, LogMetaData):
     """A class to represent a log file."""
 
     presets = Presets
@@ -50,11 +76,12 @@ class Log(LogMetaData, File):
         if self._df.empty:
             self._df = pd.read_csv(
                 self.path,
-                sep=self.sep,
+                sep=rf"{self.sep}",
                 encoding=self.encoding,
                 engine="python",
                 index_col=0,
             )
+            self.__dict__.update(self._df)
         return self._df
 
     def __hash__(self):
@@ -66,7 +93,7 @@ class Log(LogMetaData, File):
             return False
         return hash(self) == hash(other)
 
-    def plot(self, columns: tuple[str, ...] = Presets.TEMPS.value, smooth_factor=1) -> None:
+    def plot(self, columns: tuple[str, ...] = Presets.COLUMNS.TEMPS, smooth_factor=1) -> None:
         missing_columns = [col for col in columns if col not in self.df.columns]
 
         # Create index from timestamp
@@ -84,13 +111,16 @@ class Log(LogMetaData, File):
         smooth_data = {}
         if smooth_factor == 1:
             smooth_factor = int(self.df.shape[0] / 100) or 1
-        for column in columns:
-            smooth_data[column] = np.convolve(
-                self.df[column], np.ones(smooth_factor) / smooth_factor, mode="valid"
-            )
+        try:
+            for column in columns:
+                smooth_data[column] = np.convolve(
+                    self.df[column], np.ones(smooth_factor) / smooth_factor, mode="valid"
+                )
+            smooth_df = pd.DataFrame(smooth_data, index=self.df.index[: -(smooth_factor - 1)])
 
-        smooth_df = pd.DataFrame(smooth_data, index=self.df.index[: -(smooth_factor - 1)])
-
+        except:
+            print(f"\033[31m[ERROR]\033[0m Could not smooth data for column {column}")
+            smooth_df = self.df
         fig, ax = plt.subplots(
             figsize=(16, 6),
             dpi=80,
@@ -129,10 +159,14 @@ class Log(LogMetaData, File):
 
     def compare(self, other):
         """Compare two log files."""
-        # Find common columns
-        common_columns = set(self.df.columns).intersection(other.df.columns.tolist())
-        # Create a new DataFrame with common columns with a length of min(self, other)
-        df = pd.DataFrame(index=range(min(len(self.df), len(other.df))))
-        for column in common_columns:
-            df[column] = self.df[column].iloc[: len(df)] - other.df[column].iloc[: len(df)]
-        df.plot()
+        # Find common columns"(.*)",
+        # common_columns = set(self.df.columns).intersection(other.df.columns.tolist())
+        df = self.df.head(min(len(self.df), len(other.df)))
+        other_df = other.df.head(min(len(self.df), len(other.df)))
+        print(len(df))
+        print(len(other_df))
+        print(df.columns)
+        print(other_df.columns)
+        print(df)
+        print(other_df)
+        return df.compare(other_df)

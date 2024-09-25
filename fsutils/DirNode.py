@@ -1,13 +1,12 @@
 """Represents a directory. Contains methods to list objects inside this directory."""
 
 import datetime
-import hashlib
 import os
 import pickle
 import re
 import sys
 from collections import defaultdict
-from collections.abc import Generator, Iterator
+from collections.abc import Iterator
 
 from size import Size
 from ThreadPoolHelper import Pool
@@ -164,11 +163,10 @@ class Dir(File):
     @property
     def videos(self) -> list[Video]:
         """A list of VideoObject instances found in the directory."""
-        # pool = Pool()
         return [item for item in self if isinstance(item, Video)]
 
     @property
-    def dirs(self) -> list["Dir"]:
+    def dirs(self) -> list[File]:
         """A list of DirectoryObject instances found in the directory."""
         return [item for item in self if isinstance(item, Dir)]
 
@@ -328,7 +326,7 @@ class Dir(File):
         )
 
 
-def obj(path: str) -> File:
+def obj(path: str) -> File | None:
     """Return a File object for the given path."""
     if os.path.isdir(path):
         return Dir(path)
@@ -346,5 +344,8 @@ def obj(path: str) -> File:
                 print(f"{e!r}")
             except AttributeError:
                 return File(path)
-    FileClass = File(path)
+    try:
+        FileClass = File(path)
+    except FileNotFoundError as e:
+        return None
     return File(path)

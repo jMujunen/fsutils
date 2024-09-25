@@ -88,12 +88,6 @@ class Img(File):
         return width, height
 
     @property
-    def aspect_ratio(self) -> float:
-        """Calculate and return the aspect ratio of an image."""
-        width, height = self.dimensions
-        return round(width / height, 3)
-
-    @property
     def exif(self) -> Image.Exif | None:
         """Extract the EXIF data from the image."""
         try:
@@ -180,6 +174,12 @@ class Img(File):
             print(f"Error: {e!r}")
             return False
 
+    @property
+    def aspect_ratio(self) -> float:
+        """Calculate and return the aspect ratio of an image."""
+        width, height = self.dimensions
+        return round(width / height, 3)
+
     @staticmethod
     def show(path: str, render_size=320, title=True) -> int:
         """`HACK`: Mirror of render()."""
@@ -237,14 +237,14 @@ class Img(File):
         resized_img_path = kwargs.get(
             "output", os.path.join(self.dir_name, f"_resized-{self.basename}")
         )
+        width = round(height * self.aspect_ratio)
         # If the image already exists and is of the same dimensions, just return it.
         if (
             os.path.exists(resized_img_path)
             and not overwrite
-            and Img(resized_img_path).dimensions == height
+            and Img(resized_img_path).dimensions == (width, height)
         ):
             return self.__class__(resized_img_path)
-        width = round(height * self.aspect_ratio)
         with Image.open(self.path) as img:
             resized_img = img.resize((width, height))
             if tempfile:
@@ -379,5 +379,5 @@ class Img(File):
         return f"\033[1m{header}\033[0m\n{linebreak}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.basename},size={self.size_human}, \
+        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, \
 dimensions={self.dimensions})".format(**vars(self))

@@ -104,9 +104,9 @@ class File:
         return os.path.dirname(self.path) if not self.is_dir else self.path
 
     @property
-    def filename(self) -> str:
+    def file_name(self) -> str:
         """Return the file name without the extension."""
-        return str(self.basename).split(".")[0] if "." in self.basename else self.basename
+        return str(os.path.splitext(self.path)[0])
 
     @property
     def basename(self) -> str:
@@ -188,7 +188,7 @@ class File:
             with open(self.path, "rb") as f:
                 lines = f.read().decode(self.encoding).split("\n")
                 self._content = list(lines[x:y])
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             print(f"{self.basename} could not be decoded as {self.encoding}")
         except Exception as e:
             print(f"Reading of type {self.__class__.__name__} is unsupported [{e!r}]")
@@ -258,7 +258,7 @@ class File:
             return chardet.detect(f.read())["encoding"]
 
     def sha256(self) -> str:
-        """ """
+        """Return a reproducable sha256 hash of the file."""
         serialized_object = pickle.dumps({"md5": self.md5_checksum(), "size": self.size})
         return hashlib.sha256(serialized_object).hexdigest()
 
@@ -308,6 +308,6 @@ class File:
         return self.exists
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.basename}, size={self.size_human}, ext={self.extension})".format(
+        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, ext={self.extension})".format(
             **vars(self)
         )
