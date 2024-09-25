@@ -2,7 +2,6 @@
 
 import hashlib
 import os
-import pickle
 import re
 import shutil
 from collections.abc import Iterator
@@ -54,7 +53,7 @@ class File:
 
     """
 
-    _basename: str
+    # _content: list[Any] = []
 
     def __init__(self, path: str, encoding="utf-8") -> None:
         """Construct the FileObject object.
@@ -113,17 +112,6 @@ class File:
         """Return the file name with the extension."""
         return str(os.path.basename(self.path))
 
-    @basename.setter
-    def basename(self, name: str) -> str | None:
-        """Set a new name for the file."""
-        new_name = os.path.join(self.dir_name, name)
-        if os.path.exists(new_name):
-            raise FileExistsError("A file with this name already exists.")
-        os.rename(self.path, new_name)
-        new_object = self.__init__(new_name)
-        self = None  # Flag for garbage collection
-        return new_object
-
     @property
     def extension(self) -> str:
         """Return the file extension."""
@@ -141,43 +129,26 @@ class File:
         return 0
 
     @property
-    def is_binary(self) -> bool:
-        """Check for null bytes in the file contents, telling us its binary data."""
-        try:
-            with open(self.path, "rb") as file:
-                while True:
-                    chunk = file.read(1024)
-                    if not chunk:
-                        break
-                    for byte in chunk:
-                        # Check for null bytes (0x00), which are common in binary files
-                        if byte == 0:
-                            return True
-        except Exception as e:
-            print(f"Error calling `is_binary` on file {self.basename}: {e!r}")
-            return False
-        return False
-
-    @property
     def content(self) -> list[Any]:
         """Helper for self.read()."""
         if not self._content:
             self._content = self.read()
         return self._content
 
-    def read(self, *args: Any) -> list[Any]:
+    def read(self, *args) -> list[Any]:
         """Read the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
         practice to override this method in subclasses that deal with binary files.
 
-        Args:
-        ------
-            - tuple(int, int) : (optional) specify indices to slice the content list.
+        args:
+        ------------
+            - `int, int` : Return lines content[x:y]
+        Returns:
+        ----------
+            str: The content of the file
         """
         _ = self.detect_encoding()
-        if self.is_binary:
-            return []
         if _ is not None:
             self.encoding = _
         try:
@@ -190,16 +161,16 @@ class File:
                 self._content = list(lines[x:y])
         except UnicodeDecodeError as e:
             print(f"{self.basename} could not be decoded as {self.encoding}")
-        except Exception as e:
-            print(f"Reading of type {self.__class__.__name__} is unsupported [{e!r}]")
+        except Exception:
+            print(f"Reading of type {self.__class__.__name__} is unsupported")
         return self._content
 
-    def _read_chunk(self, size=4096) -> bytes:
+    def _read_chunk(self, size=8192) -> bytes:
         """Read a chunk of the file and return it as bytes."""
         with open(self.path, "rb") as f:
             return f.read(size)
 
-    def md5_checksum(self, size=4096) -> str:
+    def md5_checksum(self, size=8192) -> str:
         """Return the MD5 checksum of a portion of the image file."""
         data = self._read_chunk(size)
         return hashlib.md5(data).hexdigest()
@@ -257,13 +228,11 @@ class File:
         with open(self.path, "rb") as f:
             return chardet.detect(f.read())["encoding"]
 
-    def sha256(self) -> str:
-        """ """
-        serialized_object = pickle.dumps({"md5": self.md5_checksum(), "size": self.size})
-        return hashlib.sha256(serialized_object).hexdigest()
-
     def __hash__(self) -> int:
-        return hash((self.md5_checksum(), self.size))
+        try:
+            return hash(("\n".join(self.content), self.size))
+        except TypeError:
+            return hash((self.md5_checksum(), self.size))
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""

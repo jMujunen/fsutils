@@ -1,14 +1,11 @@
 """Represents an image."""
 
 import base64
-import hashlib
 import os
-import pickle
 import subprocess
 from collections.abc import Generator
 from datetime import datetime
 from io import BytesIO
-from tempfile import NamedTemporaryFile
 from typing import Any, Never
 
 import cv2
@@ -43,18 +40,17 @@ class Img(File):
         - `is_corrupted` (bool): Return True if the file is corrupted, False otherwise
     """
 
-    _exif: Image.Exif
-
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, encoding="utf-8") -> None:
         """Initialize an Img object.
 
         Parameters:
         ----------
             - `path (str)` : The absolute path to the file.
+            - `encoding (str)` : Encoding for reading metadata from image files, default is utf-8
         """
+        self._exif: Image.Exif = Image.Exif()
         self._tags = []
         super().__init__(path)
-        self._exif = Image.Exif()
 
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash:
         """Calculate the hash value of the image.
@@ -96,6 +92,9 @@ class Img(File):
     @property
     def exif(self) -> Image.Exif | None:
         """Extract the EXIF data from the image."""
+        if self._exif:
+            return self._exif
+        # Open Image
         try:
             with Image.open(self.path) as img:
                 self._exif = img.getexif()
@@ -222,7 +221,7 @@ class Img(File):
         """Save the image to a specified location."""
         raise NotImplementedError(self.__class__.__name__ + ".save() is not yet implemented.")
 
-    def resize(self, height=480, tempfile=False, overwrite=False, **kwargs: Any) -> "Img":
+    def resize(self, height: int = 480, overwrite=False, **kwargs: Any) -> "Img":
         """Resize the image to specified size and mode.
 
         Paramaters:
@@ -230,7 +229,6 @@ class Img(File):
             - width : The wifth to resize the image to. Defaults to 480px and maintains ratio.
             - overwrite (bool): Whether to overwrite existing files with the same name. Defaults to False.
             - file_path (str): The path to save the resized image at. Defaults to None.
-            - tempfile (bool): Whether to use a temporary file for the resized image. Defaults to False
         """
 
         # mode = kwargs.get("mode", "fit")
@@ -247,10 +245,6 @@ class Img(File):
         width = round(height * self.aspect_ratio)
         with Image.open(self.path) as img:
             resized_img = img.resize((width, height))
-            if tempfile:
-                with NamedTemporaryFile(delete=True) as temp_file:
-                    resized_img.save(f"{temp_file.name}{self.extension}")
-                return self.__class__(f"{temp_file.name}{self.extension}")
             resized_img.save(resized_img_path)
             return self.__class__(resized_img_path)
 
@@ -339,21 +333,11 @@ class Img(File):
         cv2.imwrite(output, gray_img)
         return Img(output)
 
-    def read(self) -> bytes:
-        """Read the image and return its content as a string."""
-        return super()._read_chunk(4096)
-
-    def sha265(self):
-        serialized_object = pickle.dumps(
-            {"md5": self.md5_checksum(), "size": self.size, "dimensions": self.dimensions}
-        )
-        return hashlib.sha256(serialized_object).hexdigest()
-
     def __eq__(self, other: "Img", /) -> bool:
         return super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((super().md5_checksum(), self.dimensions, self.size))
+        return hash((self.md5_checksum(), self.dimensions, self.size))
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted table representation of the file."""
@@ -367,15 +351,15 @@ class Img(File):
             else:
                 name = name.split(" ")[0]
             iterations += 1
-        return f"{name:<15} | {self.size_human:<10} | \
+        return f"{name:<25} | {self.extension:<6} | {self.size_human:<10} | \
             {self.dimensions!s:<15} | {self.capture_date!s:<25}"
 
     @staticmethod
     def fmtheader() -> str:
         """Return a formatted table header."""
-        template = "{:<15} | {:<10} | {:<15} |{:<25}"
+        template = "{:<25} | {:<6} | {:<10} | {:<15} |{:<25}"
         header = template.format("File", "Ext", "Size", "Dimensions", "Capture Date")
-        linebreak = template.format("-" * 15, "-" * 10, "-" * 15, "-" * 25)
+        linebreak = template.format("-" * 25, "-" * 6, "-" * 10, "-" * 15, "-" * 25)
         return f"\033[1m{header}\033[0m\n{linebreak}"
 
     def __repr__(self) -> str:
