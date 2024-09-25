@@ -1,8 +1,10 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
 import contextlib
+import hashlib
 import json
 import os
+import pickle
 
 os.environ["LOG_LEVEL"] = "0"
 import subprocess
@@ -12,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 import cv2
-import numpy as np
 from size import Size
 
 from .Exceptions import CorruptMediaError, FFProbeError
@@ -315,13 +316,13 @@ class Video(File):
     def extract_frames(self, fps=1, **kwargs: Any) -> None:
         """Extract frames from video.
 
-        ### Args:
+        Paramaters
         -----------
-            `fps` : Frames per second to extract (default is `1`)
+            - `fps` : Frames per second to extract (default is `1`)
 
-        #### Keyword Args:
+        Kwargs:
         ------------------
-            `output` : Output directory for frames (default is `{filename}-frames/`)
+            - `output` : Output directory for frames (default is `{filename}-frames/`)
 
 
         """
@@ -420,6 +421,19 @@ class Video(File):
         )
         return Video(output_path)
 
+    def sha256(self) -> str:
+        serialized_object = pickle.dumps(
+            {
+                "md5": self.md5_checksum(),
+                "size": self.size,
+                "fps": self.fps,
+                "bitrate": self.bitrate,
+                "codec": self.codec,
+                "duration": self.duration,
+            }
+        )
+        return hashlib.sha256(serialized_object).hexdigest()
+
     def __repr__(self) -> str:
         """Return a string representation of the file."""
         return f"{self.__class__.__name__}(name={self.basename}, size={self.size_human})".format(
@@ -427,10 +441,10 @@ class Video(File):
         )
 
     def __hash__(self) -> int:
-        return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum()))
+        return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(8196)))
 
     def __format__(self, format_spec: str, /) -> str:
-        """Return a formatted string representation of the file."""
+        """Return the object in tabular format."""
         name = self.basename
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
