@@ -9,9 +9,8 @@ from collections.abc import Iterator
 from typing import Any
 
 import chardet
+from mimecfg import FILE_TYPES
 from size import Size
-
-from .mimecfg import FILE_TYPES
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 

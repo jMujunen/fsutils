@@ -6,7 +6,7 @@ import pickle
 import re
 import sys
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 
 from size import Size
 from ThreadPoolHelper import Pool
@@ -26,7 +26,7 @@ class Dir(File):
 
     Attributes
     ----------
-        - `path (str)` : The path to the directory.
+        - `path (str)` : The path to the directory.\
 
     Methods
     -------
@@ -50,7 +50,7 @@ class Dir(File):
     _directories: list["Dir"]
     _files: list[str]
     _metadata: dict
-    _db: dict[int, str]
+    _db: dict[int, list[str]]
 
     def __init__(self, path: str = "./") -> None:
         """Initialize a new instance of the Dir class.
@@ -59,6 +59,7 @@ class Dir(File):
         ----------
             - `path (str)` : The path to the directory.
         """
+
         super().__init__(path)
 
         self._objects = []
@@ -203,6 +204,16 @@ class Dir(File):
     def size_human(self) -> str:
         return str(self.size)
 
+    def duplicates(self, num_keep=2) -> list[str]:
+        """Return a list of duplicate files in the directory."""
+        hashes = self.load_database()
+        overflow = []
+        for k, v in hashes.items():
+            if len(v) > num_keep:
+                overflow.append(v)
+
+        return overflow
+
     def sort(self, specifier: str, reverse=True) -> list[str]:
         """Sort the files and directories by the specifying attribute."""
 
@@ -233,7 +244,7 @@ class Dir(File):
             print(format_string.format(*f))
         return result
 
-    def load_database(self) -> dict[int, str]:
+    def load_database(self) -> dict[int, list[str]]:
         """Deserialize the pickled database."""
         pkl_path = os.path.join(self.path, self.basename + ".pkl")
         if os.path.exists(pkl_path):
@@ -243,7 +254,7 @@ class Dir(File):
         else:
             return {}
 
-    def serialize(self, replace=False) -> dict[int, str]:
+    def serialize(self, replace=False) -> dict[int, list[str]]:
         """Create an hash index of all files in self."""
         pkl_file = f"{self.basename}.pkl"
         pkl = os.path.join(self.path, pkl_file)
@@ -261,7 +272,10 @@ class Dir(File):
         ):
             if result:
                 sha, path = result
-                hash_map[sha] = path
+                if sha not in hash_map:
+                    hash_map[sha] = [path]
+                else:
+                    hash_map[sha].append(path)
         with open(pkl, "wb") as f:
             pickle.dump(hash_map, f)
         return hash_map
@@ -314,8 +328,6 @@ class Dir(File):
         return all(
             (
                 isinstance(other, self.__class__),
-                self.exists,
-                other.exists,
                 hash(self) == hash(other),
             )
         )

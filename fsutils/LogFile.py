@@ -9,45 +9,109 @@ from typing import Any, ClassVar
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .GenericFile import File
+from GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
 
 
 @dataclass
-class Columns:
+class Hwinfo:
     """Preset columns for plotting."""
 
-    MISC: tuple[str, ...] = field(default=("ping", "ram_usage", "gpu_core_usage"))
-    GPU: tuple[str, ...] = field(default=("gpu_temp", "gpu_core_usage", "gpu_power"))
-    TEMPS: tuple[str, ...] = field(default=("system_temp", "gpu_temp", "cpu_temp"))
-    CPU: tuple[str, ...] = field(default=("cpu_max_clock", "cpu_avg_clock"))
-    VOLTS: tuple[str, ...] = field(default=("gpu_voltage", "cpu_voltage"))
+    SEP: str = field(default=",")
+    ENCODING: str = field(default="iso-8859-1")
+    GPU_COLS: tuple[str, ...] = field(default=("GPU Power [W]",))
+    TEMP_COLS: tuple[str, ...] = field(
+        default=(
+            "System Temp [°C]",
+            "CPU Package [°C]",
+            "GPU Temperature [°C]",
+            "GPU Memory Junction Temperature [°C]",
+            "GPU Hot Spot Temperature [°C]",
+        )
+    )
+    FPS_COLS: tuple[str, ...] = field(
+        default=(
+            "Framerate (Presented) [FPS]",
+            "Framerate (Displayed) [FPS]",
+            "Framerate [FPS]",
+            "Framerate 1% Low [FPS]",
+            "Framerate 0.1% Low [FPS]",
+        )
+    )
+    LATENCY_COLS: tuple[str, ...] = field(
+        default=(
+            "Frame Time [ms]",
+            "GPU Busy [ms]",
+            "Frame Time [ms].1",
+            "GPU Wait [ms]",
+            "CPU Busy [ms]",
+            "CPU Wait [ms]",
+        )
+    )
+    VOLT_COLS: tuple[str, ...] = field(
+        default=("Vcore [V]", "VIN3 [V]", "+12V [V]", "GPU Core Voltage [V]")
+    )
+
+    INDEX_COL = 1
 
 
 @dataclass
-class Sep:
-    """Preset separators."""
+class Nvidia:
+    """Presets."""
 
-    GPUZ = r"\s+,\s+"
-    CUSTOM = r",\s+"
+    SEP: str = field(default=r",\s+")
+    ENCODING = "utf-8"
+    MISC_COLS: tuple[str, ...] = field(default=("GPU1 Voltage(Milli Volts)",))
+    GPU_COLS: tuple[str, ...] = field(default=("GPU1 Frequency(MHz)", "GPU1 Memory Frequency(MHz)"))
+    USAGE_COLS: tuple[str, ...] = field(default=("CPU Utilization(%)", "GPU1 Utilization(%)"))
+    LATENCY_COLS: tuple[str, ...] = field(
+        default=("Render Latency(MSec)", "Average PC Latency(MSec)")
+    )
+    FPS_COLS: tuple[str, ...] = field(default=("FPS",))
+    INDEX_COL = 0
 
 
 @dataclass
-class Types:
-    """Preset file types."""
+class Custom:
+    """Preset columns for plotting."""
 
-    GPUZ: ClassVar = {"sep": Sep.GPUZ, "encoding": "iso-8859-1"}
-    CUSTOM: ClassVar = {"sep": Sep.CUSTOM, "encoding": "utf-8"}
+    SEP: str = field(default=r",\s+")
+    ENCODING = "utf-8"
+    MISC_COLS: tuple[str, ...] = field(default=("ping", "ram_usage", "gpu_core_usage"))
+    GPU_COLS: tuple[str, ...] = field(default=("gpu_temp", "gpu_core_usage", "gpu_power"))
+    TEMP_COLS: tuple[str, ...] = field(default=("system_temp", "gpu_temp", "cpu_temp"))
+    CPU_COLS: tuple[str, ...] = field(default=("cpu_max_clock", "cpu_avg_clock"))
+    VOLT_COLS: tuple[str, ...] = field(default=("gpu_voltage", "cpu_voltage"))
+    INDEX_COL = 0
 
 
 @dataclass
-class Presets:
-    """A class to represent plotting presets."""
+class Gpuz:
+    SEP: str = field(default=r"\s+,\s+")
+    ENCODING: str = field(default="iso-8859-1")
+    TEMP_COLS: tuple[str, ...] = field(
+        default=(
+            "GPU Temperature [°C]",
+            "Hot Spot [°C]",
+            "Memory Temperature [°C]",
+            "CPU Temperature [°C]",
+        )
+    )
+    USAGE_COLS: tuple[str, ...] = field(
+        default=("GPU Usage [%]", "Memory Controller Load [%]", "Power Consumption (%) [% TDP]")
+    )
+    VOLT_COLS: tuple[str, ...] = field(default=("GPU Voltage [V]",))
+    CLOCK_COLS: tuple[str, ...] = field(default=("GPU Clock [MHz]", "Memory Clock [MHz]"))
+    MISC_COLS: tuple[str, ...] = field(default=("Board Power Draw [W]",))
+    INDEX_COL = 0
 
-    COLUMNS = Columns()
-    SEP = Sep()
-    TYPE = Types()
+
+class Presets(Enum):
+    GPUZ = Gpuz()
+    HWINFO = Hwinfo()
+    CUSTOM = Custom()
+    NVIDIA = Nvidia()
 
 
 @dataclass
@@ -63,11 +127,18 @@ class LogMetaData:
 class Log(File, LogMetaData):
     """A class to represent a log file."""
 
-    presets = Presets
-
-    def __init__(self, path: str, sep: str = ",", encoding: str = "iso-8859-1"):
+    def __init__(
+        self,
+        path: str,
+        sep: str = ",",
+        encoding: str = "iso-8859-1",
+        preset: Presets = Presets.CUSTOM,
+    ) -> None:
         """Initialize the File and Log classes with the given parameters."""
-        File.__init__(self, path, encoding=encoding)
+        self.sep = sep
+        self.encoding = encoding
+        self.preset = preset
+        super().__init__(path, encoding)
         LogMetaData.__init__(self, path, sep, encoding)
 
     @property
@@ -79,7 +150,7 @@ class Log(File, LogMetaData):
                 sep=rf"{self.sep}",
                 encoding=self.encoding,
                 engine="python",
-                index_col=0,
+                index_col=self.preset.value.INDEX_COL,
             )
             self.__dict__.update(self._df)
         return self._df
@@ -93,13 +164,13 @@ class Log(File, LogMetaData):
             return False
         return hash(self) == hash(other)
 
-    def plot(self, columns: tuple[str, ...] = Presets.COLUMNS.TEMPS, smooth_factor=1) -> None:
+    def plot(self, columns: tuple[str, ...] = Custom.TEMP_COLS, smooth_factor=1) -> None:
         missing_columns = [col for col in columns if col not in self.df.columns]
 
         # Create index from timestamp
+        # if re.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", str(self.df.index[0])):
         self.df.index = pd.to_datetime(self.df.index)
         self.df.index = self.df.index.strftime("%H:%M")
-
         # Plot the data even if some of the specified columns are missing from the file
         if missing_columns:
             print(
@@ -121,6 +192,7 @@ class Log(File, LogMetaData):
         except:
             print(f"\033[31m[ERROR]\033[0m Could not smooth data for column {column}")
             smooth_df = self.df
+
         fig, ax = plt.subplots(
             figsize=(16, 6),
             dpi=80,
@@ -170,3 +242,7 @@ class Log(File, LogMetaData):
         print(df)
         print(other_df)
         return df.compare(other_df)
+
+    def sanatize(self):
+        """Sanitize the log file."""
+        header = self.head

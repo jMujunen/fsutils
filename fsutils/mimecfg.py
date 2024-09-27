@@ -24,7 +24,7 @@ FILE_TYPES = {
         "kwinrulesrc",
     ],
     "img_other": [".heatmap", ".ico", ".svg", ".heic"],
-    "metadata": [".lrprev", ".xml", ".aae", ".exif", ".iptc", ".tiff", ".xmp"],
+    "metadata": [".lrprev", ".xml", ".aae", ".exif", ".iptc", ".tiff", ".xmp", ".pp3"],
     "doc": [".pdf", ".doc", ".docx", ".odt", ".pptx"],
     "video": [".mp4", ".avi", ".mkv", ".wmv", ".webm", ".m4v", ".flv", ".mpg", ".mov"],
     "audio": [
