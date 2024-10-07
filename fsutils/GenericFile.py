@@ -9,8 +9,9 @@ from collections.abc import Iterator
 from typing import Any
 
 import chardet
-from mimecfg import FILE_TYPES
 from size import Size
+
+from mimecfg import FILE_TYPES
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
@@ -129,15 +130,15 @@ class File:
         return str(os.path.splitext(self.path)[-1]).lower()
 
     @extension.setter
-    def extension(self, ext: str) -> int:
+    def extension(self, ext: str) -> "File":
         """Set a new extension to the file."""
         new_path = os.path.splitext(self.path)[0] + ext
         try:
             shutil.move(self.path, new_path, copy_function=shutil.copy2)
+            self.__setattr__("path", new_path)
         except OSError as e:
             print(f"Error while saving {self.basename}: {e}")
-            return 1
-        return 0
+        return self
 
     @property
     def is_binary(self) -> bool:
@@ -262,7 +263,8 @@ class File:
         return hashlib.sha256(serialized_object).hexdigest()
 
     def __hash__(self) -> int:
-        return hash((self.md5_checksum(), self.size))
+        return hash(self.sha256())
+        # return hash((self.md5_checksum(), self.size))
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""

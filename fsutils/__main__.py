@@ -1,5 +1,7 @@
 import argparse
+from typing import Any
 
+from Color import bg, cprint, fg, style
 from ThreadPoolHelper import Pool
 
 from .DirNode import obj
@@ -143,7 +145,7 @@ def image_parser(arguments: argparse.Namespace) -> None:
     print(arguments)
 
 
-def video_parser(arguments: argparse.Namespace) -> int:
+def video_parser(arguments: argparse.Namespace) -> Any:
     """Handle command line operations related to videos.
 
     Commands:
@@ -155,11 +157,36 @@ def video_parser(arguments: argparse.Namespace) -> int:
 
     Example usage:
     --------------
-    >>> fstuils video makegif input_video.mp4  --scale 750 --fps 15 -o output_video.gif
-        fstuils video info video1.mp4 video2.mp4 --codec --dimensions --duration
-        fstuils video compress video.mp4 --output /path/to/folder
+    ```sh
+        # Gif
+        fstuils video makegif input_video.mp4  --scale 750 --fps 15 -o output_video.gif
+        # Info
+        fstuils video info ~/Videos/*.mp4
+        # Compress/transcode
+        fstuils video compress video.mp4 --output=/path/to/result.MOV
+    ```
     """
+    video = Video(arguments.file)
+    print(*arguments.__dict__.items())
+    mapping = {k: str(v) for k, v in arguments.__dict__.items()}
+    cmd = [k for k, v in mapping.items() if v]
+    print(
+        f"{fg.gray}{arguments.command}.{arguments.video_command}{style.reset} {arguments.file} {style.bold}-> {style.reset}{fg.green}{arguments.output}{style.reset} args={fg.cyan}[fps={arguments.fps}, scale={arguments.scale}]{style.reset}"
+    )
 
+    match arguments.video_command:
+        case "makegif":
+            print("Making GIF")
+            return video.make_gif(arguments.scale, arguments.fps, output=arguments.output)
+        case "info":
+            print("Info")
+            return print(format(video))
+        case "compress":
+            print("Compress")
+            return video.compress(**arguments.kwargs)
+        case _:
+            print("Invalid command for video operations.")
+            return -1
     if arguments.video_command == "makegif" and isinstance(arguments.file, str):
         gif = Video(arguments.file).make_gif(
             arguments.scale, arguments.fps, output=arguments.output

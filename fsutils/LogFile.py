@@ -122,6 +122,7 @@ class LogMetaData:
     sep: str = field(default=",")
     encoding: str = field(default="iso-8859-1")
     _df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
+    presets = Presets
 
 
 class Log(File, LogMetaData):

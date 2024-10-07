@@ -86,6 +86,7 @@ FILE_TYPES = {
         ".css",
         ".scss",
         ".ps1",
+        ".qml",
     ],
     "binary": [
         ".dat",
@@ -100,6 +101,7 @@ FILE_TYPES = {
         ".jar",
         ".mca",
         ".package",
+        ".class",
     ],
     "trash": [
         ".directoryStoreFile",
@@ -167,7 +169,13 @@ FILE_TYPES = {
         ".blueprint",
         ".rxr",
         ".ver1",
+        ".pyi",
+        ".whl",
+        ".metadata",
+        ".pickle",
+        ".so",
     ],
     "ignored": [],
     "dupes": [],  # For duplicate files
 }
+IGNORED_DIRS = ["site-packages", ".Trash-info", ".git", "venv", ".venv", ".cache"]

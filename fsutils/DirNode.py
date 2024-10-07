@@ -66,7 +66,7 @@ class Dir(File):
         self._directories = []
         self._files = []
         self._metadata = {}
-        self._db = self.load_database()
+        self.index = self.load_database()
 
     @property
     def files(self) -> list[str]:
@@ -204,9 +204,17 @@ class Dir(File):
     def size_human(self) -> str:
         return str(self.size)
 
-    def duplicates(self, num_keep=2) -> list[str]:
-        """Return a list of duplicate files in the directory."""
-        hashes = self.load_database()
+    def duplicates(self, num_keep=2, refresh: bool = False) -> list[str]:
+        """Return a list of duplicate files in the directory.
+
+        Uses pre-calculated hash values to find duplicates.
+
+        Paramaters:
+        -----------
+            - num_keep (int): The number of copies of each file to keep.
+            - refresh (bool): If True, re-calculate the hash values for all files
+        """
+        hashes = self.serialize(replace=refresh)
         overflow = []
         for k, v in hashes.items():
             if len(v) > num_keep:
