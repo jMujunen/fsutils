@@ -353,7 +353,8 @@ class Img(File):
         return super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((super().md5_checksum(), self.dimensions, self.size))
+        return hash(self.sha256())
+        # return hash((super().md5_checksum(), self.dimensions, self.size))
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted table representation of the file."""

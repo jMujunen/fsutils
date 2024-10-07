@@ -166,33 +166,27 @@ def video_parser(arguments: argparse.Namespace) -> Any:
         fstuils video compress video.mp4 --output=/path/to/result.MOV
     ```
     """
-    video = Video(arguments.file)
-    print(*arguments.__dict__.items())
+
+    def _video_command(video: Video, command: str) -> Any:
+        match command:
+            case "makegif":
+                return video.make_gif(arguments.scale, arguments.fps, output=arguments.output)
+            case "info":
+                return format(video)
+            case "compress":
+                return video.compress(**arguments.kwargs)
+            case _:
+                return f"Invalid video command: {arguments.video} {command}"
+
     mapping = {k: str(v) for k, v in arguments.__dict__.items()}
     cmd = [k for k, v in mapping.items() if v]
     print(
         f"{fg.gray}{arguments.command}.{arguments.video_command}{style.reset} {arguments.file} {style.bold}-> {style.reset}{fg.green}{arguments.output}{style.reset} args={fg.cyan}[fps={arguments.fps}, scale={arguments.scale}]{style.reset}"
     )
-
-    match arguments.video_command:
-        case "makegif":
-            print("Making GIF")
-            return video.make_gif(arguments.scale, arguments.fps, output=arguments.output)
-        case "info":
-            print("Info")
-            return print(format(video))
-        case "compress":
-            print("Compress")
-            return video.compress(**arguments.kwargs)
-        case _:
-            print("Invalid command for video operations.")
-            return -1
-    if arguments.video_command == "makegif" and isinstance(arguments.file, str):
-        gif = Video(arguments.file).make_gif(
-            arguments.scale, arguments.fps, output=arguments.output
-        )
-        gif.render()
-
+    pool = Pool()
+    videos = (Video(file) for file in arguments.file)
+    for result in pool.execute(_video_command, videos, progress_bar=False):
+        print(result)
     if arguments.video_command == "info":
         files = arguments.file
         if isinstance(arguments.file, str):

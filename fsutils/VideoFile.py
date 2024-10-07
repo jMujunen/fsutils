@@ -292,37 +292,40 @@ class Video(File):
         --------
         >>> compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         """
-        output_path = kwargs.get("output") or os.path.join(self.dir_name, f"_{self.basename}")
-        subprocess.check_output(
-            [
-                "ffmpeg",
-                "-i",
-                self.path,
-                "-c:v",
-                kwargs.get("codec", "hevc_nvenc"),
-                "-crf",
-                kwargs.get("crf", "20"),
-                "-qp",
-                kwargs.get("qp", "24"),
-                "-rc",
-                "constqp",
-                "-preset",
-                kwargs.get("preset", "medium"),
-                "-tune",
-                kwargs.get("tune", "hq"),
-                "-r",
-                kwargs.get("fps", str(self.fps)),
-                "-c:a",
-                "copy",
-                # "-b:a",
-                # "128k",
-                "-v",
-                kwargs.get("loglevel", "quiet"),
-                "-y",
-                "-stats",
-                output_path,
-            ],
-        )
+        output_path = kwargs.get("output") or os.path.join(self.dir_name, f"_{self.file_name}.mp4")
+        fps = 30 if self.fps < 200 else 30
+        for keyword, value in kwargs.items():
+            if "-r" in kwargs or "fps" in keyword:
+                fps = value
+        print(fps)
+
+        ffmpeg_cmd = [
+            "ffmpeg",
+            "-hwaccel",
+            "cuda",
+            "-i",
+            self.path,
+            "-c:v",
+            kwargs.get("codec", "hevc_nvenc"),
+            "-crf",
+            kwargs.get("crf", "20"),
+            "-qp",
+            kwargs.get("qp", "24"),
+            "-rc",
+            "constqp",
+            "-preset",
+            kwargs.get("preset", "medium"),
+            "-tune",
+            kwargs.get("tune", "hq"),
+            "-c:a",
+            "copy",
+            "-v",
+            kwargs.get("loglevel", "quiet"),
+            "-y",
+            "-stats",
+            output_path,
+        ]
+        print(subprocess.check_output(ffmpeg_cmd))
         return Video(output_path)
 
     def sha256(self) -> str:
@@ -340,12 +343,11 @@ class Video(File):
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
-        return f"{self.__class__.__name__}(size={self.size_human}, bitrate={self.bitrate_human}, codec={self.codec},)".format(
-            **vars(self)
-        )
+        return f"{self.__class__.__name__}(size={self.size_human})".format(**vars(self))
 
     def __hash__(self) -> int:
-        return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
+        return hash(self.sha256())
+        # return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
 
     def __format__(self, format_spec: str, /) -> str:
         """Return the object in tabular format."""
