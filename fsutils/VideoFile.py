@@ -197,7 +197,7 @@ class Video(File):
         --------
             - `Img` : subprocess return code
         """
-        output_path = kwargs.get("output_path", os.path.join(self.dir_name, self.basename + ".gif"))
+        output_path = kwargs.get("output_path", os.path.join(self.dir_path, self.basename + ".gif"))
         if os.path.exists(output_path):
             return Img(output_path)
         subprocess.check_output(
@@ -292,7 +292,7 @@ class Video(File):
         --------
         >>> compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         """
-        output_path = kwargs.get("output") or os.path.join(self.dir_name, f"_{self.file_name}.mp4")
+        output_path = kwargs.get("output") or os.path.join(self.dir_path, f"_{self.file_name}.mp4")
         fps = 30 if self.fps < 200 else 30
         for keyword, value in kwargs.items():
             if "-r" in kwargs or "fps" in keyword:

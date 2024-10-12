@@ -235,7 +235,7 @@ class Img(File):
 
         # mode = kwargs.get("mode", "fit")
         resized_img_path = kwargs.get(
-            "output", os.path.join(self.dir_name, f"_resized-{self.basename}")
+            "output", os.path.join(self.dir_path, f"_resized-{self.basename}")
         )
         width = round(height * self.aspect_ratio)
         # If the image already exists and is of the same dimensions, just return it.
@@ -299,7 +299,7 @@ class Img(File):
             elif width and height:
                 img.resize((width, height))
             try:
-                new_file_path = os.path.join(self.dir_name, new_filename)
+                new_file_path = os.path.join(self.dir_path, new_filename)
                 img.save(new_file_path, quality=quality, optimize=True)
                 resized_img = self.__class__(new_file_path)
             except (OSError, PermissionError):

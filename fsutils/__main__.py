@@ -1,10 +1,12 @@
 import argparse
+import os
+import sys
 from typing import Any
 
-from Color import bg, cprint, fg, style
+from Color import cprint, fg, style
 from ThreadPoolHelper import Pool
 
-from .DirNode import obj
+from .DirNode import Dir, obj
 from .VideoFile import Video
 
 
@@ -13,19 +15,20 @@ def parse_args() -> argparse.Namespace:
     main_parser = argparse.ArgumentParser(
         prog="fsutils", description="A collection of command line utilities"
     )
-    subparsers = main_parser.add_subparsers(help="commands", dest="command")
-    # Create the parser for the "video" command
+    subparsers = main_parser.add_subparsers(help="commands", dest="category")
+    # Create the parser for the "video" category
 
     # |======== Video Parser =========|
+
     video_parser = subparsers.add_parser("video", help="Video related operations")
-    video_subparsers = video_parser.add_subparsers(help="video commands", dest="video_command")
-    # Create a parser for the "makegif" command under "video"
+    video_subparsers = video_parser.add_subparsers(help="video commands", dest="action")
+    # Create a parser for the "makegif" category under "video"
     video_makegif_parser = video_subparsers.add_parser(
         "makegif",
         help="Create GIF from video",
     )
     video_makegif_parser.add_argument(
-        "file",
+        "PATH",
         help="Input video file",
         type=str,
     )
@@ -40,23 +43,16 @@ def parse_args() -> argparse.Namespace:
         default=500,
         help="Scale factor for the gif - (100-1000 is usually good).",
     )
-    video_makegif_parser.add_argument(
-        "-o",
-        "--output",
-        help="Output file",
-        type=str,
-        default="./output.gif",
-    )
     # -------- Information -----------
     video_info = video_subparsers.add_parser(
         "info",
         help="Display information about a video",
     )
     video_info.add_argument(
-        "file",
+        "PATH",
         nargs="+",
         type=str,
-        help="Input Video File",
+        help="Video path",
     )
 
     # -------- Compression -----------
@@ -65,14 +61,14 @@ def parse_args() -> argparse.Namespace:
         help="Compress a video file",
     )
     video_compress_parser.add_argument(
-        "file",
-        help="File(s) to compress",
+        "PATH",
+        help="File(s) paths to compress",
         type=str,
     )
     video_compress_parser.add_argument(
         "-c",
         "--clean",
-        help="Remove the old file after sucessfull compression",
+        help="Remove the old file after successful compression",
         action="store_true",
         default=False,
     )
@@ -82,30 +78,6 @@ def parse_args() -> argparse.Namespace:
         required=False,
         action="store_true",
     )
-    # video_compress_parser.add_argument(
-    #     "--crf",
-    #     type=int,
-    #     help="Constant Rate Factor",
-    #     required=False,
-    # )
-    # video_compress_parser.add_argument(
-    #     "--qp",
-    #     type=int,
-    #     help="Quantization Parameter",
-    #     required=False,
-    # )
-    # video_compress_parser.add_argument(
-    #     "--preset",
-    #     type=str,
-    #     help="Preset for compression",
-    #     required=False,
-    # )
-    # video_compress_parser.add_argument(
-    #     "--loglevel",
-    #     type=str,
-    #     help="Output Log Level",
-    #     required=False,
-    # )
     video_compress_parser.add_argument(
         "kwargs",
         nargs=argparse.REMAINDER,
@@ -113,7 +85,7 @@ def parse_args() -> argparse.Namespace:
     )
     # |=========== Image Parser ==============|
     img_parser = subparsers.add_parser("img", help="Image related operations")
-    img_subparsers = img_parser.add_subparsers(help="Image commands", dest="image_command")
+    img_subparsers = img_parser.add_subparsers(help="Image commands", dest="action")
     img_info_parser = img_subparsers.add_parser(
         "info",
         help="img info",
@@ -122,14 +94,26 @@ def parse_args() -> argparse.Namespace:
     #     kwargs="{'nargs': '+'}",
     #     help="Additional arguments to pass to ffmpeg",
     # )
-    img_info_parser.add_argument("FILE", help="File path")
+    img_info_parser.add_argument("PATH", help="File path")
 
     resize_parser = img_subparsers.add_parser("resize", help="Resize an image")
     resize_parser.add_argument("--width", type=int, required=True)
     resize_parser.add_argument("--height", type=int, required=False)
 
-    # image_parser.
+    # |=========== Dir Parser ==============|
+    dir_parser = subparsers.add_parser("dir", help="Directory related operations")
+    dir_subparsers = dir_parser.add_subparsers(help="Directory commands", dest="action")
+    # dir_info = dir_subparsers.add_parser("info", help="Directory info")
 
+    dir_serialize = dir_subparsers.add_parser("serialize", help="Serialize directory")
+    dir_serialize.add_argument("PATH", help="Directory to serialize")
+    dir_serialize.add_argument(
+        "--refresh",
+        "-r",
+        action="store_true",
+        help="Refresh the data if it exists",
+        default=False,
+    )
     return main_parser.parse_args()
 
 
@@ -167,49 +151,57 @@ def video_parser(arguments: argparse.Namespace) -> Any:
     ```
     """
 
-    def _video_command(video: Video, command: str) -> Any:
-        match command:
+    def action(videos: list[Video]) -> Any:
+        match arguments.action:
             case "makegif":
-                return video.make_gif(arguments.scale, arguments.fps, output=arguments.output)
+                for vid in videos:
+                    vid.make_gif(arguments.scale, arguments.fps, output=arguments.output)
+                return 0
             case "info":
-                return format(video)
+                print(Video.fmtheader())
+                return print("\n".join(Pool().execute(format, videos, progress_bar=False)))
             case "compress":
-                return video.compress(**arguments.kwargs)
+                for vid in videos:
+                    vid.compress(**arguments.kwargs)
+                return 0
             case _:
-                return f"Invalid video command: {arguments.video} {command}"
+                return f"Invalid video command: {arguments.video} {arguments.action}"
 
+    # Parse arguments into a format that can be understood by the action function
     mapping = {k: str(v) for k, v in arguments.__dict__.items()}
     cmd = [k for k, v in mapping.items() if v]
-    print(
-        f"{fg.gray}{arguments.command}.{arguments.video_command}{style.reset} {arguments.file} {style.bold}-> {style.reset}{fg.green}{arguments.output}{style.reset} args={fg.cyan}[fps={arguments.fps}, scale={arguments.scale}]{style.reset}"
-    )
-    pool = Pool()
-    videos = (Video(file) for file in arguments.file)
-    for result in pool.execute(_video_command, videos, progress_bar=False):
-        print(result)
-    if arguments.video_command == "info":
-        files = arguments.file
-        if isinstance(arguments.file, str):
-            files = [arguments.file]
-        video_objects = [obj(i) for i in files if isinstance(obj(i), Video)]
-        pool = Pool()
-        print(Video.fmtheader())
-        print("\n".join(pool.execute(format, video_objects, progress_bar=False)))
-    elif arguments.video_command == "compress":
-        vid = Video(arguments.file)
-        if isinstance(arguments.file, str):
-            files = [arguments.file]
-        kwargs = {item.split("=")[0].strip("--"): item.split("=")[1] for item in arguments.kwargs}  # noqa
-        result = vid.compress(**kwargs)
-        print(format(result, "header"))
+
+    videos = [Video(file) for file in arguments.PATH if isinstance(Video(file), Video)]
+    return action(videos)
+    # if arguments.action == "info":
+    #     files = arguments.PATH
+    #     if isinstance(arguments.PATH, str):
+    #         files = [arguments.PATH]
+    #     video_objects = [obj(i) for i in files if isinstance(obj(i), Video)]
+    #     pool = Pool()
+    #     print(Video.fmtheader())
+    #     print("\n".join(pool.execute(format, video_objects, progress_bar=False)))
+    # elif arguments.action == "compress":
+    #     vid = Video(arguments.PATH)
+    #     if isinstance(arguments.PATH, str):
+    #         files = [arguments.PATH]
+    #     kwargs = {item.split("=")[0].strip("--"): item.split("=")[1] for item in arguments.kwargs}
+    #     result = vid.compress(**kwargs)
+    #     print(format(result, "header"))
     return 0
 
 
 if __name__ == "__main__":
     args = parse_args()
-    if args.command is None:
-        print("Invalid")
-    if args.command == "video":
-        video_parser(args)
-    elif args.command == "img":
-        image_parser(args)
+    print(vars(args))
+    template = """{category}.{action}(
+    path={PATH}, {kwargs}"""
+    match args.category:
+        case "video":
+            sys.exit(video_parser(args))
+        case "img":
+            sys.exit(image_parser(args))
+        case "dir":
+            sys.exit(dir_parser(args))
+        case _:
+            sys.exit("Invalid category")

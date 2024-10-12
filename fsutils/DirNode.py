@@ -7,6 +7,7 @@ import re
 import sys
 from collections import defaultdict
 from collections.abc import Generator, Iterator
+from dataclasses import dataclass, field
 
 from size import Size
 from ThreadPoolHelper import Pool
@@ -14,13 +15,32 @@ from ThreadPoolHelper import Pool
 from fsutils.GenericFile import File
 from fsutils.GitObject import Git
 from fsutils.ImageFile import Img
-from fsutils.LogFile import Log
+from fsutils.LogFile.Log import Log
 from fsutils.mimecfg import FILE_TYPES
 from fsutils.ScriptFile import Exe
 from fsutils.VideoFile import Video
 
 
-class Dir(File):
+@dataclass
+class MetaData:
+    path: str = field(default="./", repr=True, hash=False, compare=False, init=True)
+    _objects: list[File] = field(
+        default_factory=list[File],
+        repr=False,
+        compare=True,
+        hash=True,
+    )
+    _directories: list["Dir"] = field(
+        default_factory=list["Dir"], repr=False, compare=True, hash=True
+    )
+    _files: list[File] = field(default_factory=list[File], repr=False, compare=False, hash=False)
+    db: dict[int, list[str]] = field(
+        default_factory=dict[int, list[str]], repr=False, compare=False, hash=False
+    )
+    metadata: dict = field(default_factory=dict, repr=True, compare=True, hash=True)
+
+
+class Dir(File, MetaData):
     """
     A class representing information about a directory.
 
@@ -46,27 +66,24 @@ class Dir(File):
 
     """
 
-    _objects: list[File]
-    _directories: list["Dir"]
-    _files: list[str]
-    _metadata: dict
-    _db: dict[int, list[str]]
+    # _objects: list[File]
+    # _directories: list["Dir"]
+    # _files: list[str]
+    # _metadata: dict
+    # _db: dict[int, list[str]]
 
-    def __init__(self, path: str = "./") -> None:
+    def __init__(self, path: str = "./", lazy_load=True) -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
         ----------
             - `path (str)` : The path to the directory.
         """
-
-        super().__init__(path)
-
-        self._objects = []
-        self._directories = []
-        self._files = []
-        self._metadata = {}
-        self.index = self.load_database()
+        File.__init__(self, path)
+        MetaData.__init__(self, path=path)
+        self.db = self.load_database()
+        if lazy_load is False:
+            list(self.__iter__())
 
     @property
     def files(self) -> list[str]:
@@ -82,14 +99,15 @@ class Dir(File):
 
         Returns:
         -------
-            List[Union[File, Exe, Log, Img, Video, Git]]: A list of file objects.
+            List[File, Exe, Log, Img, Video, Git]: A list of file objects.
         """
-        return [
-            item
-            for item in self
-            if isinstance(item, File | Exe | Log | Img | Video | Git)
-            and not os.path.isdir(item.path)
-        ]
+        return list(filter(lambda x: not isinstance(x, Dir), self))
+        # return [
+        #     item
+        #     for item in self
+        #     if isinstance(item, File | Exe | Log | Img | Video | Git)
+        #     and not os.path.isdir(item.path)
+        # ]
 
     @property
     def content(self) -> list[str]:
@@ -108,43 +126,9 @@ class Dir(File):
     def objects(self) -> list[File]:
         """Return a list of fsutil objects inside self."""
         if not self._objects:
+            print("False")
             self._objects = list(self.__iter__())
         return self._objects
-
-    def search(self, pattern: str, attr: str = "basename") -> list[File]:
-        """Query the object for files with the given `name | regex` pattern.
-
-        Paramaters:
-        -----------
-            - pattern (str): The regular expression to search for.
-            - attr (str): The attribute of the `File` object to search on.
-
-        Return an list of `File` instances if found"""
-        # results = list(pool.execute(re.searchx, attr)))
-        return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
-
-    def query_image(self, image: Img, threshold=10, method="phash") -> list[Img]:
-        """Scan self for images with has values similar to the one of the given image."""
-        pool = Pool()
-        similar_images = []
-
-        def hash_extracter(img: Img, method: str):
-            return img.calculate_hash(method), img
-
-        hash_to_query = image.calculate_hash(method)
-        count = 0
-        for result in pool.execute(hash_extracter, self.images, method, progress_bar=True):
-            if result:
-                h, img = result
-                try:
-                    distance = abs(hash_to_query - h)
-                    print(f"{count:60}", end="\r")
-                    if distance < threshold:
-                        similar_images.append((img, distance))
-                        count += 1
-                except Exception:
-                    print("\033[31mError while calculating hash difference: {e!r}\033[0m")
-        return similar_images
 
     @property
     def is_dir(self) -> bool:
@@ -159,30 +143,30 @@ class Dir(File):
     @property
     def images(self) -> list[Img]:
         """A list of ImageObject instances found in the directory."""
-        return [item for item in self if isinstance(item, Img)]
+        return list(filter(lambda x: isinstance(x, Img), self.__iter__()))  # type: ignore
 
     @property
     def videos(self) -> list[Video]:
         """A list of VideoObject instances found in the directory."""
-        return [item for item in self if isinstance(item, Video)]
+        return list(filter(lambda x: isinstance(x, Video), self.__iter__()))  # type: ignore
 
     @property
     def dirs(self) -> list[File]:
         """A list of DirectoryObject instances found in the directory."""
-        return [item for item in self if isinstance(item, Dir)]
+        return list(filter(lambda x: isinstance(x, Dir), self.__iter__()))
 
     @property
     def stat(self) -> None:
         """Print a formatted table of each file extention and their count."""
-        if not self._metadata:
-            self._metadata = defaultdict(int)
+        if not self.metadata:
+            self.metadata = defaultdict(int)
             for item in self.file_objects:
                 ext = item.extension or ""
                 if ext == "":
-                    self._metadata["None"] += 1
+                    self.metadata["None"] += 1
                     continue
-                self._metadata[ext[1:]] += 1  # Remove the dot from extention
-        sorted_stat = dict(sorted(self._metadata.items(), key=lambda x: x[1]))
+                self.metadata[ext[1:]] += 1  # Remove the dot from extention
+        sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))
         # Print the sorted table
         max_key_length = max([len(k) for k in sorted_stat])
         for key, value in sorted_stat.items():
@@ -191,18 +175,51 @@ class Dir(File):
     @property
     def size(self) -> Size:
         """Return the total size of all files and directories in the current directory."""
-        if "_size" in self.__dict__:
-            return self.__dict__["_size"]
-
-        def _(file: File) -> int:
-            return file.size
-
-        pool = Pool()
-        return Size(sum(pool.execute(_, self.file_objects, progress_bar=False)))
+        if hasattr(self, "_size") and self._size is not None:
+            return self._size
+        self._size = Size(
+            sum(
+                Pool().execute(
+                    lambda x: os.path.getsize(x.path), self.file_objects, progress_bar=False
+                )
+            )
+        )
+        return self._size
 
     @property
     def size_human(self) -> str:
         return str(self.size)
+
+    def search(self, pattern: str, attr: str = "basename") -> list[File]:
+        """Query the object for files with the given `name | regex` pattern.
+
+        Paramaters:
+        -----------
+            - pattern (str): The regular expression to search for.
+            - attr (str): The attribute of the `File` object to search on.
+
+        Return an list of `File` instances if found"""
+        return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
+
+    def query_image(self, image: Img, threshold=10, method="phash") -> list[Img]:
+        """Scan self for images with has values similar to the one of the given image."""
+        pool = Pool()
+        similar_images = []
+
+        hash_to_query = image.calculate_hash(method)
+        count = 0
+        for result in pool.execute(lambda x: (x.calculate_hash, x), self.images, progress_bar=True):
+            if result:
+                h, img = result
+                try:
+                    distance = abs(hash_to_query - h)
+                    print(f"{count:60}", end="\r")
+                    if distance < threshold:
+                        similar_images.append((img, distance))
+                        count += 1
+                except Exception:
+                    print("\033[31mError while calculating hash difference: {e!r}\033[0m")
+        return similar_images
 
     def duplicates(self, num_keep=2, refresh: bool = False) -> list[str]:
         """Return a list of duplicate files in the directory.
@@ -216,10 +233,9 @@ class Dir(File):
         """
         hashes = self.serialize(replace=refresh)
         overflow = []
-        for k, v in hashes.items():
+        for v in hashes.values():
             if len(v) > num_keep:
                 overflow.append(v)
-
         return overflow
 
     def sort(self, specifier: str, reverse=True) -> list[str]:
@@ -254,25 +270,24 @@ class Dir(File):
 
     def load_database(self) -> dict[int, list[str]]:
         """Deserialize the pickled database."""
-        pkl_path = os.path.join(self.path, self.basename + ".pkl")
+        pkl_path = os.path.join(self.path, self.prefix + ".pkl")
         if os.path.exists(pkl_path):
             with open(pkl_path, "rb") as f:
-                self._db = pickle.load(f)
-                return self._db
+                return pickle.load(f)
         else:
             return {}
 
-    def serialize(self, replace=False) -> dict[int, list[str]]:
+    def serialize(self, replace: bool = False) -> dict[int, list[str]]:
         """Create an hash index of all files in self."""
         pkl_file = f"{self.basename}.pkl"
         pkl = os.path.join(self.path, pkl_file)
-        if os.path.exists(pkl):
-            if replace:
-                os.remove(pkl)
-            else:
-                return self.load_database()
+        if os.path.exists(pkl) and replace is True:
+            os.remove(pkl)
+            self.db = {}
+        elif os.path.exists(pkl) and replace is False:
+            return self.load_database()
 
-        hash_map = {}
+        # hash_map = {}
         pool = Pool()
 
         for result in pool.execute(
@@ -280,30 +295,32 @@ class Dir(File):
         ):
             if result:
                 sha, path = result
-                if sha not in hash_map:
-                    hash_map[sha] = [path]
+                if sha not in self.db:
+                    self.db[sha] = [path]
                 else:
-                    hash_map[sha].append(path)
+                    self.db[sha].append(path)
         with open(pkl, "wb") as f:
-            pickle.dump(hash_map, f)
-        return hash_map
+            pickle.dump(self.db, f)
+        return self.db
 
     def sha256(self) -> str:
         return super().sha256()
 
     def __format__(self, format_spec: str, /) -> str:
         pool = Pool()
-        if format_spec == "videos":
-            print(Video.fmtheader())
-            return "\n".join(
-                result for result in pool.execute(format, self.videos, progress_bar=False)
-            )
-        if format_spec == "images":
-            print(Img.fmtheader())
-            return "\n".join(
-                result for result in pool.execute(format, self.images, progress_bar=False)
-            )
-        return "Formatting Dir is not supported yet"
+        match format_spec:
+            case "videos":
+                print(Video.fmtheader())
+                return "\n".join(
+                    result for result in pool.execute(format, self.videos, progress_bar=False)
+                )
+            case "images":
+                print(Img.fmtheader())
+                return "\n".join(
+                    result for result in pool.execute(format, self.images, progress_bar=False)
+                )
+            case _:
+                return f"Spec {format_spec} is not supported yet"
 
     def __contains__(self, item: File) -> bool:
         """Is `File` in self?"""  # noqa
@@ -320,16 +337,18 @@ class Dir(File):
 
     def __iter__(self) -> Iterator[File]:
         """Yield a sequence of File instances for each item in self."""
-        for root, _, files in os.walk(self.path):
-            # Yield directories first to avoid unnecessary checks inside the loop
-            for directory in _:
-                yield Dir(os.path.join(root, directory))
+        if len(self._objects) == 0:
+            for root, _, files in os.walk(self.path):
+                # Yield directories first to avoid unnecessary checks inside the loop
+                for directory in _:
+                    _obj = Dir(os.path.join(root, directory))
+                    self._objects.append(_obj)
 
-            for file in files:
-                path = os.path.join(root, file)  # full path of the file
-                _obj = obj(path)
-                if _obj:
-                    yield _obj
+                for file in files:
+                    _obj = obj(os.path.join(root, file))  # full path of the file
+                    if _obj is not None:
+                        self._objects.append(_obj)
+        yield from self._objects
 
     def __eq__(self, other: "Dir", /) -> bool:
         """Compare the contents of two Dir objects."""

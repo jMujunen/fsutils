@@ -99,30 +99,42 @@ class File:
         return int(os.path.getsize(self.path))
 
     @property
-    def dir_name(self) -> str:
+    def dir_path(self) -> str:
         """Return the parent directory of the file."""
         return os.path.dirname(self.path) if not self.is_dir else self.path
 
     @property
-    def file_name(self) -> str:
-        """Return the file name without the extension."""
-        return str(os.path.splitext(self.path)[0])
+    def dir_name(self) -> str:
+        """Depreciated, use dir_path instead."""
+        print("\033[1;4;93m[WARNING]\033[0m - 'dir_name' is deprecated. Use 'dir_path' instead.")
+        return self.dir_path
+
+    @property
+    def dir(self) -> str:
+        """Return the parent folder name."""
+        return self.path.split(os.sep)[-2]
 
     @property
     def basename(self) -> str:
         """Return the file name with the extension."""
         return str(os.path.basename(self.path))
 
+    @property
+    def prefix(self) -> str:
+        """Return the file name without extension."""
+        return os.path.splitext(self.basename)[0]
+
     @basename.setter
-    def basename(self, name: str) -> str | None:
+    def basename(self, name: str) -> str:
         """Set a new name for the file."""
-        new_name = os.path.join(self.dir_name, name)
-        if os.path.exists(new_name):
+        new_path = os.path.join(self.dir_path, name)
+        if os.path.exists(new_path):
             raise FileExistsError("A file with this name already exists.")
-        os.rename(self.path, new_name)
-        new_object = self.__init__(new_name)
-        self = None  # Flag for garbage collection
-        return new_object
+        os.rename(self.path, new_path)
+        self.__setattr__("basename", name)
+        self.__setattr__("path", new_path)
+        self.__setattr__("dir_path", os.path.dirname(new_path))
+        return self.basename
 
     @property
     def extension(self) -> str:
