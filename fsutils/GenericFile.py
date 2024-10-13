@@ -23,7 +23,7 @@ class File:
 
     It can be used standlone (Eg. text based files) or as a parent class for other classes.
 
-    Attributes:
+    Attributes
     ----------
         - `encoding (str)` : The encoding to use when reading/writing the file. Defaults to utf-8.
         - `path (str)` : The absolute path to the file.
@@ -43,7 +43,7 @@ class File:
         - `is_link` : Check if item is a symbolic link
         - `content` : The content of the file. Only holds a value if read() is called.
 
-    Methods:
+    Methods
     ----------
         - `read()` : Return the contents of the file
         - `head(self, n=5)` : Return the first n lines of the file
@@ -297,7 +297,7 @@ class File:
     def __contains__(self, item: Any) -> bool:
         """Check if a line exists in the file.
 
-        Parameters:
+        Parameters
         ----------
             item (str): The line to check for
 

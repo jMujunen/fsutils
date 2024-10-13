@@ -8,6 +8,7 @@ import sys
 from collections import defaultdict
 from collections.abc import Generator, Iterator
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from size import Size
 from ThreadPoolHelper import Pool
@@ -23,6 +24,15 @@ from fsutils.VideoFile import Video
 
 @dataclass
 class MetaData:
+    """Class for storing metadata of files and directories.
+
+    Attributes
+    ----------
+        path (str): Path to the file or directory.
+        db (dict): Dictionary representing the hashed objects.
+
+    """
+
     path: str = field(default="./", repr=True, hash=False, compare=False, init=True)
     _objects: list[File] = field(
         default_factory=list[File],
@@ -31,18 +41,23 @@ class MetaData:
         hash=True,
     )
     _directories: list["Dir"] = field(
-        default_factory=list["Dir"], repr=False, compare=True, hash=True
+        default_factory=list["Dir"],
+        repr=False,
+        compare=True,
+        hash=True,
     )
     _files: list[File] = field(default_factory=list[File], repr=False, compare=False, hash=False)
     db: dict[int, list[str]] = field(
-        default_factory=dict[int, list[str]], repr=False, compare=False, hash=False
+        default_factory=dict[int, list[str]],
+        repr=False,
+        compare=False,
+        hash=False,
     )
     metadata: dict = field(default_factory=dict, repr=True, compare=True, hash=True)
 
 
 class Dir(File, MetaData):
-    """
-    A class representing information about a directory.
+    """A class representing information about a directory.
 
     Attributes
     ----------
@@ -66,18 +81,14 @@ class Dir(File, MetaData):
 
     """
 
-    # _objects: list[File]
-    # _directories: list["Dir"]
-    # _files: list[str]
-    # _metadata: dict
-    # _db: dict[int, list[str]]
-
     def __init__(self, path: str = "./", lazy_load=True) -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
         ----------
-            - `path (str)` : The path to the directory.
+            - path (str) : The path to the directory.
+            - lazy_load (bool): When set to false, expensive operations are performed immediately upon initialization
+
         """
         File.__init__(self, path)
         MetaData.__init__(self, path=path)
@@ -97,17 +108,12 @@ class Dir(File, MetaData):
         This property iterates over all items in the directory and filters out those that are instances
         of File, Exe, Log, Img, Video, or Git, excluding directories.
 
-        Returns:
+        Returns
         -------
             List[File, Exe, Log, Img, Video, Git]: A list of file objects.
+
         """
         return list(filter(lambda x: not isinstance(x, Dir), self))
-        # return [
-        #     item
-        #     for item in self
-        #     if isinstance(item, File | Exe | Log | Img | Video | Git)
-        #     and not os.path.isdir(item.path)
-        # ]
 
     @property
     def content(self) -> list[str]:
@@ -180,9 +186,11 @@ class Dir(File, MetaData):
         self._size = Size(
             sum(
                 Pool().execute(
-                    lambda x: os.path.getsize(x.path), self.file_objects, progress_bar=False
-                )
-            )
+                    lambda x: os.path.getsize(x.path),
+                    self.file_objects,
+                    progress_bar=False,
+                ),
+            ),
         )
         return self._size
 
@@ -198,7 +206,8 @@ class Dir(File, MetaData):
             - pattern (str): The regular expression to search for.
             - attr (str): The attribute of the `File` object to search on.
 
-        Return an list of `File` instances if found"""
+        Return an list of `File` instances if found
+        """
         return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
 
     def query_image(self, image: Img, threshold=10, method="phash") -> list[Img]:
@@ -240,16 +249,15 @@ class Dir(File, MetaData):
 
     def sort(self, specifier: str, reverse=True) -> list[str]:
         """Sort the files and directories by the specifying attribute."""
-
         specs = {
             "mtime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_mtime).strftime(
-                "%Y-%m-%d %H:%M:%S"
+                "%Y-%m-%d %H:%M:%S",
             ),
             "ctime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_ctime).strftime(
-                "%Y-%m-%d %H:%M:%S"
+                "%Y-%m-%d %H:%M:%S",
             ),
             "atime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_atime).strftime(
-                "%Y-%m-%d %H:%M:%S"
+                "%Y-%m-%d %H:%M:%S",
             ),
             "size": lambda x: x.size,
             "name": lambda x: x.basename,
@@ -270,16 +278,16 @@ class Dir(File, MetaData):
 
     def load_database(self) -> dict[int, list[str]]:
         """Deserialize the pickled database."""
-        pkl_path = os.path.join(self.path, self.prefix + ".pkl")
+        pkl_path = os.path.join(self.path, self.dir + ".pkl")
         if os.path.exists(pkl_path):
             with open(pkl_path, "rb") as f:
                 return pickle.load(f)
         else:
             return {}
 
-    def serialize(self, replace: bool = False) -> dict[int, list[str]]:
+    def serialize(self, *, replace=False) -> dict[int, list[str]]:
         """Create an hash index of all files in self."""
-        pkl_file = f"{self.basename}.pkl"
+        pkl_file = f"{self.dir}.pkl"
         pkl = os.path.join(self.path, pkl_file)
         if os.path.exists(pkl) and replace is True:
             os.remove(pkl)
@@ -287,11 +295,12 @@ class Dir(File, MetaData):
         elif os.path.exists(pkl) and replace is False:
             return self.load_database()
 
-        # hash_map = {}
         pool = Pool()
 
         for result in pool.execute(
-            lambda x: (x.sha256(), x.path), self.file_objects, progress_bar=True
+            lambda x: (x.sha256(), x.path),
+            self.file_objects,
+            progress_bar=True,
         ):
             if result:
                 sha, path = result
@@ -324,9 +333,7 @@ class Dir(File, MetaData):
 
     def __contains__(self, item: File) -> bool:
         """Is `File` in self?"""  # noqa
-
         return item.sha256() in self.serialize()
-        return item in self.file_objects or item in self.dirs if isinstance(item, File) else False
 
     def __hash__(self) -> int:
         return hash((tuple(self.content), self.is_empty, tuple(self.rel_directories)))
@@ -356,12 +363,12 @@ class Dir(File, MetaData):
             (
                 isinstance(other, self.__class__),
                 hash(self) == hash(other),
-            )
+            ),
         )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.basename}, size={self.size_human}, is_empty={self.is_empty})".format(
-            **vars(self)
+            **vars(self),
         )
 
 
