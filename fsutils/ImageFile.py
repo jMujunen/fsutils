@@ -6,8 +6,10 @@ import os
 import pickle
 import subprocess
 from collections.abc import Generator
+from dataclasses import dataclass, field
 from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Never
 
@@ -43,18 +45,17 @@ class Img(File):
         - `is_corrupted` (bool): Return True if the file is corrupted, False otherwise
     """
 
-    _exif: Image.Exif
-
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str | Path) -> None:
         """Initialize an Img object.
 
-        Parameters:
+        Parameters
         ----------
             - `path (str)` : The absolute path to the file.
         """
         self._tags = []
         super().__init__(path)
         self._exif = Image.Exif()
+        self._tags = []
 
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash:
         """Calculate the hash value of the image.
@@ -66,7 +67,7 @@ class Img(File):
         """
         # Ignore heic until feature is implemented to support it.
         # Excluding this has unwanted effects when comparing hash values
-        if self.extension == ".heic" or self.is_corrupt:
+        if self.suffix == ".heic" or self.is_corrupt:
             pass
         with Image.open(self.path) as img:
             match spec:
@@ -149,14 +150,14 @@ class Img(File):
                     continue
         else:
             self.__dict__.get("capture_date")
-        date_str = str(datetime.fromtimestamp(os.path.getmtime(self.path))).split(".")[0]
+        date_str = str(datetime.fromtimestamp(self.stat().st_mtime)).split(".")[0]
         return datetime.fromisoformat(date_str)
 
     @property
     def is_corrupt(self) -> bool:
         """Check if the image is corrupt."""
         # If the file is a HEIC image, it cannot be verified
-        if self.extension == ".heic":
+        if self.suffix == ".heic":
             return False  # Placeholder TODO
 
         try:
@@ -198,7 +199,7 @@ class Img(File):
     def render(self, render_size=320, title=True) -> int:
         try:
             if title:
-                title = f"{self.basename}\t{self.capture_date!s}"
+                title = f"{self.name}\t{self.capture_date!s}"
                 pos = round(
                     (render_size / 10) - (render_size % 360 / 10)
                 )  # Vain attempt to center the title
@@ -234,13 +235,12 @@ class Img(File):
         """
 
         # mode = kwargs.get("mode", "fit")
-        resized_img_path = kwargs.get(
-            "output", os.path.join(self.dir_path, f"_resized-{self.basename}")
-        )
+        _resized_img = kwargs.get("output", self.parent / f"_resized-{self.name}")
+        resized_img_path = Path(_resized_img)
         width = round(height * self.aspect_ratio)
         # If the image already exists and is of the same dimensions, just return it.
         if (
-            os.path.exists(resized_img_path)
+            resized_img_path.exists()
             and not overwrite
             and Img(resized_img_path).dimensions == (width, height)
         ):
@@ -249,8 +249,8 @@ class Img(File):
             resized_img = img.resize((width, height))
             if tempfile:
                 with NamedTemporaryFile(delete=True) as temp_file:
-                    resized_img.save(f"{temp_file.name}{self.extension}")
-                return self.__class__(f"{temp_file.name}{self.extension}")
+                    resized_img.save(f"{temp_file.name}{self.suffix}")
+                return self.__class__(f"{temp_file.name}{self.suffix}")
             resized_img.save(resized_img_path)
             return self.__class__(resized_img_path)
 
@@ -284,13 +284,13 @@ class Img(File):
 
         """
         # Make new filename prepending _compressed to the original file name
-        new_filename = f"_compressed{self.basename}"
+        new_filename = f"_compressed{self.name}"
         # Load the image to memory
         with Image.open(self.path) as img:
             if to_jpg:
                 # convert the image to RGB mode
                 img.convert("RGB")
-                new_filename = f"{self.basename}_compressed.jpg"
+                new_filename = f"{self.name}_compressed.jpg"
             # Multiply width & height with `ratio`` to reduce image size
             if new_size_ratio < 1.0:
                 img.resize(
@@ -299,7 +299,7 @@ class Img(File):
             elif width and height:
                 img.resize((width, height))
             try:
-                new_file_path = os.path.join(self.dir_path, new_filename)
+                new_file_path = self.parent / new_filename
                 img.save(new_file_path, quality=quality, optimize=True)
                 resized_img = self.__class__(new_file_path)
             except (OSError, PermissionError):
@@ -318,16 +318,16 @@ class Img(File):
         resized = self.resize()
         with Image.open(resized.path) as img:
             try:
-                if self.extension == ".png":
-                    # change the extension to JPEG
+                if self.suffix == ".png":
+                    # change the .suffix to JPEG
                     img.convert("RGB")
                 buffered = BytesIO()
-                img.save(buffered, format=ENCODE_SPEC.get(self.extension, "JPEG"))
+                img.save(buffered, format=ENCODE_SPEC.get(self.suffix, "JPEG"))
                 img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-                os.remove(resized.path)
+                resized.unlink()  # remove resized file after encoding is done
             except OSError as e:
                 print(
-                    f"OSError  while converting to base64: {self.extension}: spec=({ENCODE_SPEC.get(self.extension)})"
+                    f"OSError  while converting to base64: {self.suffix}: spec=({ENCODE_SPEC.get(self.suffix)})"
                 )
                 return str(e)
         return img_str
@@ -343,7 +343,7 @@ class Img(File):
         """Read the image and return its content as a string."""
         return super()._read_chunk(4096)
 
-    def sha265(self):
+    def sha265(self) -> str:
         serialized_object = pickle.dumps(
             {"md5": self.md5_checksum(), "size": self.size, "dimensions": self.dimensions}
         )
@@ -358,7 +358,7 @@ class Img(File):
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted table representation of the file."""
-        name = self.basename
+        name = self.name
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
             if "-" in name:
@@ -377,8 +377,9 @@ class Img(File):
         template = "{:<15} | {:<10} | {:<15} |{:<25}"
         header = template.format("File", "Ext", "Size", "Dimensions", "Capture Date")
         linebreak = template.format("-" * 15, "-" * 10, "-" * 15, "-" * 25)
-        return f"\033[1m{header}\033[0m\n{linebreak}"
+        return f"\033[1m{header}\033[0m\n{linebreak}"  # type: ignore
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.size_human}, name={self.basename}, \
-dimensions={self.dimensions})".format(**vars(self))
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, dimensions={self.dimensions})".format(
+            **vars(self)
+        )

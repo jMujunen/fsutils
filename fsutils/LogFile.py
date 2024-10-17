@@ -1,16 +1,16 @@
 """This module exposes the Log class as a parent of File."""
 
 import contextlib
-import os
 import pandas as pd
 import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
@@ -224,7 +224,7 @@ class Log(File, LogMetaData):
 
         # plt properties
         plt.grid(True, linestyle="--", alpha=0.3, color="#d3c6a2")
-        plt.title(self.basename, fontsize=16, color="#d3c6a2", fontweight="bold")
+        plt.title(self.name, fontsize=16, color="#d3c6a2", fontweight="bold")
         plt.legend(loc="upper left")
 
         # plt.yticks(fontsize=12, color="#d3c6aa")

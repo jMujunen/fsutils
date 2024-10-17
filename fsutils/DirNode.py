@@ -111,7 +111,7 @@ class Dir(File):
                 if not f.is_dir():
                     files.append(f.name)
             except Exception as e:
-                continue
+                # continue
                 print(f"{e}: {f}")
         return files
         # return [f.name for f in self.objects if not f.is_dir()]
@@ -214,7 +214,7 @@ class Dir(File):
     def size_human(self) -> str:
         return str(self.size)
 
-    def search(self, pattern: str, attr: str = "basename") -> list[File]:
+    def search(self, pattern: str, attr: str = "name") -> list[File]:
         """Query the object for files with the given `name | regex` pattern.
 
         Paramaters:
@@ -402,3 +402,7 @@ def obj(path: str) -> File | None:
     except FileNotFoundError as e:
         return None
     return File(path)
+
+
+path = Dir("~/Pictures")
+print(path)

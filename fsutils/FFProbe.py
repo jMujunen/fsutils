@@ -1,6 +1,4 @@
-"""
-Python wrapper for ffprobe command line tool. ffprobe must exist in the path.
-"""
+"""Python wrapper for ffprobe command line tool. ffprobe must exist in the path."""
 
 import functools
 import operator
@@ -9,37 +7,38 @@ import pipes
 import platform
 import re
 import subprocess
+from pathlib import Path
 
 # from ..fsutils import Video
 from .Exceptions import CorruptMediaError, FFProbeError
 
 
 class FFProbe:
-    """
-    FFProbe wraps the ffprobe command and pulls the data into an object form::
-        metadata = FFProbe("multimedia-file.mov").
+    """FFProbe wraps the ffprobe command and pulls the data into an object form::
+    metadata = FFProbe("multimedia-file.mov").
     """
 
-    def __init__(self, path_to_video: str) -> None:
+    streams: list["FFStream"]
+
+    def __init__(self, filepath: str) -> None:
         """Initialize the FFProbe object.
 
-        Parameters:
+        Parameters
         ------------
             - `path_to_video (str)` : Path to video file.
         """
-        self.path_to_video = path_to_video
+        self.file = Path(filepath)
 
         try:
             with open(os.devnull, "w") as tempf:
                 subprocess.check_call(["ffprobe", "-h"], stdout=tempf, stderr=tempf)
         except FileNotFoundError:
             raise OSError("ffprobe not found.") from FileNotFoundError
-
-        if os.path.isfile(self.path_to_video) or self.path_to_video.startswith("http"):
+        if self.file.is_file() or str(self.file.absolute()).startswith("http"):
             if platform.system() == "Windows":
-                cmd = ["ffprobe", "-show_streams", self.path_to_video]
+                cmd = ["ffprobe", "-show_streams", f"{self.file}"]
             else:
-                cmd = ["ffprobe -show_streams " + pipes.quote(self.path_to_video)]
+                cmd = ["ffprobe -show_streams " + pipes.quote(f"{self.file}")]
 
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
@@ -110,12 +109,12 @@ class FFProbe:
                     self.subtitle.append(stream)
                 elif stream.is_attachment():
                     self.attachment.append(stream)
-        elif not os.path.exists(self.path_to_video):
-            raise FileNotFoundError("File does not exist: " + self.path_to_video)
-        elif os.path.isdir(self.path_to_video):
+        elif not self.file.exists():
+            raise FileNotFoundError(f"File does not exist: {self.file}")
+        elif self.file.is_dir():
             raise IsADirectoryError("Given path is a directory, not a file.")
         else:
-            raise CorruptMediaError(f"{self.path_to_video} is corrupt")
+            raise CorruptMediaError(f"{self.file} is corrupt")
 
     def __repr__(self) -> str:
         return "FFprobe(metadata={metadata}, video={video}, audio={audio})".format(**vars(self))
@@ -162,32 +161,23 @@ class FFStream:
         return template.format(**self.__dict__)
 
     def is_audio(self) -> bool:
-        """
-        Is this stream labelled as an audio stream?.
-        """
+        """Is this stream labelled as an audio stream?."""
         return self.__dict__.get("codec_type", None) == "audio"
 
     def is_video(self) -> bool:
-        """
-        Is the stream labelled as a video stream.
-        """
+        """Is the stream labelled as a video stream."""
         return self.__dict__.get("codec_type", None) == "video"
 
     def is_subtitle(self) -> bool:
-        """
-        Is the stream labelled as a subtitle stream.
-        """
+        """Is the stream labelled as a subtitle stream."""
         return self.__dict__.get("codec_type", None) == "subtitle"
 
     def is_attachment(self) -> bool:
-        """
-        Is the stream labelled as a attachment stream.
-        """
+        """Is the stream labelled as a attachment stream."""
         return self.__dict__.get("codec_type", None) == "attachment"
 
     def frame_size(self) -> tuple[int, int] | None:
-        """
-        Return the pixel frame size as an integer tuple (width,height) if the stream is a video stream.
+        """Return the pixel frame size as an integer tuple (width,height) if the stream is a video stream.
         Return None if it is not a video stream.
         """
         size = None
@@ -206,16 +196,13 @@ class FFStream:
         return size
 
     def pixel_format(self) -> str | None:
-        """
-        Return a string representing the pixel format of the video stream. e.g. yuv420p.
+        """Return a string representing the pixel format of the video stream. e.g. yuv420p.
         Return none is it is not a video stream.
         """
         return self.__dict__.get("pix_fmt", None)
 
     def frames(self) -> int:
-        """
-        Return the length of a video stream in frames. Return 0 if not a video stream.
-        """
+        """Return the length of a video stream in frames. Return 0 if not a video stream."""
         if self.is_video() or self.is_audio():
             if self.__dict__.get("nb_frames", "") != "N/A":
                 try:
@@ -231,8 +218,7 @@ class FFStream:
         return frame_count
 
     def duration_seconds(self) -> float:
-        """
-        Return the runtime duration of the video stream as a floating point number of seconds.
+        """Return the runtime duration of the video stream as a floating point number of seconds.
         Return 0.0 if not a video stream.
         """
         if self.is_video() or self.is_audio():
@@ -246,33 +232,23 @@ class FFStream:
         return duration
 
     def language(self) -> str | None:
-        """
-        Return language tag of stream. e.g. eng.
-        """
+        """Return language tag of stream. e.g. eng."""
         return self.__dict__.get("TAG:language", None)
 
     def codec(self) -> str | None:
-        """
-        Return a string representation of the stream codec.
-        """
+        """Return a string representation of the stream codec."""
         return self.__dict__.get("codec_name", None)
 
     def codec_description(self) -> str:
-        """
-        Return a long representation of the stream codec.
-        """
+        """Return a long representation of the stream codec."""
         return self.__dict__.get("codec_long_name", None)
 
     def codec_tag(self) -> str | None:
-        """
-        Return a short representative tag of the stream codec.
-        """
+        """Return a short representative tag of the stream codec."""
         return self.__dict__.get("codec_tag_string", None)
 
     def bit_rate(self) -> int | None:
-        """
-        Return bit_rate as an integer in bps.
-        """
+        """Return bit_rate as an integer in bps."""
         try:
             return int(self.__dict__.get("bit_rate", ""))
         except ValueError:

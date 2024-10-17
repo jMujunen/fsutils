@@ -49,20 +49,22 @@ class Video(File):
         - `bitrate`
     """
 
-    def __init__(self, path: str) -> None:
-        """Initialize a new Video object.
+    _metadata: dict | None = None
+    _info = None
+    _stream = None
 
-        Paramaters:
-        -------------
-            - `path (str)` : The absolute path to the video file.
+    # def __init__(self, path: str | Path) -> None:
+    #     """Initialize a new Video object.
 
-        """
-        self._metadata = None
-        self._info = None
-        super().__init__(path)
+    #     Paramaters:
+    #     -------------
+    #         - `path (str)` : The absolute path to the video file.
+
+    #     """
+    #     super().__init__(path)
 
     @property
-    def metadata(self) -> dict:
+    def metadata(self) -> dict | None:
         if not self._metadata:
             ffprobe_cmd = [
                 "ffprobe",
@@ -95,7 +97,7 @@ class Video(File):
             return round(int(self.metadata.get("bit_rate", -1)))
         except ZeroDivisionError:
             if self.is_corrupt:
-                print(f"\033[31m{self.basename} is corrupt!\033[0m")
+                print(f"\033[31m{self.name} is corrupt!\033[0m")
             return 0
 
     @property
@@ -113,7 +115,7 @@ class Video(File):
     def capture_date(self) -> datetime:
         """Return the capture date of the file."""
         capture_date = str(
-            self.tags.get("creation_time") or datetime.fromtimestamp(os.path.getmtime(self.path))
+            self.tags.get("creation_time") or datetime.fromtimestamp(self.stat().st_mtime)
         ).split(".")[0]
         return datetime.fromisoformat(capture_date)
 
@@ -142,10 +144,10 @@ class Video(File):
     def ffprobe(self) -> FFStream:
         """Return the first video stream."""
         try:
-            return next(stream for stream in FFProbe(self.path).streams if stream.is_video())
+            return next(stream for stream in FFProbe(self.absolute()).streams if stream.is_video())
         except IndexError:
             if self.is_corrupt:
-                raise CorruptMediaError(f"{self.path} is corrupt.") from IndexError
+                raise CorruptMediaError(f"{self.absolute()} is corrupt.") from IndexError
             raise FFProbeError(
                 f"FFprobe did not find any video streams for {self.path}."
             ) from IndexError
@@ -197,8 +199,9 @@ class Video(File):
         --------
             - `Img` : New `Img` object of the gif created from this video file.
         """
-        output_path = kwargs.get("output_path", os.path.join(self.dir_path, self.basename + ".gif"))
-        if os.path.exists(output_path):
+        output = kwargs.get("output_path", f'{self.parent:!s}/{self.prefix}{".gif"}')
+        output_path = Path(output)
+        if output_path.exists():
             return Img(output_path)
         subprocess.check_output(
             [
@@ -231,8 +234,8 @@ class Video(File):
 
         """
         # Define output
-        output_dir = kwargs.get("output", f"{self.basename}-frames/")
-        os.makedirs(output_dir, exist_ok=True)
+        output_dir = kwargs.get("output", f"{self.name}-frames/")
+        Path.mkdir(output_dir, parents=True, exist_ok=True)
         # Init opencv video capture object and get properties
         cap = cv2.VideoCapture(self.path)
         clip_fps = round(cap.get(cv2.CAP_PROP_FPS))
@@ -257,7 +260,7 @@ class Video(File):
                 # then save the frame
                 frame_duration_formatted = format_timedelta(timedelta(seconds=frametime))
                 cv2.imwrite(
-                    os.path.join(f"{self.basename}-frames", f"frame{frame_duration_formatted}.jpg"),
+                    os.path.join(f"{self.name}-frames", f"frame{frame_duration_formatted}.jpg"),
                     frame,
                 )
                 # drop the duration spot from the list, since this duration spot is already saved
@@ -276,9 +279,9 @@ class Video(File):
             - `output (str)` : (default is current working directory)
         """
 
-        output_path = output if output else self.path[:-4] + f"_trimmed.{self.extension}"
+        output_path = output if output else str(self)[:-4] + f"_trimmed.{self.suffix}"
         return subprocess.call(
-            f"ffmpeg -ss mm:ss -to mm2:ss2 -i {self.path} -codec copy {output_path}"
+            f"ffmpeg -ss mm:ss -to mm2:ss2 -i {self:!s} -codec copy {output_path}"
         )
 
     def compress(self, **kwargs: Any) -> "Video":
@@ -292,7 +295,8 @@ class Video(File):
         --------
         >>> vid.compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         """
-        output_path = kwargs.get("output") or os.path.join(self.dir_path, f"_{self.prefix}.mp4")
+        output = kwargs.get("output") or f"{self.parent}/_{self.prefix}.mp4"
+        output_path = Path(output).resolve()
         fps = self.fps if self.fps < 200 else 30
         for keyword, value in kwargs.items():
             if "-r" in kwargs or "fps" in keyword:
@@ -341,12 +345,11 @@ class Video(File):
         )
         return hashlib.sha256(serialized_object).hexdigest()
 
-    def read(self):
-        return super().read()
-
     def __repr__(self) -> str:
         """Return a string representation of the file."""
-        return f"{self.__class__.__name__}(size={self.size_human})".format(**vars(self))
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human})".format(
+            **vars(self)
+        )
 
     def __hash__(self) -> int:
         return hash(self.sha256())
@@ -354,7 +357,7 @@ class Video(File):
 
     def __format__(self, format_spec: str, /) -> str:
         """Return the object in tabular format."""
-        name = self.basename
+        name = self.name
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
             if "-" in name:
@@ -366,11 +369,11 @@ class Video(File):
 
     @staticmethod
     def fmtheader() -> str:
-        template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}"
+        template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n"
         header = template.format(
             "File", "Num Frames", "Bitrate", "Size", "Codec", "Duration", "FPS", "Dimensions"
         )
         linebreak = template.format(
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
         )
-        return f"\033[1m{header}\033[0m\n{linebreak}"
+        return f"\033[1m{header}\033[0m{linebreak}"
