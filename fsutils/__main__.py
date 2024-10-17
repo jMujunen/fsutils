@@ -1,12 +1,9 @@
 import argparse
-import os
 import sys
 from typing import Any
 
-from Color import cprint, fg, style
 from ThreadPoolHelper import Pool
 
-from .DirNode import Dir, obj
 from .VideoFile import Video
 
 

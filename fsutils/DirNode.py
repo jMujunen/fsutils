@@ -9,6 +9,7 @@ from collections import defaultdict
 from collections.abc import Generator, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import ClassVar, LiteralString
 
 from size import Size
 from ThreadPoolHelper import Pool
@@ -18,51 +19,47 @@ from fsutils.GitObject import Git
 from fsutils.ImageFile import Img
 from fsutils.LogFile import Log
 from fsutils.mimecfg import FILE_TYPES
-from fsutils.ScriptFile import Exe
 from fsutils.VideoFile import Video
 
+# @dataclass
+# class MetaData:
+#     """Class for storing metadata of files and directories.
 
-@dataclass
-class MetaData:
-    """Class for storing metadata of files and directories.
+#     Attributes
+#     ----------
+#         path (str): Path to the file or directory.
+#         db (dict): Dictionary representing the hashed objects.
 
-    Attributes
-    ----------
-        path (str): Path to the file or directory.
-        db (dict): Dictionary representing the hashed objects.
+#     """
 
-    """
+#     _objects: list[File] = field(
+#         default_factory=list[File],
+#         repr=False,
+#         compare=True,
+#         hash=True,
+#     )
+#     _directories: list["Dir"] = field(
+#         default_factory=list["Dir"],
+#         repr=False,
+#         compare=True,
+#         hash=True,
+#     )
+#     _files: list[File] = field(default_factory=list[File], repr=False, compare=False, hash=False)
+#     db: dict[int, list[str]] = field(
+#         default_factory=dict[int, list[str]],
+#         repr=False,
+#         compare=False,
+#         hash=False,
+#     )
+#     metadata: dict = field(default_factory=dict, repr=True, compare=True, hash=True)
 
-    path: str = field(default="./", repr=True, hash=False, compare=False, init=True)
-    _objects: list[File] = field(
-        default_factory=list[File],
-        repr=False,
-        compare=True,
-        hash=True,
-    )
-    _directories: list["Dir"] = field(
-        default_factory=list["Dir"],
-        repr=False,
-        compare=True,
-        hash=True,
-    )
-    _files: list[File] = field(default_factory=list[File], repr=False, compare=False, hash=False)
-    db: dict[int, list[str]] = field(
-        default_factory=dict[int, list[str]],
-        repr=False,
-        compare=False,
-        hash=False,
-    )
-    metadata: dict = field(default_factory=dict, repr=True, compare=True, hash=True)
-
-    def __post_init__(self):
-        self._path = Path(self.path).expanduser().resolve()
-        self._pkl_path = Path.joinpath(self._path, self._path.name + ".pkl")
-        if self._pkl_path.exists():
-            self.db = pickle.loads(self._pkl_path.read_bytes())
+#     def __post_init__(self):
+#         self._pkl_path = Path.joinpath(self.parent, f"{self.stem}" + ".pkl")
+#         if self._pkl_path.exists():
+#             self.db = pickle.loads(self._pkl_path.read_bytes())
 
 
-class Dir(File, MetaData):
+class Dir(File):
     """A class representing information about a directory.
 
     Attributes
@@ -87,7 +84,9 @@ class Dir(File, MetaData):
 
     """
 
-    def __init__(self, path: str = "./") -> None:
+    _objects: list[File]
+
+    def __init__(self, path: str | Path, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
@@ -95,24 +94,38 @@ class Dir(File, MetaData):
             path (str) : The path to the directory.
 
         """
-        File.__init__(self, path)
-        MetaData.__init__(self, path=path)
+        super().__init__(path, *args, **kwargs)
+        self._pkl_path = Path(os.path.join(self.path, f"{self.prefix}.pkl"))
+        if self._pkl_path.exists():
+            self.db = pickle.loads(self._pkl_path.read_bytes())
+        # MetaData.__post_init__(self)
+        self._objects = []
+        self.metadata = defaultdict(int)
 
     @property
     def files(self) -> list[str]:
         """Return a list of file names in the directory represented by this object."""
-        return [f.basename for f in self if not f.is_dir]
+        files = []
+        for f in self.objects:
+            try:
+                if not f.is_dir():
+                    files.append(f.name)
+            except Exception as e:
+                continue
+                print(f"{e}: {f}")
+        return files
+        # return [f.name for f in self.objects if not f.is_dir()]
 
     @property
-    def file_objects(self) -> list[File | Exe | Log | Img | Video | Git]:
+    def file_objects(self) -> list[File | Log | Img | Video | Git]:
         """Return a list of objects contained in the directory.
 
         This property iterates over all items in the directory and filters out those that are instances
-        of File, Exe, Log, Img, Video, or Git, excluding directories.
+        of File,  Log, Img, Video, or Git, excluding directories.
 
         Returns
         -------
-            List[File, Exe, Log, Img, Video, Git]: A list of file objects.
+            List[File,  Log, Img, Video, Git]: A list of file objects.
 
         """
         return list(filter(lambda x: not isinstance(x, Dir), self))
@@ -128,20 +141,16 @@ class Dir(File, MetaData):
     @property
     def rel_directories(self) -> list[str]:
         """Return a list of subdirectory paths relative to the directory represented by this object."""
-        return [f".{folder.path.replace(self.path, "")}" for folder in self.dirs]
+        return [f".{str(folder.path).replace(str(self.parent), "")}" for folder in self.dirs]
 
     @property
     def objects(self) -> list[File]:
-        """Return a list of fsutil objects inside self."""
-        if not self._objects:
-            print("False")
+        """Return a list of fsutils objects inside self."""
+        try:
             self._objects = list(self.__iter__())
+        except AttributeError:
+            self._objects = []
         return self._objects
-
-    @property
-    def is_dir(self) -> bool:
-        """Is the object a directory?."""
-        return self._path.is_dir()
 
     @property
     def is_empty(self) -> bool:
@@ -169,12 +178,12 @@ class Dir(File, MetaData):
         return list(filter(lambda x: isinstance(x, Dir), self.__iter__()))
 
     @property
-    def stat(self) -> None:
+    def summary(self) -> None:
         """Print a formatted table of each file extention and their count."""
         if not self.metadata:
             self.metadata = defaultdict(int)
             for item in self.file_objects:
-                ext = item.extension or ""
+                ext = item.suffix or ""
                 if ext == "":
                     self.metadata["None"] += 1
                     continue
@@ -253,18 +262,18 @@ class Dir(File, MetaData):
     def sort(self, specifier: str, reverse=True) -> list[str]:
         """Sort the files and directories by the specifying attribute."""
         specs = {
-            "mtime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_mtime).strftime(
+            "mtime": lambda x: datetime.datetime.fromtimestamp(x.stat().st_mtime).strftime(
                 "%Y-%m-%d %H:%M:%S",
             ),
-            "ctime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_ctime).strftime(
+            "ctime": lambda x: datetime.datetime.fromtimestamp(x.stat().st_ctime).strftime(
                 "%Y-%m-%d %H:%M:%S",
             ),
-            "atime": lambda x: datetime.datetime.fromtimestamp(os.stat(x.path).st_atime).strftime(
+            "atime": lambda x: datetime.datetime.fromtimestamp(x.stat().st_atime).strftime(
                 "%Y-%m-%d %H:%M:%S",
             ),
             "size": lambda x: x.size,
             "name": lambda x: x.basename,
-            "ext": lambda x: x.extension,
+            "ext": lambda x: x.suffix,
         }
         result = sorted(
             [specs.get(specifier, "mtime")(file) for file in self.file_objects],
@@ -312,7 +321,7 @@ class Dir(File, MetaData):
     def sha256(self) -> str:
         return super().sha256()
 
-    def __format__(self, format_spec: str, /) -> str:
+    def __format__(self, format_spec: str, /) -> LiteralString | str:
         pool = Pool()
         match format_spec:
             case "videos":
@@ -345,11 +354,11 @@ class Dir(File, MetaData):
             for root, _, files in os.walk(self.path):
                 # Yield directories first to avoid unnecessary checks inside the loop
                 for directory in _:
-                    _obj = Dir(os.path.join(root, directory))
+                    _obj = Dir(os.path.join(root, directory))  # noqa
                     self._objects.append(_obj)
 
                 for file in files:
-                    _obj = obj(os.path.join(root, file))  # full path of the file
+                    _obj = obj(os.path.join(root, file))  # noqa
                     if _obj is not None:
                         self._objects.append(_obj)
         yield from self._objects
@@ -364,7 +373,7 @@ class Dir(File, MetaData):
         )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.basename}, size={self.size_human}, is_empty={self.is_empty})".format(
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty})".format(
             **vars(self),
         )
 

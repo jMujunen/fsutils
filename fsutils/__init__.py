@@ -21,7 +21,6 @@ from .mimecfg import (
     FILE_TYPES as FILE_TYPES,
     IGNORED_DIRS as IGNORED_DIRS,
 )
-from .ScriptFile import Exe as Exe
 from .VideoFile import Video as Video
 
 __all__ = [
@@ -29,7 +28,6 @@ __all__ = [
     "Img",
     "Video",
     "Log",
-    "Exe",
     "Dir",
     "FFProbe",
     "Dir",
