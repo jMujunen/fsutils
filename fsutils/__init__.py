@@ -11,8 +11,12 @@ from .FFProbe import (
 from .GenericFile import File as File
 from .GitObject import Git as Git
 from .ImageFile import Img as Img
-from .LogFile.Log import Log as Log
-from .LogFile.Presets import Presets as Presets
+from .LogFile import (
+    Log as Log,
+    Presets as Presets,
+)
+
+# from .LogFile.Presets import Presets as Presets
 from .mimecfg import (
     FILE_TYPES as FILE_TYPES,
     IGNORED_DIRS as IGNORED_DIRS,

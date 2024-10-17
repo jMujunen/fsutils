@@ -1,14 +1,16 @@
 """This module exposes the Log class as a parent of File."""
 
+import contextlib
+import os
 import pandas as pd
 import re
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import Any, ClassVar
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
@@ -108,53 +110,52 @@ class Gpuz:
 
 
 class Presets(Enum):
-    GPUZ = Gpuz()
-    HWINFO = Hwinfo()
-    CUSTOM = Custom()
-    NVIDIA = Nvidia()
+    GPUZ = Gpuz
+    HWINFO = Hwinfo
+    CUSTOM = Custom
+    NVIDIA = Nvidia
 
 
 @dataclass
 class LogMetaData:
     """A class to represent a log entry."""
 
-    path: str = field(default_factory=str, repr=False)
-    sep: str = field(default=",")
-    encoding: str = field(default="iso-8859-1")
-    _df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
-    presets = Presets
+    path: Path = field(default_factory=Path, repr=False, init=True)
+    encoding: str = field(default="iso-8859-1", repr=True, init=True, kw_only=True)
+    df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
+    preset: type = field(default=Presets.CUSTOM.value, repr=False, init=True, kw_only=True)
+
+    def __post_init__(self):
+        if not self.path.exists():
+            raise FileNotFoundError("The file does not exist.")
+        if self.path.suffix not in [".csv", ".txt", ".log"]:
+            return
+        self.__dict__.update(self.preset.__dict__)
+        with contextlib.suppress(Exception):
+            self.df = pd.read_csv(
+                self.path,
+                sep=self.preset.SEP,
+                encoding=self.encoding,
+                engine="python",
+                index_col=self.preset.INDEX_COL,
+            )
 
 
 class Log(File, LogMetaData):
     """A class to represent a log file."""
 
+    presets: type = Presets
+
     def __init__(
         self,
         path: str,
-        sep: str = ",",
         encoding: str = "iso-8859-1",
-        preset: Presets = Presets.CUSTOM,
+        **kwargs: Any,
     ) -> None:
         """Initialize the File and Log classes with the given parameters."""
-        self.sep = sep
         self.encoding = encoding
-        self.preset = preset
         super().__init__(path, encoding)
-        LogMetaData.__init__(self, path, sep, encoding)
-
-    @property
-    def df(self) -> pd.DataFrame:
-        """Parse the log file into a DataFrame."""
-        if self._df.empty:
-            self._df = pd.read_csv(
-                self.path,
-                sep=rf"{self.sep}",
-                encoding=self.encoding,
-                engine="python",
-                index_col=self.preset.value.INDEX_COL,
-            )
-            self.__dict__.update(self._df)
-        return self._df
+        LogMetaData.__init__(self, path=Path(path), **kwargs)
 
     def __hash__(self):
         """Return a hash of the log file."""

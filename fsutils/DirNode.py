@@ -16,7 +16,7 @@ from ThreadPoolHelper import Pool
 from fsutils.GenericFile import File
 from fsutils.GitObject import Git
 from fsutils.ImageFile import Img
-from fsutils.LogFile.Log import Log
+from fsutils.LogFile import Log
 from fsutils.mimecfg import FILE_TYPES
 from fsutils.ScriptFile import Exe
 from fsutils.VideoFile import Video
@@ -55,13 +55,19 @@ class MetaData:
     )
     metadata: dict = field(default_factory=dict, repr=True, compare=True, hash=True)
 
+    def __post_init__(self):
+        self._path = Path(self.path).expanduser().resolve()
+        self._pkl_path = Path.joinpath(self._path, self._path.name + ".pkl")
+        if self._pkl_path.exists():
+            self.db = pickle.loads(self._pkl_path.read_bytes())
+
 
 class Dir(File, MetaData):
     """A class representing information about a directory.
 
     Attributes
     ----------
-        - `path (str)` : The path to the directory.\
+        - `path (str)` : The path to the directory.
 
     Methods
     -------
@@ -81,25 +87,21 @@ class Dir(File, MetaData):
 
     """
 
-    def __init__(self, path: str = "./", lazy_load=True) -> None:
+    def __init__(self, path: str = "./") -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
         ----------
-            - path (str) : The path to the directory.
-            - lazy_load (bool): When set to false, expensive operations are performed immediately upon initialization
+            path (str) : The path to the directory.
 
         """
         File.__init__(self, path)
         MetaData.__init__(self, path=path)
-        self.db = self.load_database()
-        if lazy_load is False:
-            list(self.__iter__())
 
     @property
     def files(self) -> list[str]:
         """Return a list of file names in the directory represented by this object."""
-        return [f.basename for f in self if not os.path.isdir(f.path)]
+        return [f.basename for f in self if not f.is_dir]
 
     @property
     def file_objects(self) -> list[File | Exe | Log | Img | Video | Git]:
@@ -139,7 +141,7 @@ class Dir(File, MetaData):
     @property
     def is_dir(self) -> bool:
         """Is the object a directory?."""
-        return os.path.isdir(self.path)
+        return self._path.is_dir()
 
     @property
     def is_empty(self) -> bool:
@@ -155,6 +157,11 @@ class Dir(File, MetaData):
     def videos(self) -> list[Video]:
         """A list of VideoObject instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Video), self.__iter__()))  # type: ignore
+
+    @property
+    def logs(self) -> list[Log]:
+        """A list of Log instances found in the directory."""
+        return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
 
     @property
     def dirs(self) -> list[File]:
@@ -186,7 +193,7 @@ class Dir(File, MetaData):
         self._size = Size(
             sum(
                 Pool().execute(
-                    lambda x: os.path.getsize(x.path),
+                    lambda x: x.size,
                     self.file_objects,
                     progress_bar=False,
                 ),
@@ -230,7 +237,7 @@ class Dir(File, MetaData):
                     print("\033[31mError while calculating hash difference: {e!r}\033[0m")
         return similar_images
 
-    def duplicates(self, num_keep=2, refresh: bool = False) -> list[str]:
+    def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
 
         Uses pre-calculated hash values to find duplicates.
@@ -241,11 +248,7 @@ class Dir(File, MetaData):
             - refresh (bool): If True, re-calculate the hash values for all files
         """
         hashes = self.serialize(replace=refresh)
-        overflow = []
-        for v in hashes.values():
-            if len(v) > num_keep:
-                overflow.append(v)
-        return overflow
+        return [value for value in hashes.values() if len(value) > num_keep]
 
     def sort(self, specifier: str, reverse=True) -> list[str]:
         """Sort the files and directories by the specifying attribute."""
@@ -263,11 +266,11 @@ class Dir(File, MetaData):
             "name": lambda x: x.basename,
             "ext": lambda x: x.extension,
         }
-        _fmt = []
-        for file in self.file_objects:
-            _fmt.append((specs.get(specifier, "mtime")(file), file.path))
-
-        result = sorted(_fmt, key=lambda x: x[0], reverse=reverse)
+        result = sorted(
+            [specs.get(specifier, "mtime")(file) for file in self.file_objects],
+            key=lambda x: x[0],
+            reverse=reverse,
+        )
 
         # # Print the table
         format_string = "{:<25}{:<40}"
@@ -278,21 +281,16 @@ class Dir(File, MetaData):
 
     def load_database(self) -> dict[int, list[str]]:
         """Deserialize the pickled database."""
-        pkl_path = os.path.join(self.path, self.dir + ".pkl")
-        if os.path.exists(pkl_path):
-            with open(pkl_path, "rb") as f:
-                return pickle.load(f)
-        else:
-            return {}
+        if self._pkl_path.exists():
+            return pickle.loads(self._pkl_path.read_bytes())
+        return {}
 
     def serialize(self, *, replace=False) -> dict[int, list[str]]:
         """Create an hash index of all files in self."""
-        pkl_file = f"{self.dir}.pkl"
-        pkl = os.path.join(self.path, pkl_file)
-        if os.path.exists(pkl) and replace is True:
-            os.remove(pkl)
+        if self._pkl_path.exists() and replace is True:
+            self._pkl_path.unlink()
             self.db = {}
-        elif os.path.exists(pkl) and replace is False:
+        elif self._pkl_path.exists() and replace is False:
             return self.load_database()
 
         pool = Pool()
@@ -308,8 +306,7 @@ class Dir(File, MetaData):
                     self.db[sha] = [path]
                 else:
                     self.db[sha].append(path)
-        with open(pkl, "wb") as f:
-            pickle.dump(self.db, f)
+        self._pkl_path.write_bytes(pickle.dumps(self.db))
         return self.db
 
     def sha256(self) -> str:
@@ -374,9 +371,10 @@ class Dir(File, MetaData):
 
 def obj(path: str) -> File | None:
     """Return a File object for the given path."""
-    if os.path.isdir(path):
+    pathobj = Path(path)
+    if pathobj.is_dir():
         return Dir(path)
-    _, ext = os.path.splitext(path.lower())
+    ext = pathobj.suffix.lower()
 
     for file_type, extensions in FILE_TYPES.items():
         if ext in extensions:

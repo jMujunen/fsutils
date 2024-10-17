@@ -5,8 +5,6 @@ import hashlib
 import json
 import os
 import pickle
-
-os.environ["LOG_LEVEL"] = "0"
 import subprocess
 import sys
 from datetime import datetime, timedelta
@@ -21,6 +19,8 @@ from .FFProbe import FFProbe, FFStream
 from .GenericFile import File
 from .ImageFile import Img
 from .tools import format_timedelta, frametimes
+
+os.environ["LOG_LEVEL"] = "0"
 
 
 class Video(File):
@@ -176,7 +176,7 @@ class Video(File):
     def make_gif(self, scale=640, fps=24, **kwargs: Any) -> Img:
         """Convert the video to a gif using FFMPEG.
 
-        Parameters:
+        Parameters
         -----------
             - `scale` : int, optional (default is 500)
             - `fps`   : int, optional (default is 10)
@@ -193,9 +193,9 @@ class Video(File):
 
             * The default `fps | scale` of `24 | 500` means a decent quality gif.
 
-        Returns:
+        Returns
         --------
-            - `Img` : subprocess return code
+            - `Img` : New `Img` object of the gif created from this video file.
         """
         output_path = kwargs.get("output_path", os.path.join(self.dir_path, self.basename + ".gif"))
         if os.path.exists(output_path):
@@ -269,7 +269,7 @@ class Video(File):
     def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
         """Trim the video from start to end time (seconds).
 
-        Parameters:
+        Parameters
         ----------
             - `start_ (int)`:  (default is 0)
             - `end_ int` : (default is 100)
@@ -290,10 +290,10 @@ class Video(File):
 
         Examples
         --------
-        >>> compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
+        >>> vid.compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         """
-        output_path = kwargs.get("output") or os.path.join(self.dir_path, f"_{self.file_name}.mp4")
-        fps = 30 if self.fps < 200 else 30
+        output_path = kwargs.get("output") or os.path.join(self.dir_path, f"_{self.prefix}.mp4")
+        fps = self.fps if self.fps < 200 else 30
         for keyword, value in kwargs.items():
             if "-r" in kwargs or "fps" in keyword:
                 fps = value
@@ -340,6 +340,9 @@ class Video(File):
             }
         )
         return hashlib.sha256(serialized_object).hexdigest()
+
+    def read(self):
+        return super().read()
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""

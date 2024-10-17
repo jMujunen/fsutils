@@ -6,6 +6,7 @@ import pickle
 import re
 import shutil
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 
 import chardet
@@ -16,7 +17,7 @@ from mimecfg import FILE_TYPES
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
-class File:
+class File(Path):
     """This is the base class for all of the following objects.
 
     It represents a generic file and defines the common methods that are used by all of them.
@@ -27,7 +28,6 @@ class File:
     ----------
         - `encoding (str)` : The encoding to use when reading/writing the file. Defaults to utf-8.
         - `path (str)` : The absolute path to the file.
-        - `content (Any)` : Contains the content of the file. Only holds a value if read() is called.
 
     Properties:
     ----------
@@ -56,7 +56,7 @@ class File:
 
     _basename: str
 
-    def __init__(self, path: str, encoding="utf-8") -> None:
+    def __init__(self, path: str | Path, encoding="utf-8") -> None:
         """Construct the FileObject object.
 
         Paramaters:
@@ -177,7 +177,7 @@ class File:
             self._content = self.read()
         return self._content
 
-    def read(self, *args: Any) -> list[Any]:
+    def read(self, *indice: int) -> list[Any]:
         """Read the content of a file.
 
         While this method is cabable of reading certain binary data, it would be good
@@ -185,15 +185,13 @@ class File:
 
         Args:
         ------
-            - tuple(int, int) : (optional) specify indices to slice the content list.
+            range (tuple(int, int)): Specify indices to slice the content list.
         """
-        _ = self.detect_encoding()
         if self.is_binary:
             return []
-        if _ is not None:
-            self.encoding = _
+        self.encoding = self.detect_encoding()
         try:
-            x, y = args
+            x, y = indice
         except ValueError:
             x, y = None, None
         try:
@@ -264,10 +262,10 @@ class File:
         value = int(f"0o{value}")
         os.chmod(self.path, value)
 
-    def detect_encoding(self) -> str | None:
+    def detect_encoding(self) -> str:
         """Detect encoding of the file."""
-        with open(self.path, "rb") as f:
-            return chardet.detect(f.read())["encoding"]
+        return ""
+        # return chardet.detect(f.read()).get("encoding", self.encoding)
 
     def sha256(self) -> str:
         """Return a reproducable sha256 hash of the file."""
@@ -309,8 +307,8 @@ class File:
     def __eq__(self, other: "File", /) -> bool:
         """Compare two FileObjects.
 
-        Paramaters:
-        -----------
+        Paramaters
+        ----------
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
 
         """
