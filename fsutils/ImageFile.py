@@ -18,7 +18,7 @@ import imagehash
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
 
-from .GenericFile import File
+from GenericFile import File
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 
@@ -235,7 +235,7 @@ class Img(File):
         """
 
         # mode = kwargs.get("mode", "fit")
-        _resized_img = kwargs.get("output", self.parent / f"_resized-{self.name}")
+        _resized_img = kwargs.get("output", f'{self.parent} / f"_resized-{self.name}"')
         resized_img_path = Path(_resized_img)
         width = round(height * self.aspect_ratio)
         # If the image already exists and is of the same dimensions, just return it.
@@ -315,22 +315,10 @@ class Img(File):
 
     def encode(self) -> str:
         """Base64 encode the image."""
-        resized = self.resize()
-        with Image.open(resized.path) as img:
-            try:
-                if self.suffix == ".png":
-                    # change the .suffix to JPEG
-                    img.convert("RGB")
-                buffered = BytesIO()
-                img.save(buffered, format=ENCODE_SPEC.get(self.suffix, "JPEG"))
-                img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-                resized.unlink()  # remove resized file after encoding is done
-            except OSError as e:
-                print(
-                    f"OSError  while converting to base64: {self.suffix}: spec=({ENCODE_SPEC.get(self.suffix)})"
-                )
-                return str(e)
-        return img_str
+        # resized = self.resize()
+        img = cv2.imread(self.path)
+        cv_img = cv2.imencode(self.suffix, img)
+        return base64.b64encode(cv_img[1]).decode("utf-8")
 
     def grayscale(self, output: str) -> "Img":
         """Convert the image to grayscale and save it to the specified output path."""

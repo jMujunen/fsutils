@@ -10,7 +10,7 @@ import subprocess
 from pathlib import Path
 
 # from ..fsutils import Video
-from .Exceptions import CorruptMediaError, FFProbeError
+from Exceptions import CorruptMediaError, FFProbeError
 
 
 class FFProbe:
@@ -257,9 +257,12 @@ class FFStream:
     def frame_rate(self) -> int:
         """Return the frames per second as an integer."""
         try:
-            return int(self.__dict__.get("r_frame_rate", "").split("/")[0])
+            return int(self.__dict__.get("framerate", ""))
         except ValueError:
-            raise FFProbeError("None numeric frame rate") from ValueError
+            try:
+                return int(self.__dict__.get("r_frame_rate", "").split("/")[0])
+            except Exception:
+                return 0
 
     def aspect_ratio(self) -> str | None:
         """Return the stream's display aspect ratio."""

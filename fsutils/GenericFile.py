@@ -59,7 +59,7 @@ class File(Path):
             - `path (str)` : The path to the file
             - `encoding (str)` : Encoding type of the file (default is utf-8)
         """
-        self.path = os.path.expanduser(path)
+        self.path = os.path.abspath(os.path.expanduser(path))
         self.encoding = encoding
         if not self.exists:
             raise FileNotFoundError(f"File '{self.path}' does not exist")
@@ -77,6 +77,11 @@ class File(Path):
         if self.content is not None:
             return self.content[-n:]
         return self.content
+
+    @property
+    def parent(self):
+        """Return the parent directory path of the file."""
+        return os.path.dirname(self.path)
 
     @property
     def size_human(self) -> str:
@@ -134,11 +139,6 @@ class File(Path):
         return os.access(self.path, os.X_OK)
 
     @property
-    def is_video(self) -> bool:
-        """Check if the file is a video."""
-        return self.suffix.lower() in FILE_TYPES["video"]
-
-    @property
     def is_gitobject(self) -> bool:
         """Check if the file is a git object."""
         return GIT_OBJECT_REGEX.match(self.name) is not None
@@ -147,6 +147,11 @@ class File(Path):
     def is_image(self) -> bool:
         """Check if the file is an image."""
         return self.suffix.lower() in FILE_TYPES["img"]
+
+    @property
+    def is_video(self) -> bool:
+        """Check if the file is a video."""
+        return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video"))
 
     def detect_encoding(self) -> str:
         """Detect encoding of the file."""

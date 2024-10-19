@@ -1,10 +1,11 @@
 import argparse
+import contextlib
 import sys
 from typing import Any
 
 from ThreadPoolHelper import Pool
 
-from .VideoFile import Video
+from VideoFile import Video
 
 
 def parse_args() -> argparse.Namespace:
@@ -40,6 +41,13 @@ def parse_args() -> argparse.Namespace:
         default=500,
         help="Scale factor for the gif - (100-1000 is usually good).",
     )
+    video_makegif_parser.add_argument(
+        "kwargs",
+        metavar="KEY=VALUE",
+        nargs=argparse.REMAINDER,
+        help="Optional keyword arguments: --key value",
+    )
+    # Create a parser for the "info" category under  "video
     # -------- Information -----------
     video_info = video_subparsers.add_parser(
         "info",
@@ -126,6 +134,18 @@ def image_parser(arguments: argparse.Namespace) -> None:
     print(arguments)
 
 
+def parse_kwargs(*args) -> dict:
+    kwargs_dict = {}
+    for arg in args:
+        if "=" not in arg:
+            continue
+        key, value = arg.split("=", 1)
+        with contextlib.suppress(ValueError):
+            value = int(value)  # Try to convert to integer if possible
+        kwargs_dict[key] = value
+    return kwargs_dict
+
+
 def video_parser(arguments: argparse.Namespace) -> Any:
     """Handle command line operations related to videos.
 
@@ -152,40 +172,27 @@ def video_parser(arguments: argparse.Namespace) -> Any:
         match arguments.action:
             case "makegif":
                 for vid in videos:
-                    vid.make_gif(arguments.scale, arguments.fps, output=arguments.output)
+                    vid.make_gif(arguments.scale, arguments.fps)
                 return 0
             case "info":
                 print(Video.fmtheader())
                 return print("\n".join(Pool().execute(format, videos, progress_bar=False)))
             case "compress":
                 for vid in videos:
-                    vid.compress(**arguments.kwargs)
+                    vid.compress(**kwargs)
                 return 0
             case _:
                 return f"Invalid video command: {arguments.video} {arguments.action}"
 
-    # Parse arguments into a format that can be understood by the action function
-    mapping = {k: str(v) for k, v in arguments.__dict__.items()}
-    cmd = [k for k, v in mapping.items() if v]
+    videos = (
+        [Video(file) for file in arguments.PATH if isinstance(Video(file), Video)]
+        if isinstance(arguments.PATH, list)
+        else [Video(arguments.PATH)]
+    )
+    with contextlib.suppress(AttributeError):
+        kwargs = parse_kwargs(*arguments.kwargs)
 
-    videos = [Video(file) for file in arguments.PATH if isinstance(Video(file), Video)]
     return action(videos)
-    # if arguments.action == "info":
-    #     files = arguments.PATH
-    #     if isinstance(arguments.PATH, str):
-    #         files = [arguments.PATH]
-    #     video_objects = [obj(i) for i in files if isinstance(obj(i), Video)]
-    #     pool = Pool()
-    #     print(Video.fmtheader())
-    #     print("\n".join(pool.execute(format, video_objects, progress_bar=False)))
-    # elif arguments.action == "compress":
-    #     vid = Video(arguments.PATH)
-    #     if isinstance(arguments.PATH, str):
-    #         files = [arguments.PATH]
-    #     kwargs = {item.split("=")[0].strip("--"): item.split("=")[1] for item in arguments.kwargs}
-    #     result = vid.compress(**kwargs)
-    #     print(format(result, "header"))
-    return 0
 
 
 if __name__ == "__main__":

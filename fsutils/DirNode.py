@@ -7,9 +7,8 @@ import re
 import sys
 from collections import defaultdict
 from collections.abc import Generator, Iterator
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar, LiteralString
+from typing import LiteralString
 
 from size import Size
 from ThreadPoolHelper import Pool
@@ -20,43 +19,6 @@ from fsutils.ImageFile import Img
 from fsutils.LogFile import Log
 from fsutils.mimecfg import FILE_TYPES
 from fsutils.VideoFile import Video
-
-# @dataclass
-# class MetaData:
-#     """Class for storing metadata of files and directories.
-
-#     Attributes
-#     ----------
-#         path (str): Path to the file or directory.
-#         db (dict): Dictionary representing the hashed objects.
-
-#     """
-
-#     _objects: list[File] = field(
-#         default_factory=list[File],
-#         repr=False,
-#         compare=True,
-#         hash=True,
-#     )
-#     _directories: list["Dir"] = field(
-#         default_factory=list["Dir"],
-#         repr=False,
-#         compare=True,
-#         hash=True,
-#     )
-#     _files: list[File] = field(default_factory=list[File], repr=False, compare=False, hash=False)
-#     db: dict[int, list[str]] = field(
-#         default_factory=dict[int, list[str]],
-#         repr=False,
-#         compare=False,
-#         hash=False,
-#     )
-#     metadata: dict = field(default_factory=dict, repr=True, compare=True, hash=True)
-
-#     def __post_init__(self):
-#         self._pkl_path = Path.joinpath(self.parent, f"{self.stem}" + ".pkl")
-#         if self._pkl_path.exists():
-#             self.db = pickle.loads(self._pkl_path.read_bytes())
 
 
 class Dir(File):
@@ -85,6 +47,7 @@ class Dir(File):
     """
 
     _objects: list[File]
+    encoding: None = None
 
     def __init__(self, path: str | Path, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
@@ -95,9 +58,11 @@ class Dir(File):
 
         """
         super().__init__(path, *args, **kwargs)
-        self._pkl_path = Path(os.path.join(self.path, f"{self.prefix}.pkl"))
+        self._pkl_path = Path(self.path, f"{self.prefix}.pkl")
         if self._pkl_path.exists():
             self.db = pickle.loads(self._pkl_path.read_bytes())
+        else:
+            self.db = {}
         # MetaData.__post_init__(self)
         self._objects = []
         self.metadata = defaultdict(int)

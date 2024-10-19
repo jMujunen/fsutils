@@ -9,18 +9,18 @@ import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, LiteralString
 
 import cv2
 from size import Size
 
-from .Exceptions import CorruptMediaError, FFProbeError
-from .FFProbe import FFProbe, FFStream
-from .GenericFile import File
-from .ImageFile import Img
-from .tools import format_timedelta, frametimes
+from Exceptions import CorruptMediaError, FFProbeError
+from FFProbe import FFProbe, FFStream
+from GenericFile import File
+from ImageFile import Img
+from tools import format_timedelta, frametimes
 
-os.environ["LOG_LEVEL"] = "0"
+cv2.setLogLevel(1)
 
 
 class Video(File):
@@ -53,15 +53,15 @@ class Video(File):
     _info = None
     _stream = None
 
-    # def __init__(self, path: str | Path) -> None:
-    #     """Initialize a new Video object.
+    def __init__(self, path: str | Path, *args, **kwargs) -> None:
+        """Initialize a new Video object.
 
-    #     Paramaters:
-    #     -------------
-    #         - `path (str)` : The absolute path to the video file.
+        Paramaters:
+        -------------
+            - `path (str)` : The absolute path to the video file.
 
-    #     """
-    #     super().__init__(path)
+        """
+        super().__init__(path, *args, **kwargs)
 
     @property
     def metadata(self) -> dict | None:
@@ -144,7 +144,12 @@ class Video(File):
     def ffprobe(self) -> FFStream:
         """Return the first video stream."""
         try:
-            return next(stream for stream in FFProbe(self.absolute()).streams if stream.is_video())
+            return next(
+                stream for stream in FFProbe(str(self.resolve())).streams if stream.is_video()
+            )
+        except StopIteration:
+            if self.is_corrupt:
+                raise CorruptMediaError(f"{self.absolute()} is corrupt.") from StopIteration
         except IndexError:
             if self.is_corrupt:
                 raise CorruptMediaError(f"{self.absolute()} is corrupt.") from IndexError
@@ -199,7 +204,7 @@ class Video(File):
         --------
             - `Img` : New `Img` object of the gif created from this video file.
         """
-        output = kwargs.get("output_path", f'{self.parent:!s}/{self.prefix}{".gif"}')
+        output = kwargs.get("output_path", f'{self.parent}/{self.prefix}{".gif"}')
         output_path = Path(output)
         if output_path.exists():
             return Img(output_path)
@@ -210,8 +215,6 @@ class Video(File):
                 f"{self.path}",
                 "-vf",
                 f"fps={fps},scale=-1:{scale!s}:flags=lanczos",
-                "-r",
-                f"{fps!s}",
                 f"{output_path}",
                 "-loglevel",
                 "quiet",
@@ -327,7 +330,7 @@ class Video(File):
             kwargs.get("loglevel", "quiet"),
             "-y",
             "-stats",
-            output_path,
+            str(output_path),
         ]
         print(subprocess.check_output(ffmpeg_cmd))
         return Video(output_path)
@@ -368,7 +371,7 @@ class Video(File):
         return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {self.dimensions!s:<10}"
 
     @staticmethod
-    def fmtheader() -> str:
+    def fmtheader() -> str | LiteralString:
         template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n"
         header = template.format(
             "File", "Num Frames", "Bitrate", "Size", "Codec", "Duration", "FPS", "Dimensions"
