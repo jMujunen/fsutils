@@ -6,19 +6,16 @@ import os
 import pickle
 import subprocess
 from collections.abc import Generator
-from dataclasses import dataclass, field
 from datetime import datetime
-from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Never
 
 import cv2
 import imagehash
+from GenericFile import File
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
-
-from GenericFile import File
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 
@@ -299,7 +296,7 @@ class Img(File):
             elif width and height:
                 img.resize((width, height))
             try:
-                new_file_path = self.parent / new_filename
+                new_file_path = Path(self.parent, new_filename)
                 img.save(new_file_path, quality=quality, optimize=True)
                 resized_img = self.__class__(new_file_path)
             except (OSError, PermissionError):
