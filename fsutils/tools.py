@@ -16,7 +16,7 @@ def format_timedelta(td: timedelta) -> str:
         return (result + ".00").replace(":", "-")
     ms = int(ms)
     ms = round(ms / 1e4)
-    return f"{result}.{ms:02}"
+    return result.replace(":", "-") + f".{ms}"
 
 
 def frametimes(num_frames: int, clip_fps: int, saving_fps: int) -> list[int]:

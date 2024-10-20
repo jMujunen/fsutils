@@ -54,30 +54,6 @@ class Img(File):
         self._exif = Image.Exif()
         self._tags = []
 
-    def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash:
-        """Calculate the hash value of the image.
-
-        Paramters:
-        ---------
-            - `spec (str)` : The specification for the hashing algorithm to use.
-
-        """
-        # Ignore heic until feature is implemented to support it.
-        # Excluding this has unwanted effects when comparing hash values
-        if self.suffix == ".heic" or self.is_corrupt:
-            pass
-        with Image.open(self.path) as img:
-            match spec:
-                case "avg":
-                    img_hash = imagehash.average_hash(img)
-                case "dhash":
-                    img_hash = imagehash.dhash(img)
-                case "phash":
-                    img_hash = imagehash.phash(img)
-                case _:
-                    raise ValueError("Invalid specification for hash algorithm")
-        return img_hash
-
     @property
     def dimensions(self) -> tuple[int, int]:
         """Extract the dimensions of the image as a tuple."""
@@ -353,8 +329,7 @@ class Img(File):
             else:
                 name = name.split(" ")[0]
             iterations += 1
-        return f"{name:<15} | {self.size_human:<10} | \
-            {self.dimensions!s:<15} | {self.capture_date!s:<25}"
+        return " | ".join([name, self.size_human, self.dimensions, self.capture_date])
 
     @staticmethod
     def fmtheader() -> str:
@@ -362,7 +337,7 @@ class Img(File):
         template = "{:<15} | {:<10} | {:<15} |{:<25}"
         header = template.format("File", "Ext", "Size", "Dimensions", "Capture Date")
         linebreak = template.format("-" * 15, "-" * 10, "-" * 15, "-" * 25)
-        return f"\033[1m{header}\033[0m\n{linebreak}"  # type: ignore
+        return "\n".join([header, linebreak])
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, dimensions={self.dimensions})".format(

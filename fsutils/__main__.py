@@ -4,7 +4,6 @@ import sys
 from typing import Any
 
 from ThreadPoolHelper import Pool
-
 from VideoFile import Video
 
 
@@ -169,20 +168,19 @@ def video_parser(arguments: argparse.Namespace) -> Any:
     """
 
     def action(videos: list[Video]) -> Any:
-        match arguments.action:
-            case "makegif":
-                for vid in videos:
-                    vid.make_gif(arguments.scale, arguments.fps)
-                return 0
-            case "info":
-                print(Video.fmtheader())
-                return print("\n".join(Pool().execute(format, videos, progress_bar=False)))
-            case "compress":
-                for vid in videos:
-                    vid.compress(**kwargs)
-                return 0
-            case _:
-                return f"Invalid video command: {arguments.video} {arguments.action}"
+        if arguments.action == "makegif":
+            for vid in videos:
+                vid.make_gif(arguments.scale, arguments.fps)
+            return 0
+        elif arguments.action == "info":
+            print(Video.fmtheader())
+            return print("\n".join(Pool().execute(format, videos, progress_bar=False)))
+        elif arguments.action == "compress":
+            for vid in videos:
+                vid.compress(**kwargs)
+            return 0
+        else:
+            return f"Invalid video command: {arguments.video} {arguments.action}"
 
     videos = (
         [Video(file) for file in arguments.PATH if isinstance(Video(file), Video)]
@@ -200,12 +198,10 @@ if __name__ == "__main__":
     print(vars(args))
     template = """{category}.{action}(
     path={PATH}, {kwargs}"""
-    match args.category:
-        case "video":
-            sys.exit(video_parser(args))
-        case "img":
-            sys.exit(image_parser(args))
-        case "dir":
-            sys.exit(dir_parser(args))
-        case _:
-            sys.exit("Invalid category")
+    categories = {
+        "video": lambda x: sys.exit(video_parser(x)),
+        "img": lambda x: sys.exit(image_parser(x)),
+        "dir": lambda x: sys.exit(dir_parser(x)),
+        "other": lambda x: print("Other parser not implemented yet."),
+    }
+    categories[args.category](args)

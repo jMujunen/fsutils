@@ -10,7 +10,6 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
@@ -175,9 +174,6 @@ class Log(File, LogMetaData):
         self.df.index = self.df.index.strftime("%H:%M")
         # Plot the data even if some of the specified columns are missing from the file
         if missing_columns:
-            print(
-                f"\033[33m[WARNING]\033[0m Columns \033[1;4m{", ".join(missing_columns)}\033[0m do not exist in the file."
-            )
             columns = [col for col in columns if col in self.df.columns] or self.df.columns  # type: ignore
         print(columns)
         # Smooth the line for easier reading of large datasets

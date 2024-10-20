@@ -12,12 +12,11 @@ from pathlib import Path
 from typing import Any, LiteralString
 
 import cv2
-from size import Size
-
 from Exceptions import CorruptMediaError, FFProbeError
 from FFProbe import FFProbe, FFStream
 from GenericFile import File
 from ImageFile import Img
+from size import Size
 from tools import format_timedelta, frametimes
 
 cv2.setLogLevel(1)
@@ -368,7 +367,18 @@ class Video(File):
             else:
                 name = ".".join([name.split(".")[0], name.split(".")[-1]])
             iterations += 1
-        return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {self.dimensions!s:<10}"
+        return " | ".join(
+            [
+                name.strip(),
+                str(self.num_frames),
+                str(self.bitrate_human),
+                str(self.size_human),
+                str(self.codec),
+                str(self.duration),
+                str(self.fps),
+                str(self.dimensions),
+            ]
+        )
 
     @staticmethod
     def fmtheader() -> str | LiteralString:
@@ -379,4 +389,4 @@ class Video(File):
         linebreak = template.format(
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
         )
-        return f"\033[1m{header}\033[0m{linebreak}"
+        return "\n".join([header, linebreak])

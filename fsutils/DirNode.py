@@ -104,11 +104,6 @@ class Dir(File):
             return []
 
     @property
-    def rel_directories(self) -> list[str]:
-        """Return a list of subdirectory paths relative to the directory represented by this object."""
-        return [f".{str(folder.path).replace(str(self.parent), "")}" for folder in self.dirs]
-
-    @property
     def objects(self) -> list[File]:
         """Return a list of fsutils objects inside self."""
         try:
@@ -288,26 +283,25 @@ class Dir(File):
 
     def __format__(self, format_spec: str, /) -> LiteralString | str:
         pool = Pool()
-        match format_spec:
-            case "videos":
-                print(Video.fmtheader())
-                return "\n".join(
-                    result for result in pool.execute(format, self.videos, progress_bar=False)
-                )
-            case "images":
-                print(Img.fmtheader())
-                return "\n".join(
-                    result for result in pool.execute(format, self.images, progress_bar=False)
-                )
-            case _:
-                return f"Spec {format_spec} is not supported yet"
+        if format_spec == "videos":
+            print(Video.fmtheader())
+            return "\n".join(
+                result for result in pool.execute(format, self.videos, progress_bar=False)
+            )
+        elif format_spec == "images":
+            print(Img.fmtheader())
+            return "\n".join(
+                result for result in pool.execute(format, self.images, progress_bar=False)
+            )
+        else:
+            raise ValueError("Invalid format specifier")
 
     def __contains__(self, item: File) -> bool:
         """Is `File` in self?"""  # noqa
         return item.sha256() in self.serialize()
 
     def __hash__(self) -> int:
-        return hash((tuple(self.content), self.is_empty, tuple(self.rel_directories)))
+        return hash((tuple(self.content), self.is_empty))
 
     def __len__(self) -> int:
         """Return the number of items in the object."""
