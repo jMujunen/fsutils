@@ -10,7 +10,7 @@ from collections.abc import Generator, Iterator
 from pathlib import Path
 from typing import LiteralString
 
-from size import Size
+from Size import Size
 from ThreadPoolHelper import Pool
 
 from . import GenericFile

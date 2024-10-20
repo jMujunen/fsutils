@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import chardet
-from size import Size
+from Size import Size
 
 from . import mimecfg
 
