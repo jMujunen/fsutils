@@ -312,15 +312,6 @@ def obj(path: str) -> GenericFile.File | None:
         FileClass = GenericFile.File(path)
     except FileNotFoundError as e:
         return None
-    return File(path)
+    return GenericFile.File(path)
 
 
-def ls(dir_path: str, recursive: bool = False, depth: int = 0):
-    """List the contents of a directory."""
-    dirobj  : Dir = obj(dir_path)
-    if not isinstance(dirobj, Dir):
-        raise ValueError("Not a directory")
-    for item in sorted(dirobj.list(), key=lambda x: (not x.is_dir(), x.name)):
-        print(f"{'  ' * depth}- {item}")
-        if recursive and item.is_dir():
-            ls(str(item), recursive, depth + 1)
