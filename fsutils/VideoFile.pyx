@@ -60,6 +60,7 @@ class Video(GenericFile.File):
 
         """
         super().__init__(path, *args, **kwargs)
+        del self._content
 
     @property
     def metadata(self) -> dict | None:
@@ -224,6 +225,54 @@ class Video(GenericFile.File):
         )
         # Other options: "-pix_fmt","rgb24" |
         return ImageFile.Img(output_path)
+    def extract_frames(self, fps=1, **kwargs: Any) -> None:
+        """Extract frames from video.
+
+        Paramaters
+        -----------
+            - `fps` : Frames per second to extract (default is `1`)
+
+        Kwargs:
+        ------------------
+            - `output` : Output directory for frames (default is `{filename}-frames/`)
+
+
+        """
+        # Define output
+        output_dir = kwargs.get("output", f"{self.name}-frames/")
+        Path.mkdir(output_dir, parents=True, exist_ok=True)
+        # Init opencv video capture object and get properties
+        cap = cv2.VideoCapture(self.path)
+        clip_fps = round(cap.get(cv2.CAP_PROP_FPS))
+        num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        interval = round(min(clip_fps, fps))
+        frametime_refs = frametimes(num_frames, clip_fps, interval)
+
+        count = 0
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+            frametime = count / clip_fps
+            try:
+                # get the earliest duration to save
+                closest_duration = frametime_refs[0]
+            except IndexError:
+                # the list is empty, all duration frames were saved
+                break
+            if frametime >= closest_duration:
+                # if closest duration is less than or equals the frametime,
+                # then save the frame
+                frame_duration_formatted = format_timedelta(timedelta(seconds=frametime))
+                cv2.imwrite(
+                    os.path.join(f"{self.name}-frames", f"frame{frame_duration_formatted}.jpg"),
+                    frame,
+                )
+                # drop the duration spot from the list, since this duration spot is already saved
+                with contextlib.suppress(IndexError):
+                    frametime_refs.pop(0)
+            # increment the frame count
+            count += 1
 
     def compress(self, **kwargs: Any) -> "Video":
         """Compress video using x265 codec with crf 18.
@@ -295,7 +344,6 @@ class Video(GenericFile.File):
     def __hash__(self) -> int:
         return hash(self.sha256())
         # return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
-
     def __format__(self, format_spec: str, /) -> str:
         """Return the object in tabular format."""
         name = self.name
@@ -306,33 +354,15 @@ class Video(GenericFile.File):
             else:
                 name = ".".join([name.split(".")[0], name.split(".")[-1]])
             iterations += 1
-        return " | ".join(
-            [
-                name.strip(),
-                str(self.num_frames),
-                str(self.bitrate_human),
-                str(self.size_human),
-                str(self.codec),
-                str(self.duration),
-                str(self.fps),
-                str(self.dimensions),
-            ]
-        )
+        return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {self.dimensions!s:<10}"
 
     @staticmethod
     def fmtheader() -> str | LiteralString:
         template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n"
         header = template.format(
-            "GenericFile.File",
-            "Num Frames",
-            "Bitrate",
-            "Size",
-            "Codec",
-            "Duration",
-            "FPS",
-            "Dimensions",
+            "File", "Num Frames", "Bitrate", "Size", "Codec", "Duration", "FPS", "Dimensions"
         )
         linebreak = template.format(
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
         )
-        return "\n".join([header, linebreak])
+        return f"\033[1m{header}\033[0m{linebreak}"
