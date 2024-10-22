@@ -9,10 +9,9 @@ from pathlib import Path
 from typing import Any
 
 import chardet
-from Size import Size
 
 from . import mimecfg
-
+from . import tools
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
@@ -64,7 +63,7 @@ class File(Path):
         if not self.exists:
             raise FileNotFoundError(f"GenericFile.File '{self.path}' does not exist")
         self._content = []
-        super().__init__(self.path, *args, **kwargs)
+        super().__init__(self.path, *args, **kwargs) # type: ignore
 
     def head(self, n: int = 5) -> list[str]:
         """Return the first n lines of the file."""
@@ -86,7 +85,7 @@ class File(Path):
     @property
     def size_human(self) -> str:
         """Return the size of the file in human readable format."""
-        return str(Size(self.size))
+        return tools.format_bytes(self.size)
 
     @property
     def size(self) -> int:

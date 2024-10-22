@@ -16,7 +16,6 @@ from . import Exceptions
 from . import FFProbe
 from . import GenericFile
 from . import ImageFile
-from Size import Size
 from . import tools
 
 cv2.setLogLevel(1)
@@ -103,7 +102,7 @@ class Video(GenericFile.File):
     def bitrate_human(self) -> str | None:
         """Return the bitrate in a human readable format."""
         if self.bitrate is not None and self.bitrate > 0:
-            return str(Size(self.bitrate))
+            return tools.format_bytes(self.bitrate)
         return None
 
     @property

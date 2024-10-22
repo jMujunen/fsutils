@@ -10,7 +10,6 @@ from collections.abc import Generator, Iterator
 from pathlib import Path
 from typing import LiteralString
 
-from Size import Size
 from ThreadPoolHelper import Pool
 
 from . import GenericFile
@@ -20,7 +19,7 @@ from . import LogFile
 from . import mimecfg
 from . import VideoFile
 from . import GitObject
-
+from . import tools
 
 class Dir(GenericFile.File):
     """A class representing information about a directory.
@@ -158,19 +157,18 @@ class Dir(GenericFile.File):
             print(f"{key: <{max_key_length}} {value}")
 
     @property
-    def size(self) -> Size:
+    def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
         if hasattr(self, "_size") and self._size is not None:
             return self._size
-        self._size = Size(
-            sum(
-                Pool().execute(
+        pool = Pool()
+        self._size = sum(
+                pool.execute(
                     lambda x: x.size,
                     self.file_objects,
                     progress_bar=False,
                 ),
-            ),
-        )
+            )
         return self._size
 
     @property

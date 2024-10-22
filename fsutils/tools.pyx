@@ -1,3 +1,4 @@
+# language_level=3
 """Helper functions."""
 
 from datetime import timedelta
@@ -42,7 +43,7 @@ def frametimes(num_frames: int, clip_fps: int, saving_fps: int) -> list[int]:
     return s
 
 
-def format_bytes(raw_bytes: int) -> str:
+def format_bytes(raw_bytes: int):
     """Convert bytes to the appropriate unit (B, KB, MB, GB, or TB)."""
     size = raw_bytes
     for unit in SizeUnit:
