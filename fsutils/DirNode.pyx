@@ -102,7 +102,7 @@ class Dir(GenericFile.File):
             List[GenericFile.File,  LogFile.Log, ImageFile.Img, VideoFile.Video, Git]: A list of file objects.
 
         """
-        return list(filter(lambda x: not isinstance(x, "Dir"), self))
+        return list(filter(lambda x: not isinstance(x, Dir), self))
 
     @property
     def content(self) -> list[str]:
