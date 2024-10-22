@@ -20,9 +20,9 @@ DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
 class Hwinfo:
     """Preset columns for plotting."""
 
-    SEP: str = field(default=",")
-    ENCODING: str = field(default="iso-8859-1")
-    GPU_COLS: tuple[str, ...] = field(default=("GPU Power [W]",))
+    SEP: str = ","
+    ENCODING: str = "iso-8859-1"
+    GPU_COLS: tuple[str, ...] = ("GPU Power [W]",)
     TEMP_COLS: tuple[str, ...] = field(
         default=(
             "System Temp [°C]",
@@ -62,15 +62,15 @@ class Hwinfo:
 class Nvidia:
     """Presets."""
 
-    SEP: str = field(default=r",\s+")
+    SEP: str = r",\s+"
     ENCODING = "utf-8"
-    MISC_COLS: tuple[str, ...] = field(default=("GPU1 Voltage(Milli Volts)",))
-    GPU_COLS: tuple[str, ...] = field(default=("GPU1 Frequency(MHz)", "GPU1 Memory Frequency(MHz)"))
-    USAGE_COLS: tuple[str, ...] = field(default=("CPU Utilization(%)", "GPU1 Utilization(%)"))
+    MISC_COLS: tuple[str, ...] = ("GPU1 Voltage(Milli Volts)",)
+    GPU_COLS: tuple[str, ...] = ("GPU1 Frequency(MHz)", "GPU1 Memory Frequency(MHz)")
+    USAGE_COLS: tuple[str, ...] = ("CPU Utilization(%)", "GPU1 Utilization(%)")
     LATENCY_COLS: tuple[str, ...] = field(
         default=("Render Latency(MSec)", "Average PC Latency(MSec)")
     )
-    FPS_COLS: tuple[str, ...] = field(default=("FPS",))
+    FPS_COLS: tuple[str, ...] = ("FPS",)
     INDEX_COL = 0
 
 
@@ -78,34 +78,48 @@ class Nvidia:
 class Custom:
     """Preset columns for plotting."""
 
-    SEP: str = field(default=r",\s+")
+    SEP: str = r",\s+"
     ENCODING = "utf-8"
-    MISC_COLS: tuple[str, ...] = field(default=("ping", "ram_usage", "gpu_core_usage"))
-    GPU_COLS: tuple[str, ...] = field(default=("gpu_temp", "gpu_core_usage", "gpu_power"))
-    TEMP_COLS: tuple[str, ...] = field(default=("system_temp", "gpu_temp", "cpu_temp"))
-    CPU_COLS: tuple[str, ...] = field(default=("cpu_max_clock", "cpu_avg_clock"))
-    VOLT_COLS: tuple[str, ...] = field(default=("gpu_voltage", "cpu_voltage"))
+    MISC_COLS: tuple[str, ...] = ("ping", "ram_usage", "gpu_core_usage")
+    GPU_COLS: tuple[str, ...] = ("gpu_temp", "gpu_core_usage", "gpu_power")
+    TEMP_COLS: tuple[str, ...] = ("system_temp", "gpu_temp", "cpu_temp")
+    CPU_COLS: tuple[str, ...] = ("cpu_max_clock", "cpu_avg_clock")
+    VOLT_COLS: tuple[str, ...] = ("gpu_voltage", "cpu_voltage")
     INDEX_COL = 0
 
 
 @dataclass
+class Ping:
+    """Preset columns for plotting."""
+
+    SEP: str = ","
+    ENCODING = "utf-8"
+    # MISC_COLS: tuple[str, ...] = lambda x: f'p
+    GPU_COLS: None = None
+    TEMP_COLS: None = None
+    CPU_COLS: None = None
+    VOLT_COLS: None = None
+    INDEX_COL = 0
+    _SANITIZER = re.compile(r"(\d{2}:\d{2}:\d{2},\d+\.\d+)")
+
+
+@dataclass
 class Gpuz:
-    SEP: str = field(default=r"\s+,\s+")
-    ENCODING: str = field(default="iso-8859-1")
-    TEMP_COLS: tuple[str, ...] = field(
-        default=(
-            "GPU Temperature [°C]",
-            "Hot Spot [°C]",
-            "Memory Temperature [°C]",
-            "CPU Temperature [°C]",
-        )
+    SEP: str = r"\s+,\s+"
+    ENCODING: str = "iso-8859-1"
+    TEMP_COLS: tuple[str, ...] = (
+        "GPU Temperature [°C]",
+        "Hot Spot [°C]",
+        "Memory Temperature [°C]",
+        "CPU Temperature [°C]",
     )
+
     USAGE_COLS: tuple[str, ...] = field(
         default=("GPU Usage [%]", "Memory Controller Load [%]", "Power Consumption (%) [% TDP]")
     )
-    VOLT_COLS: tuple[str, ...] = field(default=("GPU Voltage [V]",))
-    CLOCK_COLS: tuple[str, ...] = field(default=("GPU Clock [MHz]", "Memory Clock [MHz]"))
-    MISC_COLS: tuple[str, ...] = field(default=("Board Power Draw [W]",))
+    VOLT_COLS: tuple[str, ...] = ("GPU Voltage [V]",)
+    CLOCK_COLS: tuple[str, ...] = ("GPU Clock [MHz]", "Memory Clock [MHz]")
+    MISC_COLS: tuple[str, ...] = ("Board Power Draw [W]",)
     INDEX_COL = 0
 
 
@@ -114,6 +128,7 @@ class Presets(Enum):
     HWINFO = Hwinfo
     CUSTOM = Custom
     NVIDIA = Nvidia
+    PING = Ping
 
 
 @dataclass
@@ -131,6 +146,7 @@ class LogMetaData:
         if self.path.suffix not in [".csv", ".txt", ".log"]:
             return
         self.__dict__.update(self.preset.__dict__)
+
         with contextlib.suppress(Exception):
             self.df = pd.read_csv(
                 self.path,
@@ -168,7 +184,16 @@ class Log(File, LogMetaData):
 
     def plot(self, columns: tuple[str, ...] = Custom.TEMP_COLS, smooth_factor=1) -> None:
         missing_columns = [col for col in columns if col not in self.df.columns]
-
+        if hasattr(self.preset, "_SANITIZER"):
+            parsed_data = [
+                (x, float(y))
+                for x, y in [
+                    line.strip().split(",")
+                    for line in self.read_text().splitlines()
+                    if self.preset._SANITIZER.match(line)
+                ]
+            ]
+            self.df = pd.DataFrame(parsed_data).set_index(0)
         # Create index from timestamp
         # if re.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", str(self.df.index[0])):
         self.df.index = pd.to_datetime(self.df.index)

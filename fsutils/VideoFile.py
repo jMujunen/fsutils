@@ -18,7 +18,7 @@ from Exceptions import CorruptMediaError, FFProbeError
 from FFProbe import FFProbe, FFStream
 from GenericFile import File
 from ImageFile import Img
-from tools import format_timedelta, frametimes
+from tools import format_bytes, format_timedelta, frametimes
 
 cv2.setLogLevel(1)
 
@@ -62,6 +62,7 @@ class Video(File):
 
         """
         super().__init__(path, *args, **kwargs)
+        del self._content
 
     @property
     def metadata(self) -> dict | None:
@@ -104,7 +105,7 @@ class Video(File):
     def bitrate_human(self) -> str | None:
         """Return the bitrate in a human readable format."""
         if self.bitrate is not None and self.bitrate > 0:
-            return str(Size(self.bitrate))
+            return format_bytes(self.bitrate)
         return None
 
     @property

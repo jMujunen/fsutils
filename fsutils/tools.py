@@ -1,10 +1,19 @@
 """Helper functions."""
 
 from datetime import timedelta
+from enum import Enum
 
 import numpy as np
 
 SECONDS_PER_HOUR = 60 * 60
+
+
+class SizeUnit(Enum):
+    B = 1
+    KB = 1024
+    MB = 1024**2
+    GB = 1024**3
+    TB = 1024**4
 
 
 def format_timedelta(td: timedelta) -> str:
@@ -31,3 +40,14 @@ def frametimes(num_frames: int, clip_fps: int, saving_fps: int) -> list[int]:
     for i in np.arange(0, duration, 1 / saving_fps):
         s.append(i)
     return s
+
+
+def format_bytes(raw_bytes: int) -> str:
+    """Convert bytes to the appropriate unit (B, KB, MB, GB, or TB)."""
+    size = raw_bytes
+    for unit in SizeUnit:
+        if size < SizeUnit.KB.value:
+            return f"{size:.2f} {unit.name}"
+        size /= 1024
+
+    return f"{size / 1024:.2f} {SizeUnit.TB.name}"  # Last unit is TB

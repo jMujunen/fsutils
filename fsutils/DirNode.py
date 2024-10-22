@@ -367,7 +367,3 @@ def obj(path: str) -> File | None:
     except FileNotFoundError as e:
         return None
     return File(path)
-
-
-path = Dir("~/Pictures")
-print(path)

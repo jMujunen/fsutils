@@ -9,9 +9,9 @@ from pathlib import Path
 from typing import Any
 
 import chardet
-from size import Size
 
 from mimecfg import FILE_TYPES
+from tools import format_bytes
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
@@ -86,7 +86,7 @@ class File(Path):
     @property
     def size_human(self) -> str:
         """Return the size of the file in human readable format."""
-        return str(Size(self.size))
+        return format_bytes(self.size)
 
     @property
     def size(self) -> int:
