@@ -1,5 +1,6 @@
+# from fsutils.GenericFile import File
 """Represents a directory. Contains methods to list objects inside this directory."""
-
+import cython
 import datetime
 import os
 import pickle
@@ -20,6 +21,12 @@ from . import mimecfg
 from . import VideoFile
 from . import GitObject
 from . import tools
+from . import GenericFile
+# from . import cimport GenericFile as File
+# from .GenericFile cimport File
+# from fsutils.GenericFile import File
+
+
 
 class Dir(GenericFile.File):
     """A class representing information about a directory.
@@ -32,7 +39,7 @@ class Dir(GenericFile.File):
     -------
         - `file_info (other)` :     # Check for `other` in self and return it as an object of `other`
         - `getinfo()` :             # Returns a list of extentions and their count
-        - `__eq__ (other)` :        # Compare properties of two Dir objects
+        - `__eq__ (other)` :        # Compare properties of two "Dir" objects
         - `__contains__ (other)` :  # Check if `other` is present in self
         - `__len__`:                # Return the number of objects in self
         - `__iter__`  :             # Iterator which yields the appropriate GenericFile.File instance
@@ -46,11 +53,11 @@ class Dir(GenericFile.File):
 
     """
 
-    _objects: list[GenericFile.File]
-    encoding: None = None
+    _content: list[GenericFile.File]
+    _encoding: str
 
     def __init__(self, path: str | Path, *args, **kwargs) -> None:
-        """Initialize a new instance of the Dir class.
+        """Initialize a new instance of the "Dir" class.
 
         Parameters
         ----------
@@ -95,7 +102,7 @@ class Dir(GenericFile.File):
             List[GenericFile.File,  LogFile.Log, ImageFile.Img, VideoFile.Video, Git]: A list of file objects.
 
         """
-        return list(filter(lambda x: not isinstance(x, Dir), self))
+        return list(filter(lambda x: not isinstance(x, "Dir"), self))
 
     @property
     def content(self) -> list[str]:
@@ -137,7 +144,7 @@ class Dir(GenericFile.File):
     @property
     def dirs(self) -> list[GenericFile.File]:
         """A list of DirectoryObject instances found in the directory."""
-        return list(filter(lambda x: isinstance(x, Dir), self.__iter__()))
+        return list(filter(lambda x: isinstance(x, "Dir"), self.__iter__()))
 
     @property
     def summary(self) -> None:
@@ -173,7 +180,7 @@ class Dir(GenericFile.File):
 
     @property
     def size_human(self) -> str:
-        return str(self.size)
+        return tools.format_bytes(self.size)
 
     def search(self, pattern: str, attr: str = "name") -> list[GenericFile.File]:
         """Query the object for files with the given `name | regex` pattern.
@@ -274,8 +281,8 @@ class Dir(GenericFile.File):
                         self._objects.append(_obj)
         yield from self._objects
 
-    def __eq__(self, other: "Dir", /) -> bool:
-        """Compare the contents of two Dir objects."""
+    def __eq__(self, other: object, /) -> bool:
+        """Compare the contents of two "Dir" objects."""
         return all(
             (
                 isinstance(other, self.__class__),

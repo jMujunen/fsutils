@@ -10,7 +10,7 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, LiteralString
-
+import cython
 import cv2
 from . import Exceptions
 from . import FFProbe
@@ -246,7 +246,7 @@ class Video(GenericFile.File):
         clip_fps = round(cap.get(cv2.CAP_PROP_FPS))
         num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         interval = round(min(clip_fps, fps))
-        frametime_refs = frametimes(num_frames, clip_fps, interval)
+        frametime_refs = tools.frametimes(num_frames, clip_fps, interval)
 
         count = 0
         while cap.isOpened():
@@ -263,7 +263,7 @@ class Video(GenericFile.File):
             if frametime >= closest_duration:
                 # if closest duration is less than or equals the frametime,
                 # then save the frame
-                frame_duration_formatted = format_timedelta(timedelta(seconds=frametime))
+                frame_duration_formatted = tools.format_timedelta(timedelta(seconds=frametime))
                 cv2.imwrite(
                     os.path.join(f"{self.name}-frames", f"frame{frame_duration_formatted}.jpg"),
                     frame,
@@ -344,7 +344,7 @@ class Video(GenericFile.File):
     def __hash__(self) -> int:
         return hash(self.sha256())
         # return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
-    def __format__(self, format_spec: str, /) -> str:
+    def __format__(self, format_spec: str, /) -> unicode:
         """Return the object in tabular format."""
         name = self.name
         iterations = 0
@@ -357,7 +357,7 @@ class Video(GenericFile.File):
         return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {self.dimensions!s:<10}"
 
     @staticmethod
-    def fmtheader() -> str | LiteralString:
+    def fmtheader() -> unicode:
         template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n"
         header = template.format(
             "File", "Num Frames", "Bitrate", "Size", "Codec", "Duration", "FPS", "Dimensions"
