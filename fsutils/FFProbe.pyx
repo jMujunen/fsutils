@@ -189,7 +189,9 @@ class FFStream:
                 try:
                     size = (int(width), int(height))
                 except ValueError:
-                    raise Exceptions.FFProbeError(f"None integer size {width}:{height}") from ValueError
+                    raise Exceptions.FFProbeError(
+                        f"None integer size {width}:{height}"
+                    ) from ValueError
         else:
             return None
 

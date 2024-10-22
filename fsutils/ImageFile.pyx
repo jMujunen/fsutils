@@ -329,7 +329,9 @@ class Img(GenericFile.File):
             else:
                 name = name.split(" ")[0]
             iterations += 1
-        return " | ".join([name, str(self.size_human), str(self.dimensions), str(self.capture_date)])
+        return " | ".join(
+            [name, str(self.size_human), str(self.dimensions), str(self.capture_date)]
+        )
 
     @staticmethod
     def fmtheader() -> str:

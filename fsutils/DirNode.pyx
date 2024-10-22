@@ -83,7 +83,9 @@ class Dir(GenericFile.File):
         # return [f.name for f in self.objects if not f.is_dir()]
 
     @property
-    def file_objects(self) -> list[GenericFile.File | LogFile.Log | ImageFile.Img | VideoFile.Video | GitObject.Git]:
+    def file_objects(
+        self,
+    ) -> list[GenericFile.File | LogFile.Log | ImageFile.Img | VideoFile.Video | GitObject.Git]:
         """Return a list of objects contained in the directory.
 
         This property iterates over all items in the directory and filters out those that are instances
@@ -187,7 +189,6 @@ class Dir(GenericFile.File):
         """
         return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
 
-
     def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
 
@@ -200,7 +201,6 @@ class Dir(GenericFile.File):
         """
         hashes = self.serialize(replace=refresh)
         return [value for value in hashes.values() if len(value) > num_keep]
-
 
     def load_database(self) -> dict[int, list[str]]:
         """Deserialize the pickled database."""

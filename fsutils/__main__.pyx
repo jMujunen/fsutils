@@ -183,7 +183,11 @@ def video_parser(arguments: argparse.Namespace) -> Any:
             return f"Invalid video command: {arguments.video} {arguments.action}"
 
     videos = (
-        [VideoFile.Video(file) for file in arguments.PATH if isinstance(VideoFile.Video(file), VideoFile.Video)]
+        [
+            VideoFile.Video(file)
+            for file in arguments.PATH
+            if isinstance(VideoFile.Video(file), VideoFile.Video)
+        ]
         if isinstance(arguments.PATH, list)
         else [VideoFile.Video(arguments.PATH)]
     )

@@ -1,8 +1,6 @@
 """fsutils - a collection of utilities for file system manipulation and data extraction."""
 
-from . import (
-    DirNode as DirNode
-)
+from . import DirNode as DirNode
 from . import (
     FFProbe as FFProbe,
 )

@@ -144,11 +144,15 @@ class Video(GenericFile.File):
         """Return the first video stream."""
         try:
             return next(
-                stream for stream in FFProbe.FFProbe(str(self.resolve())).streams if stream.is_video()
+                stream
+                for stream in FFProbe.FFProbe(str(self.resolve())).streams
+                if stream.is_video()
             )
         except StopIteration:
             if self.is_corrupt:
-                raise Exceptions.CorruptMediaError(f"{self.absolute()} is corrupt.") from StopIteration
+                raise Exceptions.CorruptMediaError(
+                    f"{self.absolute()} is corrupt."
+                ) from StopIteration
         except IndexError:
             if self.is_corrupt:
                 raise Exceptions.CorruptMediaError(f"{self.absolute()} is corrupt.") from IndexError
@@ -221,7 +225,6 @@ class Video(GenericFile.File):
         )
         # Other options: "-pix_fmt","rgb24" |
         return ImageFile.Img(output_path)
-
 
     def compress(self, **kwargs: Any) -> "Video":
         """Compress video using x265 codec with crf 18.
@@ -321,7 +324,14 @@ class Video(GenericFile.File):
     def fmtheader() -> str | LiteralString:
         template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n"
         header = template.format(
-            "GenericFile.File", "Num Frames", "Bitrate", "Size", "Codec", "Duration", "FPS", "Dimensions"
+            "GenericFile.File",
+            "Num Frames",
+            "Bitrate",
+            "Size",
+            "Codec",
+            "Duration",
+            "FPS",
+            "Dimensions",
         )
         linebreak = template.format(
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10
