@@ -10,7 +10,6 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
@@ -145,7 +144,7 @@ class LogMetaData:
             raise FileNotFoundError("The file does not exist.")
         if self.path.suffix not in [".csv", ".txt", ".log"]:
             return
-        self.__dict__.update(self.preset.__dict__)
+        self.__dict__.update(self.preset().__dict__)
 
         with contextlib.suppress(Exception):
             self.df = pd.read_csv(
@@ -172,6 +171,7 @@ class Log(File, LogMetaData):
         self.encoding = encoding
         super().__init__(path, encoding)
         LogMetaData.__init__(self, path=Path(path), **kwargs)
+        del self._content
 
     def __hash__(self):
         """Return a hash of the log file."""
@@ -273,3 +273,6 @@ class Log(File, LogMetaData):
     def sanatize(self):
         """Sanitize the log file."""
         header = self.head
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', COLUMNS={[item for item in (vars(self.preset())) if item.endswith('COLS')]}"
