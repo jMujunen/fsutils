@@ -10,6 +10,7 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
@@ -22,37 +23,32 @@ class Hwinfo:
     SEP: str = ","
     ENCODING: str = "iso-8859-1"
     GPU_COLS: tuple[str, ...] = ("GPU Power [W]",)
-    TEMP_COLS: tuple[str, ...] = field(
-        default=(
-            "System Temp [°C]",
-            "CPU Package [°C]",
-            "GPU Temperature [°C]",
-            "GPU Memory Junction Temperature [°C]",
-            "GPU Hot Spot Temperature [°C]",
-        )
+    TEMP_COLS: tuple[str, ...] = (
+        "System Temp [°C]",
+        "CPU Package [°C]",
+        "GPU Temperature [°C]",
+        "GPU Memory Junction Temperature [°C]",
+        "GPU Hot Spot Temperature [°C]",
     )
-    FPS_COLS: tuple[str, ...] = field(
-        default=(
-            "Framerate (Presented) [FPS]",
-            "Framerate (Displayed) [FPS]",
-            "Framerate [FPS]",
-            "Framerate 1% Low [FPS]",
-            "Framerate 0.1% Low [FPS]",
-        )
+
+    FPS_COLS: tuple[str, ...] = (
+        "Framerate (Presented) [FPS]",
+        "Framerate (Displayed) [FPS]",
+        "Framerate [FPS]",
+        "Framerate 1% Low [FPS]",
+        "Framerate 0.1% Low [FPS]",
     )
-    LATENCY_COLS: tuple[str, ...] = field(
-        default=(
-            "Frame Time [ms]",
-            "GPU Busy [ms]",
-            "Frame Time [ms].1",
-            "GPU Wait [ms]",
-            "CPU Busy [ms]",
-            "CPU Wait [ms]",
-        )
+
+    LATENCY_COLS: tuple[str, ...] = (
+        "Frame Time [ms]",
+        "GPU Busy [ms]",
+        "Frame Time [ms].1",
+        "GPU Wait [ms]",
+        "CPU Busy [ms]",
+        "CPU Wait [ms]",
     )
-    VOLT_COLS: tuple[str, ...] = field(
-        default=("Vcore [V]", "VIN3 [V]", "+12V [V]", "GPU Core Voltage [V]")
-    )
+
+    VOLT_COLS: tuple[str, ...] = ("Vcore [V]", "VIN3 [V]", "+12V [V]", "GPU Core Voltage [V]")
 
     INDEX_COL = 1
 
@@ -66,9 +62,7 @@ class Nvidia:
     MISC_COLS: tuple[str, ...] = ("GPU1 Voltage(Milli Volts)",)
     GPU_COLS: tuple[str, ...] = ("GPU1 Frequency(MHz)", "GPU1 Memory Frequency(MHz)")
     USAGE_COLS: tuple[str, ...] = ("CPU Utilization(%)", "GPU1 Utilization(%)")
-    LATENCY_COLS: tuple[str, ...] = field(
-        default=("Render Latency(MSec)", "Average PC Latency(MSec)")
-    )
+    LATENCY_COLS: tuple[str, ...] = ("Render Latency(MSec)", "Average PC Latency(MSec)")
     FPS_COLS: tuple[str, ...] = ("FPS",)
     INDEX_COL = 0
 
@@ -113,9 +107,12 @@ class Gpuz:
         "CPU Temperature [°C]",
     )
 
-    USAGE_COLS: tuple[str, ...] = field(
-        default=("GPU Usage [%]", "Memory Controller Load [%]", "Power Consumption (%) [% TDP]")
+    USAGE_COLS: tuple[str, ...] = (
+        "GPU Usage [%]",
+        "Memory Controller Load [%]",
+        "Power Consumption (%) [% TDP]",
     )
+
     VOLT_COLS: tuple[str, ...] = ("GPU Voltage [V]",)
     CLOCK_COLS: tuple[str, ...] = ("GPU Clock [MHz]", "Memory Clock [MHz]")
     MISC_COLS: tuple[str, ...] = ("Board Power Draw [W]",)
@@ -142,7 +139,7 @@ class LogMetaData:
     def __post_init__(self):
         if not self.path.exists():
             raise FileNotFoundError("The file does not exist.")
-        if self.path.suffix not in [".csv", ".txt", ".log"]:
+        if self.path.suffix.lower() not in [".csv", ".txt", ".log"]:
             return
         self.__dict__.update(self.preset().__dict__)
 
@@ -150,7 +147,7 @@ class LogMetaData:
             self.df = pd.read_csv(
                 self.path,
                 sep=self.preset.SEP,
-                encoding=self.encoding,
+                encoding=self.preset.ENCODING,
                 engine="python",
                 index_col=self.preset.INDEX_COL,
             )
@@ -169,9 +166,8 @@ class Log(File, LogMetaData):
     ) -> None:
         """Initialize the File and Log classes with the given parameters."""
         self.encoding = encoding
-        super().__init__(path, encoding)
         LogMetaData.__init__(self, path=Path(path), **kwargs)
-        del self._content
+        super().__init__(path, encoding)
 
     def __hash__(self):
         """Return a hash of the log file."""
@@ -275,4 +271,4 @@ class Log(File, LogMetaData):
         header = self.head
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', COLUMNS={[item for item in (vars(self.preset())) if item.endswith('COLS')]}"
+        return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', COLUMNS={[item for item in (vars(self.preset)) if item.endswith('COLS')]}"
