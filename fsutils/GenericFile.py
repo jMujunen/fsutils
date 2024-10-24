@@ -5,6 +5,7 @@ import os
 import pickle
 import re
 from collections.abc import Iterator
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -125,7 +126,7 @@ class File(Path):
 
     def _read_chunk(self, size=4096) -> bytes:
         """Read a chunk of the file and return it as bytes."""
-        with open(self.path, "rb") as f:
+        with open(self.path, "rb") as f:  # noqa
             return f.read(size)
 
     def md5_checksum(self, size=4096) -> str:
@@ -152,6 +153,21 @@ class File(Path):
     def is_video(self) -> bool:
         """Check if the file is a video."""
         return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video"))
+
+    @property
+    def mtime(self) -> datetime:
+        """Return the last modification time of the file."""
+        return datetime.fromtimestamp(self.stat().st_mtime)
+
+    @property
+    def ctime(self) -> datetime:
+        """Return the last metadata change of the file."""
+        return datetime.fromtimestamp(self.stat().st_ctime)
+
+    @property
+    def atime(self) -> datetime:
+        """Return the last access time of the file."""
+        return datetime.fromtimestamp(self.stat().st_atime)
 
     def detect_encoding(self) -> str:
         """Detect encoding of the file."""

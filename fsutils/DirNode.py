@@ -10,6 +10,7 @@ from collections.abc import Generator, Iterator
 from pathlib import Path
 from typing import LiteralString
 
+from ProgressBar import ProgressBar
 from size import Size
 from ThreadPoolHelper import Pool
 
@@ -85,9 +86,6 @@ class Dir(File):
     def file_objects(self) -> list[File | Log | Img | Video | Git]:
         """Return a list of objects contained in the directory.
 
-        This property iterates over all items in the directory and filters out those that are instances
-        of File,  Log, Img, Video, or Git, excluding directories.
-
         Returns
         -------
             List[File,  Log, Img, Video, Git]: A list of file objects.
@@ -143,7 +141,7 @@ class Dir(File):
         return list(filter(lambda x: isinstance(x, Dir), self.__iter__()))
 
     @property
-    def summary(self) -> None:
+    def describe(self) -> None:
         """Print a formatted table of each file extention and their count."""
         if not self.metadata:
             self.metadata = defaultdict(int)
@@ -191,26 +189,6 @@ class Dir(File):
         """
         return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
 
-    def query_image(self, image: Img, threshold=10, method="phash") -> list[Img]:
-        """Scan self for images with has values similar to the one of the given image."""
-        pool = Pool()
-        similar_images = []
-
-        hash_to_query = image.calculate_hash(method)
-        count = 0
-        for result in pool.execute(lambda x: (x.calculate_hash, x), self.images, progress_bar=True):
-            if result:
-                h, img = result
-                try:
-                    distance = abs(hash_to_query - h)
-                    print(f"{count:60}", end="\r")
-                    if distance < threshold:
-                        similar_images.append((img, distance))
-                        count += 1
-                except Exception:
-                    print("\033[31mError while calculating hash difference: {e!r}\033[0m")
-        return similar_images
-
     def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
 
@@ -223,35 +201,6 @@ class Dir(File):
         """
         hashes = self.serialize(replace=refresh)
         return [value for value in hashes.values() if len(value) > num_keep]
-
-    def sort(self, specifier: str, reverse=True) -> list[str]:
-        """Sort the files and directories by the specifying attribute."""
-        specs = {
-            "mtime": lambda x: datetime.datetime.fromtimestamp(x.stat().st_mtime).strftime(
-                "%Y-%m-%d %H:%M:%S",
-            ),
-            "ctime": lambda x: datetime.datetime.fromtimestamp(x.stat().st_ctime).strftime(
-                "%Y-%m-%d %H:%M:%S",
-            ),
-            "atime": lambda x: datetime.datetime.fromtimestamp(x.stat().st_atime).strftime(
-                "%Y-%m-%d %H:%M:%S",
-            ),
-            "size": lambda x: x.size,
-            "name": lambda x: x.basename,
-            "ext": lambda x: x.suffix,
-        }
-        result = sorted(
-            [specs.get(specifier, "mtime")(file) for file in self.file_objects],
-            key=lambda x: x[0],
-            reverse=reverse,
-        )
-
-        # # Print the table
-        format_string = "{:<25}{:<40}"
-        print(format_string.format(specifier, "File"))
-        for f in result:
-            print(format_string.format(*f))
-        return result
 
     def load_database(self) -> dict[int, list[str]]:
         """Deserialize the pickled database."""
