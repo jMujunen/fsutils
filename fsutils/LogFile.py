@@ -50,7 +50,7 @@ class Hwinfo:
 
     VOLT_COLS: tuple[str, ...] = ("Vcore [V]", "VIN3 [V]", "+12V [V]", "GPU Core Voltage [V]")
 
-    INDEX_COL = 1
+    INDEX_COL: int = 1
 
 
 @dataclass
@@ -64,7 +64,7 @@ class Nvidia:
     USAGE_COLS: tuple[str, ...] = ("CPU Utilization(%)", "GPU1 Utilization(%)")
     LATENCY_COLS: tuple[str, ...] = ("Render Latency(MSec)", "Average PC Latency(MSec)")
     FPS_COLS: tuple[str, ...] = ("FPS",)
-    INDEX_COL = 0
+    INDEX_COL: int = 0
 
 
 @dataclass
@@ -78,7 +78,7 @@ class Custom:
     TEMP_COLS: tuple[str, ...] = ("system_temp", "gpu_temp", "cpu_temp")
     CPU_COLS: tuple[str, ...] = ("cpu_max_clock", "cpu_avg_clock")
     VOLT_COLS: tuple[str, ...] = ("gpu_voltage", "cpu_voltage")
-    INDEX_COL = 0
+    INDEX_COL: int = 0
 
 
 @dataclass
@@ -92,7 +92,7 @@ class Ping:
     TEMP_COLS: None = None
     CPU_COLS: None = None
     VOLT_COLS: None = None
-    INDEX_COL = 0
+    INDEX_COL: int = 0
     _SANITIZER = re.compile(r"(\d{2}:\d{2}:\d{2},\d+\.\d+)")
 
 
@@ -116,7 +116,7 @@ class Gpuz:
     VOLT_COLS: tuple[str, ...] = ("GPU Voltage [V]",)
     CLOCK_COLS: tuple[str, ...] = ("GPU Clock [MHz]", "Memory Clock [MHz]")
     MISC_COLS: tuple[str, ...] = ("Board Power Draw [W]",)
-    INDEX_COL = 0
+    INDEX_COL: int = 0
 
 
 class Presets(Enum):
@@ -149,8 +149,13 @@ class LogMetaData:
                 sep=self.preset.SEP,
                 encoding=self.preset.ENCODING,
                 engine="python",
-                index_col=self.preset.INDEX_COL,
-            )
+                # index_col=self.preset.INDEX_COL,
+            ).head(-5)
+            for col in self.df.columns:
+                with contextlib.suppress(ValueError):
+                    self.df[col] = self.df[col].astype(float)
+
+            self.df.drop(columns=["Date"], inplace=True)
 
 
 class Log(File, LogMetaData):
@@ -192,6 +197,8 @@ class Log(File, LogMetaData):
             self.df = pd.DataFrame(parsed_data).set_index(0)
         # Create index from timestamp
         # if re.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", str(self.df.index[0])):
+        self.df.index = self.df[self.df.columns[self.INDEX_COL]]  # type: ignore
+        # self.df.drop(self.df.columns[self.INDEX_COL])  # type: ignore
         self.df.index = pd.to_datetime(self.df.index)
         self.df.index = self.df.index.strftime("%H:%M")
         # Plot the data even if some of the specified columns are missing from the file
@@ -252,23 +259,16 @@ class Log(File, LogMetaData):
         plt.xticks(rotation=45, fontsize=12, color="#d3c6aa")
         plt.show()
 
-    def compare(self, other):
-        """Compare two log files."""
-        # Find common columns"(.*)",
-        # common_columns = set(self.df.columns).intersection(other.df.columns.tolist())
-        df = self.df.head(min(len(self.df), len(other.df)))
-        other_df = other.df.head(min(len(self.df), len(other.df)))
-        print(len(df))
-        print(len(other_df))
-        print(df.columns)
-        print(other_df.columns)
-        print(df)
-        print(other_df)
-        return df.compare(other_df)
-
     def sanatize(self):
         """Sanitize the log file."""
         header = self.head
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', COLUMNS={[item for item in (vars(self.preset)) if item.endswith('COLS')]}"
+        return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', size_human={self.size_human})"
+
+    def compare(self, other):
+        """Compare two log files."""
+        max_rows = min(len(self.df), len(other.df))
+        df = self.df.head(max_rows)
+        other_df = other.df.head(max_rows)
+        return df.compare(other_df)
