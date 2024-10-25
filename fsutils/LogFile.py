@@ -266,9 +266,13 @@ class Log(File, LogMetaData):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', size_human={self.size_human})"
 
-    def compare(self, other):
+    def compare(self, other: pd.DataFrame) -> pd.DataFrame:
         """Compare two log files."""
-        max_rows = min(len(self.df), len(other.df))
+        max_rows = min(self.df, other)
+        print(max_rows)
         df = self.df.head(max_rows)
-        other_df = other.df.head(max_rows)
+        other_df = other.head(max_rows)
+        print(other_df.index)
+        print(df.index)
+
         return df.compare(other_df)
