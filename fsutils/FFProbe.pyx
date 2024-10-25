@@ -8,12 +8,13 @@ import platform
 import re
 import subprocess
 from pathlib import Path
+import cython
 
 # from ..fsutils import VideoFile.Video
 from . import Exceptions
 
 
-class FFProbe:
+cdef class FFProbe:
     """FFProbe wraps the ffprobe command and pulls the data into an object form::
     metadata = FFProbe("multimedia-file.mov").
     """
@@ -120,7 +121,7 @@ class FFProbe:
         return "FFprobe(metadata={metadata}, video={video}, audio={audio})".format(**vars(self))
 
 
-class FFStream:
+cdef class FFStream:
     """An object representation of an individual stream in a multimedia file."""
 
     def __init__(self, data_lines):
@@ -269,3 +270,11 @@ class FFStream:
     def aspect_ratio(self) -> str | None:
         """Return the stream's display aspect ratio."""
         return self.__dict__.get("display_aspect_ratio", None)
+
+
+class MetaData:
+    """Class to represent metadata of a media file."""
+    def __init__(self, str video_path):
+        cdef str data
+
+        self.data = subprocess.getoutput(f"ffprobe -print_format json -show_streams {video_path}")

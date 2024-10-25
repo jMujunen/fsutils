@@ -5,7 +5,7 @@
     "distutils": {
         "name": "fsutils.GenericFile",
         "sources": [
-            "GenericFile.pyx"
+            "/home/joona/python/Projects/fsutils/fsutils/GenericFile.pyx"
         ]
     },
     "module_name": "fsutils.GenericFile"

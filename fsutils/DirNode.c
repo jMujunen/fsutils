@@ -5,7 +5,7 @@
     "distutils": {
         "name": "fsutils.DirNode",
         "sources": [
-            "DirNode.pyx"
+            "/home/joona/python/Projects/fsutils/fsutils/DirNode.pyx"
         ]
     },
     "module_name": "fsutils.DirNode"
@@ -4102,7 +4102,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_codeobj__52 __pyx_mstate_global->__pyx_codeobj__52
 /* #### Code section: module_code ### */
 
-/* "fsutils/DirNode.pyx":59
+/* "fsutils/DirNode.pyx":58
  *     _encoding: str
  * 
  *     def __init__(self, path: str | Path, *args, **kwargs) -> None:             # <<<<<<<<<<<<<<
@@ -4178,7 +4178,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 58, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -4186,15 +4186,15 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 58, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 2, 1); __PYX_ERR(0, 59, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 2, 1); __PYX_ERR(0, 58, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
         const Py_ssize_t used_pos_args = (kwd_pos_args < 2) ? kwd_pos_args : 2;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, __pyx_v_kwargs, values + 0, used_pos_args, "__init__") < 0)) __PYX_ERR(0, 59, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, __pyx_v_kwargs, values + 0, used_pos_args, "__init__") < 0)) __PYX_ERR(0, 58, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs < 2)) {
       goto __pyx_L5_argtuple_error;
@@ -4207,7 +4207,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 2, __pyx_nargs); __PYX_ERR(0, 59, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 2, __pyx_nargs); __PYX_ERR(0, 58, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4253,7 +4253,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 1);
 
-  /* "fsutils/DirNode.pyx":67
+  /* "fsutils/DirNode.pyx":66
  * 
  *         """
  *         super().__init__(path, *args, **kwargs)             # <<<<<<<<<<<<<<
@@ -4261,56 +4261,56 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
  *         if self._pkl_path.exists():
  */
   __pyx_t_1 = __Pyx_CyFunction_GetClassObj(__pyx_self);
-  if (!__pyx_t_1) { PyErr_SetString(PyExc_SystemError, "super(): empty __class__ cell"); __PYX_ERR(0, 67, __pyx_L1_error) }
+  if (!__pyx_t_1) { PyErr_SetString(PyExc_SystemError, "super(): empty __class__ cell"); __PYX_ERR(0, 66, __pyx_L1_error) }
   __Pyx_INCREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self);
   __Pyx_GIVEREF(__pyx_v_self);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self)) __PYX_ERR(0, 67, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self)) __PYX_ERR(0, 66, __pyx_L1_error);
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_super, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_super, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_path);
   __Pyx_GIVEREF(__pyx_v_path);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_path)) __PYX_ERR(0, 67, __pyx_L1_error);
-  __pyx_t_3 = PyNumber_Add(__pyx_t_1, __pyx_v_args); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_path)) __PYX_ERR(0, 66, __pyx_L1_error);
+  __pyx_t_3 = PyNumber_Add(__pyx_t_1, __pyx_v_args); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyDict_Copy(__pyx_v_kwargs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_1 = PyDict_Copy(__pyx_v_kwargs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "fsutils/DirNode.pyx":68
+  /* "fsutils/DirNode.pyx":67
  *         """
  *         super().__init__(path, *args, **kwargs)
  *         self._pkl_path = Path(self.path, f"{self.prefix}.pkl")             # <<<<<<<<<<<<<<
  *         if self._pkl_path.exists():
  *             self.db = pickle.loads(self._pkl_path.read_bytes())
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Path); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Path); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_path); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_path); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_prefix); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_prefix); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_t_2, __pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_t_2, __pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyUnicode_ConcatInPlace(__pyx_t_5, __pyx_kp_u_pkl); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyUnicode_ConcatInPlace(__pyx_t_5, __pyx_kp_u_pkl); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -4333,23 +4333,23 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path, __pyx_t_4) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path, __pyx_t_4) < 0) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "fsutils/DirNode.pyx":69
+  /* "fsutils/DirNode.pyx":68
  *         super().__init__(path, *args, **kwargs)
  *         self._pkl_path = Path(self.path, f"{self.prefix}.pkl")
  *         if self._pkl_path.exists():             # <<<<<<<<<<<<<<
  *             self.db = pickle.loads(self._pkl_path.read_bytes())
  *         else:
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_exists); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_exists); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -4370,29 +4370,29 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
     PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
     __pyx_t_4 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+1-__pyx_t_6, 0+__pyx_t_6);
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 69, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "fsutils/DirNode.pyx":70
+    /* "fsutils/DirNode.pyx":69
  *         self._pkl_path = Path(self.path, f"{self.prefix}.pkl")
  *         if self._pkl_path.exists():
  *             self.db = pickle.loads(self._pkl_path.read_bytes())             # <<<<<<<<<<<<<<
  *         else:
  *             self.db = {}
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_pickle); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_pickle); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_loads); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_loads); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_read_bytes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_read_bytes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_3 = NULL;
@@ -4413,7 +4413,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
       PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
       __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_5, __pyx_callargs+1-__pyx_t_6, 0+__pyx_t_6);
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
@@ -4436,14 +4436,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
       __pyx_t_4 = __Pyx_PyObject_FastCall(__pyx_t_1, __pyx_callargs+1-__pyx_t_6, 1+__pyx_t_6);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 70, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 69, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     }
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_db, __pyx_t_4) < 0) __PYX_ERR(0, 70, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_db, __pyx_t_4) < 0) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "fsutils/DirNode.pyx":69
+    /* "fsutils/DirNode.pyx":68
  *         super().__init__(path, *args, **kwargs)
  *         self._pkl_path = Path(self.path, f"{self.prefix}.pkl")
  *         if self._pkl_path.exists():             # <<<<<<<<<<<<<<
@@ -4453,7 +4453,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
     goto __pyx_L3;
   }
 
-  /* "fsutils/DirNode.pyx":72
+  /* "fsutils/DirNode.pyx":71
  *             self.db = pickle.loads(self._pkl_path.read_bytes())
  *         else:
  *             self.db = {}             # <<<<<<<<<<<<<<
@@ -4461,33 +4461,33 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
  *         self._objects = []
  */
   /*else*/ {
-    __pyx_t_4 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 72, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 71, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_db, __pyx_t_4) < 0) __PYX_ERR(0, 72, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_db, __pyx_t_4) < 0) __PYX_ERR(0, 71, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __pyx_L3:;
 
-  /* "fsutils/DirNode.pyx":74
+  /* "fsutils/DirNode.pyx":73
  *             self.db = {}
  *         # MetaData.__post_init__(self)
  *         self._objects = []             # <<<<<<<<<<<<<<
  *         self.metadata = defaultdict(int)
  * 
  */
-  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_objects, __pyx_t_4) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_objects, __pyx_t_4) < 0) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "fsutils/DirNode.pyx":75
+  /* "fsutils/DirNode.pyx":74
  *         # MetaData.__post_init__(self)
  *         self._objects = []
  *         self.metadata = defaultdict(int)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_defaultdict); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_defaultdict); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = NULL;
   __pyx_t_6 = 0;
@@ -4507,14 +4507,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
     PyObject *__pyx_callargs[2] = {__pyx_t_2, ((PyObject *)(&PyInt_Type))};
     __pyx_t_4 = __Pyx_PyObject_FastCall(__pyx_t_1, __pyx_callargs+1-__pyx_t_6, 1+__pyx_t_6);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 75, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 74, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_metadata, __pyx_t_4) < 0) __PYX_ERR(0, 75, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_metadata, __pyx_t_4) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "fsutils/DirNode.pyx":59
+  /* "fsutils/DirNode.pyx":58
  *     _encoding: str
  * 
  *     def __init__(self, path: str | Path, *args, **kwargs) -> None:             # <<<<<<<<<<<<<<
@@ -4539,7 +4539,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir___init__(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":77
+/* "fsutils/DirNode.pyx":76
  *         self.metadata = defaultdict(int)
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -4601,12 +4601,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "files") < 0)) __PYX_ERR(0, 77, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "files") < 0)) __PYX_ERR(0, 76, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -4617,7 +4617,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("files", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 77, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("files", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 76, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4681,35 +4681,35 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("files", 1);
 
-  /* "fsutils/DirNode.pyx":80
+  /* "fsutils/DirNode.pyx":79
  *     def files(self) -> list[str]:
  *         """Return a list of file names in the directory represented by this object."""
  *         files = []             # <<<<<<<<<<<<<<
  *         for f in self.objects:
  *             try:
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_files = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "fsutils/DirNode.pyx":81
+  /* "fsutils/DirNode.pyx":80
  *         """Return a list of file names in the directory represented by this object."""
  *         files = []
  *         for f in self.objects:             # <<<<<<<<<<<<<<
  *             try:
  *                 if not f.is_dir():
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_objects_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_objects_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2);
     __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 80, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 80, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -4718,28 +4718,28 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 81, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 80, __pyx_L1_error)
           #endif
           if (__pyx_t_3 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely((0 < 0))) __PYX_ERR(0, 81, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely((0 < 0))) __PYX_ERR(0, 80, __pyx_L1_error)
         #else
-        __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         {
           Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_2);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 81, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 80, __pyx_L1_error)
           #endif
           if (__pyx_t_3 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely((0 < 0))) __PYX_ERR(0, 81, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely((0 < 0))) __PYX_ERR(0, 80, __pyx_L1_error)
         #else
-        __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -4749,7 +4749,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 81, __pyx_L1_error)
+          else __PYX_ERR(0, 80, __pyx_L1_error)
         }
         break;
       }
@@ -4758,7 +4758,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
     __Pyx_XDECREF_SET(__pyx_v_f, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "fsutils/DirNode.pyx":82
+    /* "fsutils/DirNode.pyx":81
  *         files = []
  *         for f in self.objects:
  *             try:             # <<<<<<<<<<<<<<
@@ -4774,14 +4774,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
       __Pyx_XGOTREF(__pyx_t_7);
       /*try:*/ {
 
-        /* "fsutils/DirNode.pyx":83
+        /* "fsutils/DirNode.pyx":82
  *         for f in self.objects:
  *             try:
  *                 if not f.is_dir():             # <<<<<<<<<<<<<<
  *                     files.append(f.name)
  *             except Exception as e:
  */
-        __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_is_dir); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 83, __pyx_L5_error)
+        __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_is_dir); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 82, __pyx_L5_error)
         __Pyx_GOTREF(__pyx_t_8);
         __pyx_t_9 = NULL;
         __pyx_t_10 = 0;
@@ -4801,28 +4801,28 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
           PyObject *__pyx_callargs[2] = {__pyx_t_9, NULL};
           __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_8, __pyx_callargs+1-__pyx_t_10, 0+__pyx_t_10);
           __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
-          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L5_error)
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_1);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         }
-        __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_11 < 0))) __PYX_ERR(0, 83, __pyx_L5_error)
+        __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_11 < 0))) __PYX_ERR(0, 82, __pyx_L5_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_12 = (!__pyx_t_11);
         if (__pyx_t_12) {
 
-          /* "fsutils/DirNode.pyx":84
+          /* "fsutils/DirNode.pyx":83
  *             try:
  *                 if not f.is_dir():
  *                     files.append(f.name)             # <<<<<<<<<<<<<<
  *             except Exception as e:
  *                 # continue
  */
-          __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_name); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L5_error)
+          __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_f, __pyx_n_s_name); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_1);
-          __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_files, __pyx_t_1); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 84, __pyx_L5_error)
+          __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_files, __pyx_t_1); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 83, __pyx_L5_error)
           __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-          /* "fsutils/DirNode.pyx":83
+          /* "fsutils/DirNode.pyx":82
  *         for f in self.objects:
  *             try:
  *                 if not f.is_dir():             # <<<<<<<<<<<<<<
@@ -4831,7 +4831,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
  */
         }
 
-        /* "fsutils/DirNode.pyx":82
+        /* "fsutils/DirNode.pyx":81
  *         files = []
  *         for f in self.objects:
  *             try:             # <<<<<<<<<<<<<<
@@ -4848,7 +4848,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "fsutils/DirNode.pyx":85
+      /* "fsutils/DirNode.pyx":84
  *                 if not f.is_dir():
  *                     files.append(f.name)
  *             except Exception as e:             # <<<<<<<<<<<<<<
@@ -4858,7 +4858,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
       __pyx_t_14 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
       if (__pyx_t_14) {
         __Pyx_AddTraceback("fsutils.DirNode.Dir.files", __pyx_clineno, __pyx_lineno, __pyx_filename);
-        if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_8, &__pyx_t_9) < 0) __PYX_ERR(0, 85, __pyx_L7_except_error)
+        if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_8, &__pyx_t_9) < 0) __PYX_ERR(0, 84, __pyx_L7_except_error)
         __Pyx_XGOTREF(__pyx_t_1);
         __Pyx_XGOTREF(__pyx_t_8);
         __Pyx_XGOTREF(__pyx_t_9);
@@ -4866,18 +4866,18 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
         __pyx_v_e = __pyx_t_8;
         /*try:*/ {
 
-          /* "fsutils/DirNode.pyx":87
+          /* "fsutils/DirNode.pyx":86
  *             except Exception as e:
  *                 # continue
  *                 print(f"{e}: {f}")             # <<<<<<<<<<<<<<
  *         return files
  *         # return [f.name for f in self.objects if not f.is_dir()]
  */
-          __pyx_t_15 = PyTuple_New(3); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 87, __pyx_L19_error)
+          __pyx_t_15 = PyTuple_New(3); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 86, __pyx_L19_error)
           __Pyx_GOTREF(__pyx_t_15);
           __pyx_t_16 = 0;
           __pyx_t_17 = 127;
-          __pyx_t_18 = __Pyx_PyObject_FormatSimple(__pyx_v_e, __pyx_empty_unicode); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 87, __pyx_L19_error)
+          __pyx_t_18 = __Pyx_PyObject_FormatSimple(__pyx_v_e, __pyx_empty_unicode); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 86, __pyx_L19_error)
           __Pyx_GOTREF(__pyx_t_18);
           __pyx_t_17 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_18) > __pyx_t_17) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_18) : __pyx_t_17;
           __pyx_t_16 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_18);
@@ -4888,23 +4888,23 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
           __pyx_t_16 += 2;
           __Pyx_GIVEREF(__pyx_kp_u_);
           PyTuple_SET_ITEM(__pyx_t_15, 1, __pyx_kp_u_);
-          __pyx_t_18 = __Pyx_PyObject_FormatSimple(__pyx_v_f, __pyx_empty_unicode); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 87, __pyx_L19_error)
+          __pyx_t_18 = __Pyx_PyObject_FormatSimple(__pyx_v_f, __pyx_empty_unicode); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 86, __pyx_L19_error)
           __Pyx_GOTREF(__pyx_t_18);
           __pyx_t_17 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_18) > __pyx_t_17) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_18) : __pyx_t_17;
           __pyx_t_16 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_18);
           __Pyx_GIVEREF(__pyx_t_18);
           PyTuple_SET_ITEM(__pyx_t_15, 2, __pyx_t_18);
           __pyx_t_18 = 0;
-          __pyx_t_18 = __Pyx_PyUnicode_Join(__pyx_t_15, 3, __pyx_t_16, __pyx_t_17); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 87, __pyx_L19_error)
+          __pyx_t_18 = __Pyx_PyUnicode_Join(__pyx_t_15, 3, __pyx_t_16, __pyx_t_17); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 86, __pyx_L19_error)
           __Pyx_GOTREF(__pyx_t_18);
           __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-          __pyx_t_15 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_18); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 87, __pyx_L19_error)
+          __pyx_t_15 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_18); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 86, __pyx_L19_error)
           __Pyx_GOTREF(__pyx_t_15);
           __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
           __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
         }
 
-        /* "fsutils/DirNode.pyx":85
+        /* "fsutils/DirNode.pyx":84
  *                 if not f.is_dir():
  *                     files.append(f.name)
  *             except Exception as e:             # <<<<<<<<<<<<<<
@@ -4958,7 +4958,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
       }
       goto __pyx_L7_except_error;
 
-      /* "fsutils/DirNode.pyx":82
+      /* "fsutils/DirNode.pyx":81
  *         files = []
  *         for f in self.objects:
  *             try:             # <<<<<<<<<<<<<<
@@ -4979,7 +4979,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
       __pyx_L12_try_end:;
     }
 
-    /* "fsutils/DirNode.pyx":81
+    /* "fsutils/DirNode.pyx":80
  *         """Return a list of file names in the directory represented by this object."""
  *         files = []
  *         for f in self.objects:             # <<<<<<<<<<<<<<
@@ -4989,7 +4989,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "fsutils/DirNode.pyx":88
+  /* "fsutils/DirNode.pyx":87
  *                 # continue
  *                 print(f"{e}: {f}")
  *         return files             # <<<<<<<<<<<<<<
@@ -5001,7 +5001,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
   __pyx_r = __pyx_v_files;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":77
+  /* "fsutils/DirNode.pyx":76
  *         self.metadata = defaultdict(int)
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5028,7 +5028,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_2files(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":91
+/* "fsutils/DirNode.pyx":90
  *         # return [f.name for f in self.objects if not f.is_dir()]
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5090,12 +5090,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 91, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 90, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "file_objects") < 0)) __PYX_ERR(0, 91, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "file_objects") < 0)) __PYX_ERR(0, 90, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5106,7 +5106,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("file_objects", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 91, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("file_objects", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 90, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5133,7 +5133,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":105
+/* "fsutils/DirNode.pyx":104
  * 
  *         """
  *         return list(filter(lambda x: not isinstance(x, Dir), self))             # <<<<<<<<<<<<<<
@@ -5194,12 +5194,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 105, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 104, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda") < 0)) __PYX_ERR(0, 105, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda") < 0)) __PYX_ERR(0, 104, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5210,7 +5210,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lambda", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 105, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lambda", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 104, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5247,11 +5247,11 @@ static PyObject *__pyx_lambda_funcdef_lambda(CYTHON_UNUSED PyObject *__pyx_self,
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("lambda", 1);
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Dir); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Dir); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyObject_IsInstance(__pyx_v_x, __pyx_t_1); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_2 = PyObject_IsInstance(__pyx_v_x, __pyx_t_1); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyBool_FromLong((!__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong((!__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5268,7 +5268,7 @@ static PyObject *__pyx_lambda_funcdef_lambda(CYTHON_UNUSED PyObject *__pyx_self,
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":91
+/* "fsutils/DirNode.pyx":90
  *         # return [f.name for f in self.objects if not f.is_dir()]
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5286,7 +5286,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_4file_objects(CYTHON_UNUSED PyO
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("file_objects", 1);
 
-  /* "fsutils/DirNode.pyx":105
+  /* "fsutils/DirNode.pyx":104
  * 
  *         """
  *         return list(filter(lambda x: not isinstance(x, Dir), self))             # <<<<<<<<<<<<<<
@@ -5294,27 +5294,27 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_4file_objects(CYTHON_UNUSED PyO
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_12file_objects_lambda, 0, __pyx_n_s_Dir_file_objects_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_12file_objects_lambda, 0, __pyx_n_s_Dir_file_objects_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1)) __PYX_ERR(0, 104, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self);
   __Pyx_GIVEREF(__pyx_v_self);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self)) __PYX_ERR(0, 105, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self)) __PYX_ERR(0, 104, __pyx_L1_error);
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PySequence_ListKeepNew(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PySequence_ListKeepNew(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":91
+  /* "fsutils/DirNode.pyx":90
  *         # return [f.name for f in self.objects if not f.is_dir()]
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5334,7 +5334,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_4file_objects(CYTHON_UNUSED PyO
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":107
+/* "fsutils/DirNode.pyx":106
  *         return list(filter(lambda x: not isinstance(x, Dir), self))
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5396,12 +5396,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 107, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 106, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "content") < 0)) __PYX_ERR(0, 107, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "content") < 0)) __PYX_ERR(0, 106, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5412,7 +5412,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("content", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 107, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("content", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 106, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5456,7 +5456,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("content", 1);
 
-  /* "fsutils/DirNode.pyx":110
+  /* "fsutils/DirNode.pyx":109
  *     def content(self) -> list[str]:
  *         """List the the contents of the toplevel directory."""
  *         try:             # <<<<<<<<<<<<<<
@@ -5472,7 +5472,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "fsutils/DirNode.pyx":111
+      /* "fsutils/DirNode.pyx":110
  *         """List the the contents of the toplevel directory."""
  *         try:
  *             return os.listdir(self.path)             # <<<<<<<<<<<<<<
@@ -5480,12 +5480,12 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
  *             return []
  */
       __Pyx_XDECREF(__pyx_r);
-      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_os); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 111, __pyx_L3_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_os); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 110, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_listdir); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 111, __pyx_L3_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_listdir); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 110, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_path); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 111, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_path); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 110, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __pyx_t_7 = NULL;
       __pyx_t_8 = 0;
@@ -5506,16 +5506,16 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
         __pyx_t_4 = __Pyx_PyObject_FastCall(__pyx_t_6, __pyx_callargs+1-__pyx_t_8, 1+__pyx_t_8);
         __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 111, __pyx_L3_error)
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       }
-      if (!(likely(PyList_CheckExact(__pyx_t_4))||((__pyx_t_4) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_4))) __PYX_ERR(0, 111, __pyx_L3_error)
+      if (!(likely(PyList_CheckExact(__pyx_t_4))||((__pyx_t_4) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_4))) __PYX_ERR(0, 110, __pyx_L3_error)
       __pyx_r = ((PyObject*)__pyx_t_4);
       __pyx_t_4 = 0;
       goto __pyx_L7_try_return;
 
-      /* "fsutils/DirNode.pyx":110
+      /* "fsutils/DirNode.pyx":109
  *     def content(self) -> list[str]:
  *         """List the the contents of the toplevel directory."""
  *         try:             # <<<<<<<<<<<<<<
@@ -5529,7 +5529,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "fsutils/DirNode.pyx":112
+    /* "fsutils/DirNode.pyx":111
  *         try:
  *             return os.listdir(self.path)
  *         except NotADirectoryError:             # <<<<<<<<<<<<<<
@@ -5537,7 +5537,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
  * 
  */
     __Pyx_ErrFetch(&__pyx_t_4, &__pyx_t_6, &__pyx_t_5);
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_NotADirectoryError); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L5_except_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_NotADirectoryError); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 111, __pyx_L5_except_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_9 = __Pyx_PyErr_GivenExceptionMatches(__pyx_t_4, __pyx_t_7);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -5545,12 +5545,12 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
     __pyx_t_4 = 0; __pyx_t_6 = 0; __pyx_t_5 = 0;
     if (__pyx_t_9) {
       __Pyx_AddTraceback("fsutils.DirNode.Dir.content", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_4) < 0) __PYX_ERR(0, 112, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_4) < 0) __PYX_ERR(0, 111, __pyx_L5_except_error)
       __Pyx_XGOTREF(__pyx_t_5);
       __Pyx_XGOTREF(__pyx_t_6);
       __Pyx_XGOTREF(__pyx_t_4);
 
-      /* "fsutils/DirNode.pyx":113
+      /* "fsutils/DirNode.pyx":112
  *             return os.listdir(self.path)
  *         except NotADirectoryError:
  *             return []             # <<<<<<<<<<<<<<
@@ -5558,7 +5558,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
  *     @property
  */
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_7 = PyList_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L5_except_error)
+      __pyx_t_7 = PyList_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_r = ((PyObject*)__pyx_t_7);
       __pyx_t_7 = 0;
@@ -5569,7 +5569,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
     }
     goto __pyx_L5_except_error;
 
-    /* "fsutils/DirNode.pyx":110
+    /* "fsutils/DirNode.pyx":109
  *     def content(self) -> list[str]:
  *         """List the the contents of the toplevel directory."""
  *         try:             # <<<<<<<<<<<<<<
@@ -5596,7 +5596,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
     goto __pyx_L0;
   }
 
-  /* "fsutils/DirNode.pyx":107
+  /* "fsutils/DirNode.pyx":106
  *         return list(filter(lambda x: not isinstance(x, Dir), self))
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5618,7 +5618,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_6content(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":115
+/* "fsutils/DirNode.pyx":114
  *             return []
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5680,12 +5680,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 115, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 114, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "objects") < 0)) __PYX_ERR(0, 115, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "objects") < 0)) __PYX_ERR(0, 114, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5696,7 +5696,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("objects", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 115, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("objects", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 114, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5740,7 +5740,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("objects", 1);
 
-  /* "fsutils/DirNode.pyx":118
+  /* "fsutils/DirNode.pyx":117
  *     def objects(self) -> list[GenericFile.File]:
  *         """Return a list of fsutils objects inside self."""
  *         try:             # <<<<<<<<<<<<<<
@@ -5756,14 +5756,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "fsutils/DirNode.pyx":119
+      /* "fsutils/DirNode.pyx":118
  *         """Return a list of fsutils objects inside self."""
  *         try:
  *             self._objects = list(self.__iter__())             # <<<<<<<<<<<<<<
  *         except AttributeError:
  *             self._objects = []
  */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 119, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 118, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __pyx_t_6 = NULL;
       __pyx_t_7 = 0;
@@ -5783,17 +5783,17 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
         PyObject *__pyx_callargs[2] = {__pyx_t_6, NULL};
         __pyx_t_4 = __Pyx_PyObject_FastCall(__pyx_t_5, __pyx_callargs+1-__pyx_t_7, 0+__pyx_t_7);
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 119, __pyx_L3_error)
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 118, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       }
-      __pyx_t_5 = __Pyx_PySequence_ListKeepNew(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 119, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PySequence_ListKeepNew(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 118, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_objects, __pyx_t_5) < 0) __PYX_ERR(0, 119, __pyx_L3_error)
+      if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_objects, __pyx_t_5) < 0) __PYX_ERR(0, 118, __pyx_L3_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-      /* "fsutils/DirNode.pyx":118
+      /* "fsutils/DirNode.pyx":117
  *     def objects(self) -> list[GenericFile.File]:
  *         """Return a list of fsutils objects inside self."""
  *         try:             # <<<<<<<<<<<<<<
@@ -5810,7 +5810,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "fsutils/DirNode.pyx":120
+    /* "fsutils/DirNode.pyx":119
  *         try:
  *             self._objects = list(self.__iter__())
  *         except AttributeError:             # <<<<<<<<<<<<<<
@@ -5820,21 +5820,21 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
     __pyx_t_8 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
     if (__pyx_t_8) {
       __Pyx_AddTraceback("fsutils.DirNode.Dir.objects", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_4, &__pyx_t_6) < 0) __PYX_ERR(0, 120, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_4, &__pyx_t_6) < 0) __PYX_ERR(0, 119, __pyx_L5_except_error)
       __Pyx_XGOTREF(__pyx_t_5);
       __Pyx_XGOTREF(__pyx_t_4);
       __Pyx_XGOTREF(__pyx_t_6);
 
-      /* "fsutils/DirNode.pyx":121
+      /* "fsutils/DirNode.pyx":120
  *             self._objects = list(self.__iter__())
  *         except AttributeError:
  *             self._objects = []             # <<<<<<<<<<<<<<
  *         return self._objects
  * 
  */
-      __pyx_t_9 = PyList_New(0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 121, __pyx_L5_except_error)
+      __pyx_t_9 = PyList_New(0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 120, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_9);
-      if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_objects, __pyx_t_9) < 0) __PYX_ERR(0, 121, __pyx_L5_except_error)
+      if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_objects, __pyx_t_9) < 0) __PYX_ERR(0, 120, __pyx_L5_except_error)
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -5843,7 +5843,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
     }
     goto __pyx_L5_except_error;
 
-    /* "fsutils/DirNode.pyx":118
+    /* "fsutils/DirNode.pyx":117
  *     def objects(self) -> list[GenericFile.File]:
  *         """Return a list of fsutils objects inside self."""
  *         try:             # <<<<<<<<<<<<<<
@@ -5864,7 +5864,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
     __pyx_L8_try_end:;
   }
 
-  /* "fsutils/DirNode.pyx":122
+  /* "fsutils/DirNode.pyx":121
  *         except AttributeError:
  *             self._objects = []
  *         return self._objects             # <<<<<<<<<<<<<<
@@ -5872,14 +5872,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_objects); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_objects); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 121, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (!(likely(PyList_CheckExact(__pyx_t_6))||((__pyx_t_6) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_6))) __PYX_ERR(0, 122, __pyx_L1_error)
+  if (!(likely(PyList_CheckExact(__pyx_t_6))||((__pyx_t_6) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_6))) __PYX_ERR(0, 121, __pyx_L1_error)
   __pyx_r = ((PyObject*)__pyx_t_6);
   __pyx_t_6 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":115
+  /* "fsutils/DirNode.pyx":114
  *             return []
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5901,7 +5901,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_8objects(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":124
+/* "fsutils/DirNode.pyx":123
  *         return self._objects
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -5963,12 +5963,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 123, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "is_empty") < 0)) __PYX_ERR(0, 124, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "is_empty") < 0)) __PYX_ERR(0, 123, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5979,7 +5979,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("is_empty", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 124, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("is_empty", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 123, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6016,7 +6016,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_10is_empty(CYTHON_UNUSED PyObje
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("is_empty", 1);
 
-  /* "fsutils/DirNode.pyx":127
+  /* "fsutils/DirNode.pyx":126
  *     def is_empty(self) -> bool:
  *         """Check if the directory is empty."""
  *         return len(self.files) == 0             # <<<<<<<<<<<<<<
@@ -6024,17 +6024,17 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_10is_empty(CYTHON_UNUSED PyObje
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_files); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_files); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_2 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyBool_FromLong((__pyx_t_2 == 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong((__pyx_t_2 == 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":124
+  /* "fsutils/DirNode.pyx":123
  *         return self._objects
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6053,7 +6053,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_10is_empty(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":129
+/* "fsutils/DirNode.pyx":128
  *         return len(self.files) == 0
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6115,12 +6115,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 129, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 128, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "images") < 0)) __PYX_ERR(0, 129, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "images") < 0)) __PYX_ERR(0, 128, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -6131,7 +6131,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("images", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 129, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("images", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 128, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6158,7 +6158,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":132
+/* "fsutils/DirNode.pyx":131
  *     def images(self) -> list[ImageFile.Img]:
  *         """A list of ImageObject instances found in the directory."""
  *         return list(filter(lambda x: isinstance(x, ImageFile.Img), self.__iter__()))  # type: ignore             # <<<<<<<<<<<<<<
@@ -6219,12 +6219,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 132, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 131, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda1") < 0)) __PYX_ERR(0, 132, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda1") < 0)) __PYX_ERR(0, 131, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -6235,7 +6235,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lambda1", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 132, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lambda1", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 131, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6273,14 +6273,14 @@ static PyObject *__pyx_lambda_funcdef_lambda1(CYTHON_UNUSED PyObject *__pyx_self
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("lambda1", 1);
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_ImageFile); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_ImageFile); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Img); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Img); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = PyObject_IsInstance(__pyx_v_x, __pyx_t_2); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_3 = PyObject_IsInstance(__pyx_v_x, __pyx_t_2); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -6298,7 +6298,7 @@ static PyObject *__pyx_lambda_funcdef_lambda1(CYTHON_UNUSED PyObject *__pyx_self
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":129
+/* "fsutils/DirNode.pyx":128
  *         return len(self.files) == 0
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6319,7 +6319,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_12images(CYTHON_UNUSED PyObject
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("images", 1);
 
-  /* "fsutils/DirNode.pyx":132
+  /* "fsutils/DirNode.pyx":131
  *     def images(self) -> list[ImageFile.Img]:
  *         """A list of ImageObject instances found in the directory."""
  *         return list(filter(lambda x: isinstance(x, ImageFile.Img), self.__iter__()))  # type: ignore             # <<<<<<<<<<<<<<
@@ -6327,9 +6327,9 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_12images(CYTHON_UNUSED PyObject
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_6images_lambda1, 0, __pyx_n_s_Dir_images_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_6images_lambda1, 0, __pyx_n_s_Dir_images_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -6349,29 +6349,29 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_12images(CYTHON_UNUSED PyObject
     PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
     __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":129
+  /* "fsutils/DirNode.pyx":128
  *         return len(self.files) == 0
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6393,7 +6393,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_12images(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":134
+/* "fsutils/DirNode.pyx":133
  *         return list(filter(lambda x: isinstance(x, ImageFile.Img), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6455,12 +6455,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 134, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 133, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "videos") < 0)) __PYX_ERR(0, 134, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "videos") < 0)) __PYX_ERR(0, 133, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -6471,7 +6471,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("videos", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 134, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("videos", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 133, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6498,7 +6498,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":137
+/* "fsutils/DirNode.pyx":136
  *     def videos(self) -> list[VideoFile.Video]:
  *         """A list of VideoObject instances found in the directory."""
  *         return list(filter(lambda x: isinstance(x, VideoFile.Video), self.__iter__()))  # type: ignore             # <<<<<<<<<<<<<<
@@ -6559,12 +6559,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 137, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 136, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda2") < 0)) __PYX_ERR(0, 137, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda2") < 0)) __PYX_ERR(0, 136, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -6575,7 +6575,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lambda2", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 137, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lambda2", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 136, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6613,14 +6613,14 @@ static PyObject *__pyx_lambda_funcdef_lambda2(CYTHON_UNUSED PyObject *__pyx_self
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("lambda2", 1);
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_VideoFile); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_VideoFile); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Video); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Video); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = PyObject_IsInstance(__pyx_v_x, __pyx_t_2); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_3 = PyObject_IsInstance(__pyx_v_x, __pyx_t_2); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -6638,7 +6638,7 @@ static PyObject *__pyx_lambda_funcdef_lambda2(CYTHON_UNUSED PyObject *__pyx_self
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":134
+/* "fsutils/DirNode.pyx":133
  *         return list(filter(lambda x: isinstance(x, ImageFile.Img), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6659,7 +6659,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_14videos(CYTHON_UNUSED PyObject
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("videos", 1);
 
-  /* "fsutils/DirNode.pyx":137
+  /* "fsutils/DirNode.pyx":136
  *     def videos(self) -> list[VideoFile.Video]:
  *         """A list of VideoObject instances found in the directory."""
  *         return list(filter(lambda x: isinstance(x, VideoFile.Video), self.__iter__()))  # type: ignore             # <<<<<<<<<<<<<<
@@ -6667,9 +6667,9 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_14videos(CYTHON_UNUSED PyObject
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_6videos_lambda2, 0, __pyx_n_s_Dir_videos_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_6videos_lambda2, 0, __pyx_n_s_Dir_videos_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -6689,29 +6689,29 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_14videos(CYTHON_UNUSED PyObject
     PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
     __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":134
+  /* "fsutils/DirNode.pyx":133
  *         return list(filter(lambda x: isinstance(x, ImageFile.Img), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6733,7 +6733,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_14videos(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":139
+/* "fsutils/DirNode.pyx":138
  *         return list(filter(lambda x: isinstance(x, VideoFile.Video), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6795,12 +6795,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 139, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 138, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "logs") < 0)) __PYX_ERR(0, 139, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "logs") < 0)) __PYX_ERR(0, 138, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -6811,7 +6811,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("logs", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 139, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("logs", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 138, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6838,7 +6838,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":142
+/* "fsutils/DirNode.pyx":141
  *     def logs(self) -> list[LogFile.Log]:
  *         """A list of LogFile.Log instances found in the directory."""
  *         return list(filter(lambda x: isinstance(x, LogFile.Log), self.__iter__()))  # type: ignore             # <<<<<<<<<<<<<<
@@ -6899,12 +6899,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 142, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 141, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda3") < 0)) __PYX_ERR(0, 142, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda3") < 0)) __PYX_ERR(0, 141, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -6915,7 +6915,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lambda3", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 142, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lambda3", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 141, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6953,14 +6953,14 @@ static PyObject *__pyx_lambda_funcdef_lambda3(CYTHON_UNUSED PyObject *__pyx_self
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("lambda3", 1);
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_LogFile); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_LogFile); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Log); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Log); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = PyObject_IsInstance(__pyx_v_x, __pyx_t_2); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_3 = PyObject_IsInstance(__pyx_v_x, __pyx_t_2); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -6978,7 +6978,7 @@ static PyObject *__pyx_lambda_funcdef_lambda3(CYTHON_UNUSED PyObject *__pyx_self
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":139
+/* "fsutils/DirNode.pyx":138
  *         return list(filter(lambda x: isinstance(x, VideoFile.Video), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -6999,7 +6999,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_16logs(CYTHON_UNUSED PyObject *
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("logs", 1);
 
-  /* "fsutils/DirNode.pyx":142
+  /* "fsutils/DirNode.pyx":141
  *     def logs(self) -> list[LogFile.Log]:
  *         """A list of LogFile.Log instances found in the directory."""
  *         return list(filter(lambda x: isinstance(x, LogFile.Log), self.__iter__()))  # type: ignore             # <<<<<<<<<<<<<<
@@ -7007,9 +7007,9 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_16logs(CYTHON_UNUSED PyObject *
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_4logs_lambda3, 0, __pyx_n_s_Dir_logs_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_4logs_lambda3, 0, __pyx_n_s_Dir_logs_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -7029,29 +7029,29 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_16logs(CYTHON_UNUSED PyObject *
     PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
     __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":139
+  /* "fsutils/DirNode.pyx":138
  *         return list(filter(lambda x: isinstance(x, VideoFile.Video), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -7073,7 +7073,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_16logs(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":144
+/* "fsutils/DirNode.pyx":143
  *         return list(filter(lambda x: isinstance(x, LogFile.Log), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -7135,12 +7135,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 144, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 143, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "dirs") < 0)) __PYX_ERR(0, 144, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "dirs") < 0)) __PYX_ERR(0, 143, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -7151,7 +7151,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("dirs", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 144, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("dirs", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 143, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7178,7 +7178,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":147
+/* "fsutils/DirNode.pyx":146
  *     def dirs(self) -> list[GenericFile.File]:
  *         """A list of DirectoryObject instances found in the directory."""
  *         return list(filter(lambda x: isinstance(x, "Dir"), self.__iter__()))             # <<<<<<<<<<<<<<
@@ -7239,12 +7239,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 146, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda4") < 0)) __PYX_ERR(0, 147, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda4") < 0)) __PYX_ERR(0, 146, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -7255,7 +7255,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lambda4", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 147, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lambda4", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 146, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7292,8 +7292,8 @@ static PyObject *__pyx_lambda_funcdef_lambda4(CYTHON_UNUSED PyObject *__pyx_self
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("lambda4", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyObject_IsInstance(__pyx_v_x, __pyx_n_s_Dir); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 147, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_1 = PyObject_IsInstance(__pyx_v_x, __pyx_n_s_Dir); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -7310,7 +7310,7 @@ static PyObject *__pyx_lambda_funcdef_lambda4(CYTHON_UNUSED PyObject *__pyx_self
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":144
+/* "fsutils/DirNode.pyx":143
  *         return list(filter(lambda x: isinstance(x, LogFile.Log), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -7331,7 +7331,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_18dirs(CYTHON_UNUSED PyObject *
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("dirs", 1);
 
-  /* "fsutils/DirNode.pyx":147
+  /* "fsutils/DirNode.pyx":146
  *     def dirs(self) -> list[GenericFile.File]:
  *         """A list of DirectoryObject instances found in the directory."""
  *         return list(filter(lambda x: isinstance(x, "Dir"), self.__iter__()))             # <<<<<<<<<<<<<<
@@ -7339,9 +7339,9 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_18dirs(CYTHON_UNUSED PyObject *
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_4dirs_lambda4, 0, __pyx_n_s_Dir_dirs_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_4dirs_lambda4, 0, __pyx_n_s_Dir_dirs_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_iter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -7361,29 +7361,29 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_18dirs(CYTHON_UNUSED PyObject *
     PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
     __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 146, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_filter, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":144
+  /* "fsutils/DirNode.pyx":143
  *         return list(filter(lambda x: isinstance(x, LogFile.Log), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -7405,7 +7405,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_18dirs(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":149
+/* "fsutils/DirNode.pyx":148
  *         return list(filter(lambda x: isinstance(x, "Dir"), self.__iter__()))
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -7467,12 +7467,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 149, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 148, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "summary") < 0)) __PYX_ERR(0, 149, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "summary") < 0)) __PYX_ERR(0, 148, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -7483,7 +7483,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("summary", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 149, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("summary", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 148, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7510,7 +7510,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":160
+/* "fsutils/DirNode.pyx":159
  *                     continue
  *                 self.metadata[ext[1:]] += 1  # Remove the dot from extention
  *         sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))             # <<<<<<<<<<<<<<
@@ -7571,12 +7571,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 159, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda5") < 0)) __PYX_ERR(0, 160, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda5") < 0)) __PYX_ERR(0, 159, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -7587,7 +7587,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lambda5", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 160, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lambda5", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 159, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7623,7 +7623,7 @@ static PyObject *__pyx_lambda_funcdef_lambda5(CYTHON_UNUSED PyObject *__pyx_self
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("lambda5", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_x, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7640,7 +7640,7 @@ static PyObject *__pyx_lambda_funcdef_lambda5(CYTHON_UNUSED PyObject *__pyx_self
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":149
+/* "fsutils/DirNode.pyx":148
  *         return list(filter(lambda x: isinstance(x, "Dir"), self.__iter__()))
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -7679,28 +7679,28 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("summary", 1);
 
-  /* "fsutils/DirNode.pyx":152
+  /* "fsutils/DirNode.pyx":151
  *     def summary(self) -> None:
  *         """Print a formatted table of each file extention and their count."""
  *         if not self.metadata:             # <<<<<<<<<<<<<<
  *             self.metadata = defaultdict(int)
  *             for item in self.file_objects:
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_metadata); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_metadata); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 151, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 151, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_3 = (!__pyx_t_2);
   if (__pyx_t_3) {
 
-    /* "fsutils/DirNode.pyx":153
+    /* "fsutils/DirNode.pyx":152
  *         """Print a formatted table of each file extention and their count."""
  *         if not self.metadata:
  *             self.metadata = defaultdict(int)             # <<<<<<<<<<<<<<
  *             for item in self.file_objects:
  *                 ext = item.suffix or ""
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_defaultdict); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 153, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_defaultdict); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 152, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     __pyx_t_6 = 0;
@@ -7720,30 +7720,30 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
       PyObject *__pyx_callargs[2] = {__pyx_t_5, ((PyObject *)(&PyInt_Type))};
       __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_6, 1+__pyx_t_6);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_metadata, __pyx_t_1) < 0) __PYX_ERR(0, 153, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_metadata, __pyx_t_1) < 0) __PYX_ERR(0, 152, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "fsutils/DirNode.pyx":154
+    /* "fsutils/DirNode.pyx":153
  *         if not self.metadata:
  *             self.metadata = defaultdict(int)
  *             for item in self.file_objects:             # <<<<<<<<<<<<<<
  *                 ext = item.suffix or ""
  *                 if ext == "":
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_file_objects); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_file_objects); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
       __pyx_t_4 = __pyx_t_1; __Pyx_INCREF(__pyx_t_4);
       __pyx_t_7 = 0;
       __pyx_t_8 = NULL;
     } else {
-      __pyx_t_7 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 154, __pyx_L1_error)
+      __pyx_t_7 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 153, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_8 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 154, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 153, __pyx_L1_error)
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     for (;;) {
@@ -7752,28 +7752,28 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
           {
             Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_4);
             #if !CYTHON_ASSUME_SAFE_MACROS
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 154, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 153, __pyx_L1_error)
             #endif
             if (__pyx_t_7 >= __pyx_temp) break;
           }
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_1); __pyx_t_7++; if (unlikely((0 < 0))) __PYX_ERR(0, 154, __pyx_L1_error)
+          __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_1); __pyx_t_7++; if (unlikely((0 < 0))) __PYX_ERR(0, 153, __pyx_L1_error)
           #else
-          __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L1_error)
+          __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_1);
           #endif
         } else {
           {
             Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_4);
             #if !CYTHON_ASSUME_SAFE_MACROS
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 154, __pyx_L1_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 153, __pyx_L1_error)
             #endif
             if (__pyx_t_7 >= __pyx_temp) break;
           }
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_1); __pyx_t_7++; if (unlikely((0 < 0))) __PYX_ERR(0, 154, __pyx_L1_error)
+          __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_1); __pyx_t_7++; if (unlikely((0 < 0))) __PYX_ERR(0, 153, __pyx_L1_error)
           #else
-          __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L1_error)
+          __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_1);
           #endif
         }
@@ -7783,7 +7783,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 154, __pyx_L1_error)
+            else __PYX_ERR(0, 153, __pyx_L1_error)
           }
           break;
         }
@@ -7792,16 +7792,16 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
       __Pyx_XDECREF_SET(__pyx_v_item, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "fsutils/DirNode.pyx":155
+      /* "fsutils/DirNode.pyx":154
  *             self.metadata = defaultdict(int)
  *             for item in self.file_objects:
  *                 ext = item.suffix or ""             # <<<<<<<<<<<<<<
  *                 if ext == "":
  *                     self.metadata["None"] += 1
  */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_item, __pyx_n_s_suffix); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 155, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_item, __pyx_n_s_suffix); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 154, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_3 < 0))) __PYX_ERR(0, 155, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_3 < 0))) __PYX_ERR(0, 154, __pyx_L1_error)
       if (!__pyx_t_3) {
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       } else {
@@ -7816,38 +7816,38 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
       __Pyx_XDECREF_SET(__pyx_v_ext, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "fsutils/DirNode.pyx":156
+      /* "fsutils/DirNode.pyx":155
  *             for item in self.file_objects:
  *                 ext = item.suffix or ""
  *                 if ext == "":             # <<<<<<<<<<<<<<
  *                     self.metadata["None"] += 1
  *                     continue
  */
-      __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ext, __pyx_kp_s__2, Py_EQ)); if (unlikely((__pyx_t_3 < 0))) __PYX_ERR(0, 156, __pyx_L1_error)
+      __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ext, __pyx_kp_s__2, Py_EQ)); if (unlikely((__pyx_t_3 < 0))) __PYX_ERR(0, 155, __pyx_L1_error)
       if (__pyx_t_3) {
 
-        /* "fsutils/DirNode.pyx":157
+        /* "fsutils/DirNode.pyx":156
  *                 ext = item.suffix or ""
  *                 if ext == "":
  *                     self.metadata["None"] += 1             # <<<<<<<<<<<<<<
  *                     continue
  *                 self.metadata[ext[1:]] += 1  # Remove the dot from extention
  */
-        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_metadata); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_metadata); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_INCREF(__pyx_n_s_None);
         __pyx_t_9 = __pyx_n_s_None;
-        __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_t_1, __pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 157, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_t_1, __pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 156, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_10 = __Pyx_PyInt_AddObjC(__pyx_t_5, __pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 157, __pyx_L1_error)
+        __pyx_t_10 = __Pyx_PyInt_AddObjC(__pyx_t_5, __pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 156, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_10);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely((PyObject_SetItem(__pyx_t_1, __pyx_t_9, __pyx_t_10) < 0))) __PYX_ERR(0, 157, __pyx_L1_error)
+        if (unlikely((PyObject_SetItem(__pyx_t_1, __pyx_t_9, __pyx_t_10) < 0))) __PYX_ERR(0, 156, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "fsutils/DirNode.pyx":158
+        /* "fsutils/DirNode.pyx":157
  *                 if ext == "":
  *                     self.metadata["None"] += 1
  *                     continue             # <<<<<<<<<<<<<<
@@ -7856,7 +7856,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
  */
         goto __pyx_L4_continue;
 
-        /* "fsutils/DirNode.pyx":156
+        /* "fsutils/DirNode.pyx":155
  *             for item in self.file_objects:
  *                 ext = item.suffix or ""
  *                 if ext == "":             # <<<<<<<<<<<<<<
@@ -7865,28 +7865,28 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
  */
       }
 
-      /* "fsutils/DirNode.pyx":159
+      /* "fsutils/DirNode.pyx":158
  *                     self.metadata["None"] += 1
  *                     continue
  *                 self.metadata[ext[1:]] += 1  # Remove the dot from extention             # <<<<<<<<<<<<<<
  *         sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))
  *         # Print the sorted table
  */
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_metadata); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_metadata); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 158, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_10 = __Pyx_PyObject_GetSlice(__pyx_v_ext, 1, 0, NULL, NULL, &__pyx_slice__3, 1, 0, 1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 159, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyObject_GetSlice(__pyx_v_ext, 1, 0, NULL, NULL, &__pyx_slice__3, 1, 0, 1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 158, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_10); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 159, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_10); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 158, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_11 = __Pyx_PyInt_AddObjC(__pyx_t_5, __pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 159, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyInt_AddObjC(__pyx_t_5, __pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 158, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely((PyObject_SetItem(__pyx_t_1, __pyx_t_10, __pyx_t_11) < 0))) __PYX_ERR(0, 159, __pyx_L1_error)
+      if (unlikely((PyObject_SetItem(__pyx_t_1, __pyx_t_10, __pyx_t_11) < 0))) __PYX_ERR(0, 158, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "fsutils/DirNode.pyx":154
+      /* "fsutils/DirNode.pyx":153
  *         if not self.metadata:
  *             self.metadata = defaultdict(int)
  *             for item in self.file_objects:             # <<<<<<<<<<<<<<
@@ -7897,7 +7897,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "fsutils/DirNode.pyx":152
+    /* "fsutils/DirNode.pyx":151
  *     def summary(self) -> None:
  *         """Print a formatted table of each file extention and their count."""
  *         if not self.metadata:             # <<<<<<<<<<<<<<
@@ -7906,16 +7906,16 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
  */
   }
 
-  /* "fsutils/DirNode.pyx":160
+  /* "fsutils/DirNode.pyx":159
  *                     continue
  *                 self.metadata[ext[1:]] += 1  # Remove the dot from extention
  *         sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))             # <<<<<<<<<<<<<<
  *         # Print the sorted table
  *         max_key_length = max([len(k) for k in sorted_stat])
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_metadata); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_metadata); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_items); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_items); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -7936,32 +7936,32 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
     PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
     __pyx_t_4 = __Pyx_PyObject_FastCall(__pyx_t_10, __pyx_callargs+1-__pyx_t_6, 0+__pyx_t_6);
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 160, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 159, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   }
-  __pyx_t_10 = PyTuple_New(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_10 = PyTuple_New(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_4)) __PYX_ERR(0, 160, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_4)) __PYX_ERR(0, 159, __pyx_L1_error);
   __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_7summary_lambda5, 0, __pyx_n_s_Dir_summary_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_7summary_lambda5, 0, __pyx_n_s_Dir_summary_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_key, __pyx_t_1) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_key, __pyx_t_1) < 0) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_sorted, __pyx_t_10, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_sorted, __pyx_t_10, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyDict_Type)), __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyDict_Type)), __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_sorted_stat = ((PyObject*)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "fsutils/DirNode.pyx":162
+  /* "fsutils/DirNode.pyx":161
  *         sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))
  *         # Print the sorted table
  *         max_key_length = max([len(k) for k in sorted_stat])             # <<<<<<<<<<<<<<
@@ -7969,10 +7969,10 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
  *             print(f"{key: <{max_key_length}} {value}")
  */
   { /* enter inner scope */
-    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 162, __pyx_L12_error)
+    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 161, __pyx_L12_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_7 = 0;
-    __pyx_t_10 = __Pyx_dict_iterator(__pyx_v_sorted_stat, 1, ((PyObject *)NULL), (&__pyx_t_12), (&__pyx_t_13)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 162, __pyx_L12_error)
+    __pyx_t_10 = __Pyx_dict_iterator(__pyx_v_sorted_stat, 1, ((PyObject *)NULL), (&__pyx_t_12), (&__pyx_t_13)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 161, __pyx_L12_error)
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_XDECREF(__pyx_t_1);
     __pyx_t_1 = __pyx_t_10;
@@ -7980,14 +7980,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
     while (1) {
       __pyx_t_14 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_12, &__pyx_t_7, &__pyx_t_10, NULL, NULL, __pyx_t_13);
       if (unlikely(__pyx_t_14 == 0)) break;
-      if (unlikely(__pyx_t_14 == -1)) __PYX_ERR(0, 162, __pyx_L12_error)
+      if (unlikely(__pyx_t_14 == -1)) __PYX_ERR(0, 161, __pyx_L12_error)
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_XDECREF_SET(__pyx_7genexpr__pyx_v_k, __pyx_t_10);
       __pyx_t_10 = 0;
-      __pyx_t_15 = PyObject_Length(__pyx_7genexpr__pyx_v_k); if (unlikely(__pyx_t_15 == ((Py_ssize_t)-1))) __PYX_ERR(0, 162, __pyx_L12_error)
-      __pyx_t_10 = PyInt_FromSsize_t(__pyx_t_15); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 162, __pyx_L12_error)
+      __pyx_t_15 = PyObject_Length(__pyx_7genexpr__pyx_v_k); if (unlikely(__pyx_t_15 == ((Py_ssize_t)-1))) __PYX_ERR(0, 161, __pyx_L12_error)
+      __pyx_t_10 = PyInt_FromSsize_t(__pyx_t_15); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 161, __pyx_L12_error)
       __Pyx_GOTREF(__pyx_t_10);
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_10))) __PYX_ERR(0, 162, __pyx_L12_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_10))) __PYX_ERR(0, 161, __pyx_L12_error)
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -7998,13 +7998,13 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
     goto __pyx_L1_error;
     __pyx_L15_exit_scope:;
   } /* exit inner scope */
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_max, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 162, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_max, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_max_key_length = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "fsutils/DirNode.pyx":163
+  /* "fsutils/DirNode.pyx":162
  *         # Print the sorted table
  *         max_key_length = max([len(k) for k in sorted_stat])
  *         for key, value in sorted_stat.items():             # <<<<<<<<<<<<<<
@@ -8012,7 +8012,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
  * 
  */
   __pyx_t_12 = 0;
-  __pyx_t_4 = __Pyx_dict_iterator(__pyx_v_sorted_stat, 1, __pyx_n_s_items, (&__pyx_t_7), (&__pyx_t_13)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_dict_iterator(__pyx_v_sorted_stat, 1, __pyx_n_s_items, (&__pyx_t_7), (&__pyx_t_13)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 162, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_1);
   __pyx_t_1 = __pyx_t_4;
@@ -8020,7 +8020,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
   while (1) {
     __pyx_t_14 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_7, &__pyx_t_12, &__pyx_t_4, &__pyx_t_10, NULL, __pyx_t_13);
     if (unlikely(__pyx_t_14 == 0)) break;
-    if (unlikely(__pyx_t_14 == -1)) __PYX_ERR(0, 163, __pyx_L1_error)
+    if (unlikely(__pyx_t_14 == -1)) __PYX_ERR(0, 162, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_XDECREF_SET(__pyx_v_key, __pyx_t_4);
@@ -8028,23 +8028,23 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
     __Pyx_XDECREF_SET(__pyx_v_value, __pyx_t_10);
     __pyx_t_10 = 0;
 
-    /* "fsutils/DirNode.pyx":164
+    /* "fsutils/DirNode.pyx":163
  *         max_key_length = max([len(k) for k in sorted_stat])
  *         for key, value in sorted_stat.items():
  *             print(f"{key: <{max_key_length}} {value}")             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __pyx_t_10 = PyTuple_New(3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_10 = PyTuple_New(3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __pyx_t_15 = 0;
     __pyx_t_16 = 127;
-    __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_max_key_length, __pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_max_key_length, __pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_11 = __Pyx_PyUnicode_Concat(__pyx_kp_u__4, __pyx_t_4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyUnicode_Concat(__pyx_kp_u__4, __pyx_t_4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_Format(__pyx_v_key, __pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Format(__pyx_v_key, __pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __pyx_t_16 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) > __pyx_t_16) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) : __pyx_t_16;
@@ -8056,24 +8056,24 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
     __pyx_t_15 += 1;
     __Pyx_GIVEREF(__pyx_kp_u__5);
     PyTuple_SET_ITEM(__pyx_t_10, 1, __pyx_kp_u__5);
-    __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_value, __pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_value, __pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_16 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) > __pyx_t_16) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) : __pyx_t_16;
     __pyx_t_15 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_10, 2, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_10, 3, __pyx_t_15, __pyx_t_16); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_10, 3, __pyx_t_15, __pyx_t_16); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "fsutils/DirNode.pyx":149
+  /* "fsutils/DirNode.pyx":148
  *         return list(filter(lambda x: isinstance(x, "Dir"), self.__iter__()))
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -8106,7 +8106,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_20summary(CYTHON_UNUSED PyObjec
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":166
+/* "fsutils/DirNode.pyx":165
  *             print(f"{key: <{max_key_length}} {value}")
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -8168,12 +8168,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 166, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 165, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "size") < 0)) __PYX_ERR(0, 166, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "size") < 0)) __PYX_ERR(0, 165, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -8184,7 +8184,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("size", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 166, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("size", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 165, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8211,7 +8211,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":174
+/* "fsutils/DirNode.pyx":173
  *         self._size = sum(
  *                 pool.execute(
  *                     lambda x: x.size,             # <<<<<<<<<<<<<<
@@ -8272,12 +8272,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 174, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 173, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda6") < 0)) __PYX_ERR(0, 174, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "lambda6") < 0)) __PYX_ERR(0, 173, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -8288,7 +8288,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lambda6", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 174, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lambda6", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 173, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8324,7 +8324,7 @@ static PyObject *__pyx_lambda_funcdef_lambda6(CYTHON_UNUSED PyObject *__pyx_self
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("lambda6", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_x, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_x, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8341,7 +8341,7 @@ static PyObject *__pyx_lambda_funcdef_lambda6(CYTHON_UNUSED PyObject *__pyx_self
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":166
+/* "fsutils/DirNode.pyx":165
  *             print(f"{key: <{max_key_length}} {value}")
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -8365,20 +8365,20 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_22size(CYTHON_UNUSED PyObject *
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("size", 1);
 
-  /* "fsutils/DirNode.pyx":169
+  /* "fsutils/DirNode.pyx":168
  *     def size(self) -> int:
  *         """Return the total size of all files and directories in the current directory."""
  *         if hasattr(self, "_size") and self._size is not None:             # <<<<<<<<<<<<<<
  *             return self._size
  *         pool = Pool()
  */
-  __pyx_t_2 = __Pyx_HasAttr(__pyx_v_self, __pyx_n_s_size_2); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_HasAttr(__pyx_v_self, __pyx_n_s_size_2); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 168, __pyx_L1_error)
   if (__pyx_t_2) {
   } else {
     __pyx_t_1 = __pyx_t_2;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_size_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_size_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 168, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = (__pyx_t_3 != Py_None);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -8386,7 +8386,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_22size(CYTHON_UNUSED PyObject *
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_1) {
 
-    /* "fsutils/DirNode.pyx":170
+    /* "fsutils/DirNode.pyx":169
  *         """Return the total size of all files and directories in the current directory."""
  *         if hasattr(self, "_size") and self._size is not None:
  *             return self._size             # <<<<<<<<<<<<<<
@@ -8394,14 +8394,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_22size(CYTHON_UNUSED PyObject *
  *         self._size = sum(
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_size_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 170, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_size_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 169, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (!(likely(__Pyx_Py3Int_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None) || __Pyx_RaiseUnexpectedTypeError("int", __pyx_t_3))) __PYX_ERR(0, 170, __pyx_L1_error)
+    if (!(likely(__Pyx_Py3Int_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None) || __Pyx_RaiseUnexpectedTypeError("int", __pyx_t_3))) __PYX_ERR(0, 169, __pyx_L1_error)
     __pyx_r = ((PyObject*)__pyx_t_3);
     __pyx_t_3 = 0;
     goto __pyx_L0;
 
-    /* "fsutils/DirNode.pyx":169
+    /* "fsutils/DirNode.pyx":168
  *     def size(self) -> int:
  *         """Return the total size of all files and directories in the current directory."""
  *         if hasattr(self, "_size") and self._size is not None:             # <<<<<<<<<<<<<<
@@ -8410,14 +8410,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_22size(CYTHON_UNUSED PyObject *
  */
   }
 
-  /* "fsutils/DirNode.pyx":171
+  /* "fsutils/DirNode.pyx":170
  *         if hasattr(self, "_size") and self._size is not None:
  *             return self._size
  *         pool = Pool()             # <<<<<<<<<<<<<<
  *         self._size = sum(
  *                 pool.execute(
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_Pool); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_Pool); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 170, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   __pyx_t_6 = 0;
@@ -8437,97 +8437,97 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_22size(CYTHON_UNUSED PyObject *
     PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
     __pyx_t_3 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_6, 0+__pyx_t_6);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 171, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 170, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __pyx_v_pool = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "fsutils/DirNode.pyx":173
+  /* "fsutils/DirNode.pyx":172
  *         pool = Pool()
  *         self._size = sum(
  *                 pool.execute(             # <<<<<<<<<<<<<<
  *                     lambda x: x.size,
  *                     self.file_objects,
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_pool, __pyx_n_s_execute); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_pool, __pyx_n_s_execute); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "fsutils/DirNode.pyx":174
+  /* "fsutils/DirNode.pyx":173
  *         self._size = sum(
  *                 pool.execute(
  *                     lambda x: x.size,             # <<<<<<<<<<<<<<
  *                     self.file_objects,
  *                     progress_bar=False,
  */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_4size_lambda6, 0, __pyx_n_s_Dir_size_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_4size_lambda6, 0, __pyx_n_s_Dir_size_locals_lambda, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "fsutils/DirNode.pyx":175
+  /* "fsutils/DirNode.pyx":174
  *                 pool.execute(
  *                     lambda x: x.size,
  *                     self.file_objects,             # <<<<<<<<<<<<<<
  *                     progress_bar=False,
  *                 ),
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_file_objects); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_file_objects); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
 
-  /* "fsutils/DirNode.pyx":173
+  /* "fsutils/DirNode.pyx":172
  *         pool = Pool()
  *         self._size = sum(
  *                 pool.execute(             # <<<<<<<<<<<<<<
  *                     lambda x: x.size,
  *                     self.file_objects,
  */
-  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4)) __PYX_ERR(0, 172, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_5);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_5)) __PYX_ERR(0, 173, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_5)) __PYX_ERR(0, 172, __pyx_L1_error);
   __pyx_t_4 = 0;
   __pyx_t_5 = 0;
 
-  /* "fsutils/DirNode.pyx":176
+  /* "fsutils/DirNode.pyx":175
  *                     lambda x: x.size,
  *                     self.file_objects,
  *                     progress_bar=False,             # <<<<<<<<<<<<<<
  *                 ),
  *             )
  */
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 176, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_progress_bar, Py_False) < 0) __PYX_ERR(0, 176, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_progress_bar, Py_False) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":173
+  /* "fsutils/DirNode.pyx":172
  *         pool = Pool()
  *         self._size = sum(
  *                 pool.execute(             # <<<<<<<<<<<<<<
  *                     lambda x: x.size,
  *                     self.file_objects,
  */
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "fsutils/DirNode.pyx":172
+  /* "fsutils/DirNode.pyx":171
  *             return self._size
  *         pool = Pool()
  *         self._size = sum(             # <<<<<<<<<<<<<<
  *                 pool.execute(
  *                     lambda x: x.size,
  */
-  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_sum, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 172, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_sum, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_size_2, __pyx_t_5) < 0) __PYX_ERR(0, 172, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_size_2, __pyx_t_5) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "fsutils/DirNode.pyx":179
+  /* "fsutils/DirNode.pyx":178
  *                 ),
  *             )
  *         return self._size             # <<<<<<<<<<<<<<
@@ -8535,14 +8535,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_22size(CYTHON_UNUSED PyObject *
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_size_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_size_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 178, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (!(likely(__Pyx_Py3Int_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None) || __Pyx_RaiseUnexpectedTypeError("int", __pyx_t_5))) __PYX_ERR(0, 179, __pyx_L1_error)
+  if (!(likely(__Pyx_Py3Int_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None) || __Pyx_RaiseUnexpectedTypeError("int", __pyx_t_5))) __PYX_ERR(0, 178, __pyx_L1_error)
   __pyx_r = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":166
+  /* "fsutils/DirNode.pyx":165
  *             print(f"{key: <{max_key_length}} {value}")
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -8565,7 +8565,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_22size(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":181
+/* "fsutils/DirNode.pyx":180
  *         return self._size
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -8626,12 +8626,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 181, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 180, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "size_human") < 0)) __PYX_ERR(0, 181, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "size_human") < 0)) __PYX_ERR(0, 180, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -8642,7 +8642,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("size_human", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 181, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("size_human", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 180, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8682,7 +8682,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_24size_human(CYTHON_UNUSED PyOb
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("size_human", 1);
 
-  /* "fsutils/DirNode.pyx":183
+  /* "fsutils/DirNode.pyx":182
  *     @property
  *     def size_human(self) -> str:
  *         return tools.format_bytes(self.size)             # <<<<<<<<<<<<<<
@@ -8690,12 +8690,12 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_24size_human(CYTHON_UNUSED PyOb
  *     def search(self, pattern: str, attr: str = "name") -> list[GenericFile.File]:
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_tools); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_tools); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 182, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_format_bytes); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_format_bytes); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 182, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 182, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -8716,16 +8716,16 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_24size_human(CYTHON_UNUSED PyOb
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 1+__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 183, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 182, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
-  if (!(likely(PyString_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 183, __pyx_L1_error)
+  if (!(likely(PyString_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 182, __pyx_L1_error)
   __pyx_r = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":181
+  /* "fsutils/DirNode.pyx":180
  *         return self._size
  * 
  *     @property             # <<<<<<<<<<<<<<
@@ -8747,7 +8747,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_24size_human(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":185
+/* "fsutils/DirNode.pyx":184
  *         return tools.format_bytes(self.size)
  * 
  *     def search(self, pattern: str, attr: str = "name") -> list[GenericFile.File]:             # <<<<<<<<<<<<<<
@@ -8816,7 +8816,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -8824,21 +8824,21 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("search", 0, 2, 3, 1); __PYX_ERR(0, 185, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("search", 0, 2, 3, 1); __PYX_ERR(0, 184, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (kw_args > 0) {
           PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_attr);
           if (value) { values[2] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L3_error)
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "search") < 0)) __PYX_ERR(0, 185, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "search") < 0)) __PYX_ERR(0, 184, __pyx_L3_error)
       }
     } else {
       switch (__pyx_nargs) {
@@ -8856,7 +8856,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("search", 0, 2, 3, __pyx_nargs); __PYX_ERR(0, 185, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("search", 0, 2, 3, __pyx_nargs); __PYX_ERR(0, 184, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8870,8 +8870,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pattern), (&PyString_Type), 0, "pattern", 1))) __PYX_ERR(0, 185, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_attr), (&PyString_Type), 0, "attr", 1))) __PYX_ERR(0, 185, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pattern), (&PyString_Type), 0, "pattern", 1))) __PYX_ERR(0, 184, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_attr), (&PyString_Type), 0, "attr", 1))) __PYX_ERR(0, 184, __pyx_L1_error)
   __pyx_r = __pyx_pf_7fsutils_7DirNode_3Dir_26search(__pyx_self, __pyx_v_self, __pyx_v_pattern, __pyx_v_attr);
 
   /* function exit code */
@@ -8908,7 +8908,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_26search(CYTHON_UNUSED PyObject
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("search", 1);
 
-  /* "fsutils/DirNode.pyx":195
+  /* "fsutils/DirNode.pyx":194
  *         Return an list of `GenericFile.File` instances if found
  *         """
  *         return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]             # <<<<<<<<<<<<<<
@@ -8917,18 +8917,18 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_26search(CYTHON_UNUSED PyObject
  */
   __Pyx_XDECREF(__pyx_r);
   { /* enter inner scope */
-    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L5_error)
+    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_file_objects); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L5_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_file_objects); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_2);
     if (likely(PyList_CheckExact(__pyx_t_2)) || PyTuple_CheckExact(__pyx_t_2)) {
       __pyx_t_3 = __pyx_t_2; __Pyx_INCREF(__pyx_t_3);
       __pyx_t_4 = 0;
       __pyx_t_5 = NULL;
     } else {
-      __pyx_t_4 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 195, __pyx_L5_error)
+      __pyx_t_4 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_5 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L5_error)
+      __pyx_t_5 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 194, __pyx_L5_error)
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     for (;;) {
@@ -8937,28 +8937,28 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_26search(CYTHON_UNUSED PyObject
           {
             Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_3);
             #if !CYTHON_ASSUME_SAFE_MACROS
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 195, __pyx_L5_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 194, __pyx_L5_error)
             #endif
             if (__pyx_t_4 >= __pyx_temp) break;
           }
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 195, __pyx_L5_error)
+          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 194, __pyx_L5_error)
           #else
-          __pyx_t_2 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L5_error)
+          __pyx_t_2 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         } else {
           {
             Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_3);
             #if !CYTHON_ASSUME_SAFE_MACROS
-            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 195, __pyx_L5_error)
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 194, __pyx_L5_error)
             #endif
             if (__pyx_t_4 >= __pyx_temp) break;
           }
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 195, __pyx_L5_error)
+          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely((0 < 0))) __PYX_ERR(0, 194, __pyx_L5_error)
           #else
-          __pyx_t_2 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L5_error)
+          __pyx_t_2 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         }
@@ -8968,7 +8968,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_26search(CYTHON_UNUSED PyObject
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 195, __pyx_L5_error)
+            else __PYX_ERR(0, 194, __pyx_L5_error)
           }
           break;
         }
@@ -8976,12 +8976,12 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_26search(CYTHON_UNUSED PyObject
       }
       __Pyx_XDECREF_SET(__pyx_8genexpr1__pyx_v_obj, __pyx_t_2);
       __pyx_t_2 = 0;
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_re); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 195, __pyx_L5_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_re); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 194, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_search); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 195, __pyx_L5_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_search); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 194, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_6 = __Pyx_GetAttr(__pyx_8genexpr1__pyx_v_obj, __pyx_v_attr); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 195, __pyx_L5_error)
+      __pyx_t_6 = __Pyx_GetAttr(__pyx_8genexpr1__pyx_v_obj, __pyx_v_attr); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 194, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_6);
       __pyx_t_8 = NULL;
       __pyx_t_9 = 0;
@@ -9002,14 +9002,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_26search(CYTHON_UNUSED PyObject
         __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_7, __pyx_callargs+1-__pyx_t_9, 2+__pyx_t_9);
         __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L5_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L5_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       }
-      __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_10 < 0))) __PYX_ERR(0, 195, __pyx_L5_error)
+      __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_10 < 0))) __PYX_ERR(0, 194, __pyx_L5_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_10) {
-        if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_8genexpr1__pyx_v_obj))) __PYX_ERR(0, 195, __pyx_L5_error)
+        if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_8genexpr1__pyx_v_obj))) __PYX_ERR(0, 194, __pyx_L5_error)
       }
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -9024,7 +9024,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_26search(CYTHON_UNUSED PyObject
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":185
+  /* "fsutils/DirNode.pyx":184
  *         return tools.format_bytes(self.size)
  * 
  *     def search(self, pattern: str, attr: str = "name") -> list[GenericFile.File]:             # <<<<<<<<<<<<<<
@@ -9049,7 +9049,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_26search(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":197
+/* "fsutils/DirNode.pyx":196
  *         return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
  * 
  *     def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:             # <<<<<<<<<<<<<<
@@ -9119,26 +9119,26 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 197, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 196, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
         if (kw_args > 0) {
           PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_num_keep);
           if (value) { values[1] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 197, __pyx_L3_error)
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 196, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (kw_args > 0) {
           PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_refresh);
           if (value) { values[2] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 197, __pyx_L3_error)
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 196, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "duplicates") < 0)) __PYX_ERR(0, 197, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "duplicates") < 0)) __PYX_ERR(0, 196, __pyx_L3_error)
       }
     } else {
       switch (__pyx_nargs) {
@@ -9157,7 +9157,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("duplicates", 0, 1, 3, __pyx_nargs); __PYX_ERR(0, 197, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("duplicates", 0, 1, 3, __pyx_nargs); __PYX_ERR(0, 196, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9204,26 +9204,26 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_28duplicates(CYTHON_UNUSED PyOb
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("duplicates", 1);
 
-  /* "fsutils/DirNode.pyx":207
+  /* "fsutils/DirNode.pyx":206
  *             - refresh (bool): If True, re-calculate the hash values for all files
  *         """
  *         hashes = self.serialize(replace=refresh)             # <<<<<<<<<<<<<<
  *         return [value for value in hashes.values() if len(value) > num_keep]
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_serialize); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 207, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_serialize); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 207, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_replace, __pyx_v_refresh) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 207, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_replace, __pyx_v_refresh) < 0) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_hashes = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "fsutils/DirNode.pyx":208
+  /* "fsutils/DirNode.pyx":207
  *         """
  *         hashes = self.serialize(replace=refresh)
  *         return [value for value in hashes.values() if len(value) > num_keep]             # <<<<<<<<<<<<<<
@@ -9232,14 +9232,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_28duplicates(CYTHON_UNUSED PyOb
  */
   __Pyx_XDECREF(__pyx_r);
   { /* enter inner scope */
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 208, __pyx_L5_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 207, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = 0;
     if (unlikely(__pyx_v_hashes == Py_None)) {
       PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "values");
-      __PYX_ERR(0, 208, __pyx_L5_error)
+      __PYX_ERR(0, 207, __pyx_L5_error)
     }
-    __pyx_t_1 = __Pyx_dict_iterator(__pyx_v_hashes, 0, __pyx_n_s_values, (&__pyx_t_5), (&__pyx_t_6)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L5_error)
+    __pyx_t_1 = __Pyx_dict_iterator(__pyx_v_hashes, 0, __pyx_n_s_values, (&__pyx_t_5), (&__pyx_t_6)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 207, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_XDECREF(__pyx_t_2);
     __pyx_t_2 = __pyx_t_1;
@@ -9247,19 +9247,19 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_28duplicates(CYTHON_UNUSED PyOb
     while (1) {
       __pyx_t_7 = __Pyx_dict_iter_next(__pyx_t_2, __pyx_t_5, &__pyx_t_4, NULL, &__pyx_t_1, NULL, __pyx_t_6);
       if (unlikely(__pyx_t_7 == 0)) break;
-      if (unlikely(__pyx_t_7 == -1)) __PYX_ERR(0, 208, __pyx_L5_error)
+      if (unlikely(__pyx_t_7 == -1)) __PYX_ERR(0, 207, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_XDECREF_SET(__pyx_8genexpr2__pyx_v_value, __pyx_t_1);
       __pyx_t_1 = 0;
-      __pyx_t_8 = PyObject_Length(__pyx_8genexpr2__pyx_v_value); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 208, __pyx_L5_error)
-      __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L5_error)
+      __pyx_t_8 = PyObject_Length(__pyx_8genexpr2__pyx_v_value); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 207, __pyx_L5_error)
+      __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 207, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_9 = PyObject_RichCompare(__pyx_t_1, __pyx_v_num_keep, Py_GT); __Pyx_XGOTREF(__pyx_t_9); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 208, __pyx_L5_error)
+      __pyx_t_9 = PyObject_RichCompare(__pyx_t_1, __pyx_v_num_keep, Py_GT); __Pyx_XGOTREF(__pyx_t_9); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 207, __pyx_L5_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely((__pyx_t_10 < 0))) __PYX_ERR(0, 208, __pyx_L5_error)
+      __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely((__pyx_t_10 < 0))) __PYX_ERR(0, 207, __pyx_L5_error)
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       if (__pyx_t_10) {
-        if (unlikely(__Pyx_ListComp_Append(__pyx_t_3, (PyObject*)__pyx_8genexpr2__pyx_v_value))) __PYX_ERR(0, 208, __pyx_L5_error)
+        if (unlikely(__Pyx_ListComp_Append(__pyx_t_3, (PyObject*)__pyx_8genexpr2__pyx_v_value))) __PYX_ERR(0, 207, __pyx_L5_error)
       }
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -9274,7 +9274,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_28duplicates(CYTHON_UNUSED PyOb
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":197
+  /* "fsutils/DirNode.pyx":196
  *         return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
  * 
  *     def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:             # <<<<<<<<<<<<<<
@@ -9298,7 +9298,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_28duplicates(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":210
+/* "fsutils/DirNode.pyx":209
  *         return [value for value in hashes.values() if len(value) > num_keep]
  * 
  *     def load_database(self) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
@@ -9360,12 +9360,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 210, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 209, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "load_database") < 0)) __PYX_ERR(0, 210, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "load_database") < 0)) __PYX_ERR(0, 209, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -9376,7 +9376,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("load_database", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 210, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("load_database", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 209, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9418,16 +9418,16 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_30load_database(CYTHON_UNUSED P
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("load_database", 1);
 
-  /* "fsutils/DirNode.pyx":212
+  /* "fsutils/DirNode.pyx":211
  *     def load_database(self) -> dict[int, list[str]]:
  *         """Deserialize the pickled database."""
  *         if self._pkl_path.exists():             # <<<<<<<<<<<<<<
  *             return pickle.loads(self._pkl_path.read_bytes())
  *         return {}
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_exists); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_exists); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -9448,15 +9448,15 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_30load_database(CYTHON_UNUSED P
     PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_4, 0+__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_5) {
 
-    /* "fsutils/DirNode.pyx":213
+    /* "fsutils/DirNode.pyx":212
  *         """Deserialize the pickled database."""
  *         if self._pkl_path.exists():
  *             return pickle.loads(self._pkl_path.read_bytes())             # <<<<<<<<<<<<<<
@@ -9464,14 +9464,14 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_30load_database(CYTHON_UNUSED P
  * 
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_pickle); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_pickle); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_loads); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_loads); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 212, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_read_bytes); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_read_bytes); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 212, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_6 = NULL;
@@ -9492,7 +9492,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_30load_database(CYTHON_UNUSED P
       PyObject *__pyx_callargs[2] = {__pyx_t_6, NULL};
       __pyx_t_3 = __Pyx_PyObject_FastCall(__pyx_t_7, __pyx_callargs+1-__pyx_t_4, 0+__pyx_t_4);
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     }
@@ -9515,16 +9515,16 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_30load_database(CYTHON_UNUSED P
       __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+1-__pyx_t_4, 1+__pyx_t_4);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     }
-    if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_1))) __PYX_ERR(0, 213, __pyx_L1_error)
+    if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_1))) __PYX_ERR(0, 212, __pyx_L1_error)
     __pyx_r = ((PyObject*)__pyx_t_1);
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "fsutils/DirNode.pyx":212
+    /* "fsutils/DirNode.pyx":211
  *     def load_database(self) -> dict[int, list[str]]:
  *         """Deserialize the pickled database."""
  *         if self._pkl_path.exists():             # <<<<<<<<<<<<<<
@@ -9533,21 +9533,21 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_30load_database(CYTHON_UNUSED P
  */
   }
 
-  /* "fsutils/DirNode.pyx":214
+  /* "fsutils/DirNode.pyx":213
  *         if self._pkl_path.exists():
  *             return pickle.loads(self._pkl_path.read_bytes())
  *         return {}             # <<<<<<<<<<<<<<
  * 
- *     def serialize(self, *, replace=False) -> dict[int, list[str]]:
+ *     def serialize(self,  *, replace=False)-> dict[int, list[str]]:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 214, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":210
+  /* "fsutils/DirNode.pyx":209
  *         return [value for value in hashes.values() if len(value) > num_keep]
  * 
  *     def load_database(self) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
@@ -9570,12 +9570,12 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_30load_database(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":216
+/* "fsutils/DirNode.pyx":215
  *         return {}
  * 
- *     def serialize(self, *, replace=False) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
+ *     def serialize(self,  *, replace=False)-> dict[int, list[str]]:             # <<<<<<<<<<<<<<
  *         """Create an hash index of all files in self."""
- *         if self._pkl_path.exists() and replace is True:
+ * 
  */
 
 /* Python wrapper */
@@ -9634,18 +9634,18 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (kw_args == 1) {
         const Py_ssize_t index = 1;
         PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, *__pyx_pyargnames[index]);
         if (value) { values[index] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L3_error)
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "serialize") < 0)) __PYX_ERR(0, 216, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "serialize") < 0)) __PYX_ERR(0, 215, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -9657,7 +9657,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("serialize", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 216, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("serialize", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 215, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9851,12 +9851,12 @@ static PyObject *__pyx_lambda_funcdef_lambda7(CYTHON_UNUSED PyObject *__pyx_self
   return __pyx_r;
 }
 
-/* "fsutils/DirNode.pyx":216
+/* "fsutils/DirNode.pyx":215
  *         return {}
  * 
- *     def serialize(self, *, replace=False) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
+ *     def serialize(self,  *, replace=False)-> dict[int, list[str]]:             # <<<<<<<<<<<<<<
  *         """Create an hash index of all files in self."""
- *         if self._pkl_path.exists() and replace is True:
+ * 
  */
 
 static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_32serialize(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_replace) {
@@ -9885,8 +9885,8 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_32serialize(CYTHON_UNUSED PyObj
   __Pyx_RefNannySetupContext("serialize", 1);
 
   /* "fsutils/DirNode.pyx":218
- *     def serialize(self, *, replace=False) -> dict[int, list[str]]:
  *         """Create an hash index of all files in self."""
+ * 
  *         if self._pkl_path.exists() and replace is True:             # <<<<<<<<<<<<<<
  *             self._pkl_path.unlink()
  *             self.db = {}
@@ -9931,7 +9931,7 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_32serialize(CYTHON_UNUSED PyObj
   if (__pyx_t_1) {
 
     /* "fsutils/DirNode.pyx":219
- *         """Create an hash index of all files in self."""
+ * 
  *         if self._pkl_path.exists() and replace is True:
  *             self._pkl_path.unlink()             # <<<<<<<<<<<<<<
  *             self.db = {}
@@ -9979,8 +9979,8 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_32serialize(CYTHON_UNUSED PyObj
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
     /* "fsutils/DirNode.pyx":218
- *     def serialize(self, *, replace=False) -> dict[int, list[str]]:
  *         """Create an hash index of all files in self."""
+ * 
  *         if self._pkl_path.exists() and replace is True:             # <<<<<<<<<<<<<<
  *             self._pkl_path.unlink()
  *             self.db = {}
@@ -10466,12 +10466,12 @@ static PyObject *__pyx_pf_7fsutils_7DirNode_3Dir_32serialize(CYTHON_UNUSED PyObj
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "fsutils/DirNode.pyx":216
+  /* "fsutils/DirNode.pyx":215
  *         return {}
  * 
- *     def serialize(self, *, replace=False) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
+ *     def serialize(self,  *, replace=False)-> dict[int, list[str]]:             # <<<<<<<<<<<<<<
  *         """Create an hash index of all files in self."""
- *         if self._pkl_path.exists() and replace is True:
+ * 
  */
 
   /* function exit code */
@@ -14861,14 +14861,14 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
 }
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_property = __Pyx_GetBuiltinName(__pyx_n_s_property); if (!__pyx_builtin_property) __PYX_ERR(0, 77, __pyx_L1_error)
-  __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_n_s_super); if (!__pyx_builtin_super) __PYX_ERR(0, 67, __pyx_L1_error)
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 87, __pyx_L1_error)
-  __pyx_builtin_filter = __Pyx_GetBuiltinName(__pyx_n_s_filter); if (!__pyx_builtin_filter) __PYX_ERR(0, 105, __pyx_L1_error)
-  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 120, __pyx_L1_error)
-  __pyx_builtin_sorted = __Pyx_GetBuiltinName(__pyx_n_s_sorted); if (!__pyx_builtin_sorted) __PYX_ERR(0, 160, __pyx_L1_error)
-  __pyx_builtin_max = __Pyx_GetBuiltinName(__pyx_n_s_max); if (!__pyx_builtin_max) __PYX_ERR(0, 162, __pyx_L1_error)
-  __pyx_builtin_sum = __Pyx_GetBuiltinName(__pyx_n_s_sum); if (!__pyx_builtin_sum) __PYX_ERR(0, 172, __pyx_L1_error)
+  __pyx_builtin_property = __Pyx_GetBuiltinName(__pyx_n_s_property); if (!__pyx_builtin_property) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_n_s_super); if (!__pyx_builtin_super) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_builtin_filter = __Pyx_GetBuiltinName(__pyx_n_s_filter); if (!__pyx_builtin_filter) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 119, __pyx_L1_error)
+  __pyx_builtin_sorted = __Pyx_GetBuiltinName(__pyx_n_s_sorted); if (!__pyx_builtin_sorted) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_builtin_max = __Pyx_GetBuiltinName(__pyx_n_s_max); if (!__pyx_builtin_max) __PYX_ERR(0, 161, __pyx_L1_error)
+  __pyx_builtin_sum = __Pyx_GetBuiltinName(__pyx_n_s_sum); if (!__pyx_builtin_sum) __PYX_ERR(0, 171, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 256, __pyx_L1_error)
   __pyx_builtin_format = __Pyx_GetBuiltinName(__pyx_n_s_format); if (!__pyx_builtin_format) __PYX_ERR(0, 248, __pyx_L1_error)
   __pyx_builtin_all = __Pyx_GetBuiltinName(__pyx_n_s_all); if (!__pyx_builtin_all) __PYX_ERR(0, 286, __pyx_L1_error)
@@ -14883,14 +14883,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "fsutils/DirNode.pyx":159
+  /* "fsutils/DirNode.pyx":158
  *                     self.metadata["None"] += 1
  *                     continue
  *                 self.metadata[ext[1:]] += 1  # Remove the dot from extention             # <<<<<<<<<<<<<<
  *         sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))
  *         # Print the sorted table
  */
-  __pyx_slice__3 = PySlice_New(__pyx_int_1, Py_None, Py_None); if (unlikely(!__pyx_slice__3)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_slice__3 = PySlice_New(__pyx_int_1, Py_None, Py_None); if (unlikely(!__pyx_slice__3)) __PYX_ERR(0, 158, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__3);
   __Pyx_GIVEREF(__pyx_slice__3);
 
@@ -14905,188 +14905,188 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__7);
   __Pyx_GIVEREF(__pyx_tuple__7);
 
-  /* "fsutils/DirNode.pyx":59
+  /* "fsutils/DirNode.pyx":58
  *     _encoding: str
  * 
  *     def __init__(self, path: str | Path, *args, **kwargs) -> None:             # <<<<<<<<<<<<<<
  *         """Initialize a new instance of the "Dir" class.
  * 
  */
-  __pyx_tuple__12 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_path, __pyx_n_s_args, __pyx_n_s_kwargs); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_path, __pyx_n_s_args, __pyx_n_s_kwargs); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
-  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_init, 59, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_init, 58, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 58, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":77
+  /* "fsutils/DirNode.pyx":76
  *         self.metadata = defaultdict(int)
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def files(self) -> list[str]:
  *         """Return a list of file names in the directory represented by this object."""
  */
-  __pyx_tuple__14 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_files, __pyx_n_s_f, __pyx_n_s_e); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_tuple__14 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_files, __pyx_n_s_f, __pyx_n_s_e); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__14);
   __Pyx_GIVEREF(__pyx_tuple__14);
-  __pyx_codeobj__15 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__14, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_files, 77, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__15)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_codeobj__15 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__14, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_files, 76, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__15)) __PYX_ERR(0, 76, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":91
+  /* "fsutils/DirNode.pyx":90
  *         # return [f.name for f in self.objects if not f.is_dir()]
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def file_objects(
  *         self,
  */
-  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__16);
   __Pyx_GIVEREF(__pyx_tuple__16);
-  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_file_objects, 91, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_file_objects, 90, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) __PYX_ERR(0, 90, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":107
+  /* "fsutils/DirNode.pyx":106
  *         return list(filter(lambda x: not isinstance(x, Dir), self))
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def content(self) -> list[str]:
  *         """List the the contents of the toplevel directory."""
  */
-  __pyx_codeobj__18 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_content, 107, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__18)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_codeobj__18 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_content, 106, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__18)) __PYX_ERR(0, 106, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":115
+  /* "fsutils/DirNode.pyx":114
  *             return []
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def objects(self) -> list[GenericFile.File]:
  *         """Return a list of fsutils objects inside self."""
  */
-  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_objects_2, 115, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_objects_2, 114, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 114, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":124
+  /* "fsutils/DirNode.pyx":123
  *         return self._objects
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def is_empty(self) -> bool:
  *         """Check if the directory is empty."""
  */
-  __pyx_codeobj__20 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_is_empty, 124, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_codeobj__20 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_is_empty, 123, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 123, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":129
+  /* "fsutils/DirNode.pyx":128
  *         return len(self.files) == 0
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def images(self) -> list[ImageFile.Img]:
  *         """A list of ImageObject instances found in the directory."""
  */
-  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_images, 129, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_images, 128, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 128, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":134
+  /* "fsutils/DirNode.pyx":133
  *         return list(filter(lambda x: isinstance(x, ImageFile.Img), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def videos(self) -> list[VideoFile.Video]:
  *         """A list of VideoObject instances found in the directory."""
  */
-  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_videos, 134, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_videos, 133, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 133, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":139
+  /* "fsutils/DirNode.pyx":138
  *         return list(filter(lambda x: isinstance(x, VideoFile.Video), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def logs(self) -> list[LogFile.Log]:
  *         """A list of LogFile.Log instances found in the directory."""
  */
-  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_logs, 139, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_logs, 138, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 138, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":144
+  /* "fsutils/DirNode.pyx":143
  *         return list(filter(lambda x: isinstance(x, LogFile.Log), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def dirs(self) -> list[GenericFile.File]:
  *         """A list of DirectoryObject instances found in the directory."""
  */
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_dirs, 144, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_dirs, 143, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 143, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":149
+  /* "fsutils/DirNode.pyx":148
  *         return list(filter(lambda x: isinstance(x, "Dir"), self.__iter__()))
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def summary(self) -> None:
  *         """Print a formatted table of each file extention and their count."""
  */
-  __pyx_tuple__25 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_item, __pyx_n_s_ext, __pyx_n_s_sorted_stat, __pyx_n_s_max_key_length, __pyx_n_s_key, __pyx_n_s_value, __pyx_n_s_k); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_tuple__25 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_item, __pyx_n_s_ext, __pyx_n_s_sorted_stat, __pyx_n_s_max_key_length, __pyx_n_s_key, __pyx_n_s_value, __pyx_n_s_k); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
-  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_summary, 149, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_summary, 148, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 148, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":166
+  /* "fsutils/DirNode.pyx":165
  *             print(f"{key: <{max_key_length}} {value}")
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def size(self) -> int:
  *         """Return the total size of all files and directories in the current directory."""
  */
-  __pyx_tuple__27 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pool); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 166, __pyx_L1_error)
+  __pyx_tuple__27 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pool); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_size, 166, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 166, __pyx_L1_error)
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_size, 165, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 165, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":181
+  /* "fsutils/DirNode.pyx":180
  *         return self._size
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def size_human(self) -> str:
  *         return tools.format_bytes(self.size)
  */
-  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_size_human, 181, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 181, __pyx_L1_error)
+  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_size_human, 180, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 180, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":185
+  /* "fsutils/DirNode.pyx":184
  *         return tools.format_bytes(self.size)
  * 
  *     def search(self, pattern: str, attr: str = "name") -> list[GenericFile.File]:             # <<<<<<<<<<<<<<
  *         """Query the object for files with the given `name | regex` pattern.
  * 
  */
-  __pyx_tuple__30 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_pattern, __pyx_n_s_attr, __pyx_n_s_obj); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_tuple__30 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_pattern, __pyx_n_s_attr, __pyx_n_s_obj); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__30);
   __Pyx_GIVEREF(__pyx_tuple__30);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_search, 185, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 185, __pyx_L1_error)
-  __pyx_tuple__32 = PyTuple_Pack(1, ((PyObject*)__pyx_n_s_name)); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_search, 184, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 184, __pyx_L1_error)
+  __pyx_tuple__32 = PyTuple_Pack(1, ((PyObject*)__pyx_n_s_name)); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__32);
   __Pyx_GIVEREF(__pyx_tuple__32);
 
-  /* "fsutils/DirNode.pyx":197
+  /* "fsutils/DirNode.pyx":196
  *         return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
  * 
  *     def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:             # <<<<<<<<<<<<<<
  *         """Return a list of duplicate files in the directory.
  * 
  */
-  __pyx_tuple__33 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_num_keep, __pyx_n_s_refresh, __pyx_n_s_hashes, __pyx_n_s_value); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 197, __pyx_L1_error)
+  __pyx_tuple__33 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_num_keep, __pyx_n_s_refresh, __pyx_n_s_hashes, __pyx_n_s_value); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__33);
   __Pyx_GIVEREF(__pyx_tuple__33);
-  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_duplicates, 197, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 197, __pyx_L1_error)
-  __pyx_tuple__35 = PyTuple_Pack(2, ((PyObject *)__pyx_int_2), ((PyObject *)Py_False)); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(0, 197, __pyx_L1_error)
+  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_duplicates, 196, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_tuple__35 = PyTuple_Pack(2, ((PyObject *)__pyx_int_2), ((PyObject *)Py_False)); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__35);
   __Pyx_GIVEREF(__pyx_tuple__35);
 
-  /* "fsutils/DirNode.pyx":210
+  /* "fsutils/DirNode.pyx":209
  *         return [value for value in hashes.values() if len(value) > num_keep]
  * 
  *     def load_database(self) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
  *         """Deserialize the pickled database."""
  *         if self._pkl_path.exists():
  */
-  __pyx_codeobj__36 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_load_database, 210, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__36)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_codeobj__36 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_load_database, 209, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__36)) __PYX_ERR(0, 209, __pyx_L1_error)
 
-  /* "fsutils/DirNode.pyx":216
+  /* "fsutils/DirNode.pyx":215
  *         return {}
  * 
- *     def serialize(self, *, replace=False) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
+ *     def serialize(self,  *, replace=False)-> dict[int, list[str]]:             # <<<<<<<<<<<<<<
  *         """Create an hash index of all files in self."""
- *         if self._pkl_path.exists() and replace is True:
+ * 
  */
-  __pyx_tuple__37 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_replace, __pyx_n_s_pool, __pyx_n_s_result, __pyx_n_s_sha, __pyx_n_s_path); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __pyx_tuple__37 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_replace, __pyx_n_s_pool, __pyx_n_s_result, __pyx_n_s_sha, __pyx_n_s_path); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__37);
   __Pyx_GIVEREF(__pyx_tuple__37);
-  __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_serialize, 216, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_DirNode_pyx, __pyx_n_s_serialize, 215, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(0, 215, __pyx_L1_error)
 
   /* "fsutils/DirNode.pyx":240
  *         return self.db
@@ -15978,379 +15978,379 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "fsutils/DirNode.pyx":31
+  /* "fsutils/DirNode.pyx":30
  * 
  * 
  * class Dir(GenericFile.File):             # <<<<<<<<<<<<<<
  *     """A class representing information about a directory.
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GenericFile); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_GenericFile); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_File); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_File); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_3);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3)) __PYX_ERR(0, 31, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3)) __PYX_ERR(0, 30, __pyx_L1_error);
   __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PEP560_update_bases(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PEP560_update_bases(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_CalculateMetaclass(NULL, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CalculateMetaclass(NULL, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_Py3MetaclassPrepare(__pyx_t_4, __pyx_t_3, __pyx_n_s_Dir, __pyx_n_s_Dir, (PyObject *) NULL, __pyx_n_s_fsutils_DirNode, __pyx_kp_s_A_class_representing_information); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3MetaclassPrepare(__pyx_t_4, __pyx_t_3, __pyx_n_s_Dir, __pyx_n_s_Dir, (PyObject *) NULL, __pyx_n_s_fsutils_DirNode, __pyx_kp_s_A_class_representing_information); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   if (__pyx_t_3 != __pyx_t_2) {
-    if (unlikely((PyDict_SetItemString(__pyx_t_5, "__orig_bases__", __pyx_t_2) < 0))) __PYX_ERR(0, 31, __pyx_L1_error)
+    if (unlikely((PyDict_SetItemString(__pyx_t_5, "__orig_bases__", __pyx_t_2) < 0))) __PYX_ERR(0, 30, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_content_2, __pyx_kp_s_list_GenericFile_File) < 0) __PYX_ERR(0, 31, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_encoding, __pyx_n_s_str) < 0) __PYX_ERR(0, 31, __pyx_L1_error)
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_annotations, __pyx_t_6) < 0) __PYX_ERR(0, 31, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_content_2, __pyx_kp_s_list_GenericFile_File) < 0) __PYX_ERR(0, 30, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_encoding, __pyx_n_s_str) < 0) __PYX_ERR(0, 30, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_annotations, __pyx_t_6) < 0) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "fsutils/DirNode.pyx":59
+  /* "fsutils/DirNode.pyx":58
  *     _encoding: str
  * 
  *     def __init__(self, path: str | Path, *args, **kwargs) -> None:             # <<<<<<<<<<<<<<
  *         """Initialize a new instance of the "Dir" class.
  * 
  */
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_path, __pyx_kp_s_str_Path) < 0) __PYX_ERR(0, 59, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_return, __pyx_n_s_None) < 0) __PYX_ERR(0, 59, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_1__init__, 0, __pyx_n_s_Dir___init, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 59, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_path, __pyx_kp_s_str_Path) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_return, __pyx_n_s_None) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_1__init__, 0, __pyx_n_s_Dir___init, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF(__pyx_t_7);
   PyList_Append(__pyx_t_2, __pyx_t_7);
   __Pyx_GIVEREF(__pyx_t_7);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_7, __pyx_t_6);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_init, __pyx_t_7) < 0) __PYX_ERR(0, 59, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_init, __pyx_t_7) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":77
+  /* "fsutils/DirNode.pyx":76
  *         self.metadata = defaultdict(int)
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def files(self) -> list[str]:
  *         """Return a list of file names in the directory represented by this object."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_str) < 0) __PYX_ERR(0, 77, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_3files, 0, __pyx_n_s_Dir_files, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__15)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 77, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_str) < 0) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_3files, 0, __pyx_n_s_Dir_files, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__15)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_files, __pyx_t_7) < 0) __PYX_ERR(0, 77, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_files, __pyx_t_7) < 0) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":91
+  /* "fsutils/DirNode.pyx":90
  *         # return [f.name for f in self.objects if not f.is_dir()]
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def file_objects(
  *         self,
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_GenericFile_File_LogFile_Lo) < 0) __PYX_ERR(0, 91, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_5file_objects, 0, __pyx_n_s_Dir_file_objects, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__17)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 91, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_GenericFile_File_LogFile_Lo) < 0) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_5file_objects, 0, __pyx_n_s_Dir_file_objects, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__17)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_file_objects, __pyx_t_7) < 0) __PYX_ERR(0, 91, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_file_objects, __pyx_t_7) < 0) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":107
+  /* "fsutils/DirNode.pyx":106
  *         return list(filter(lambda x: not isinstance(x, Dir), self))
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def content(self) -> list[str]:
  *         """List the the contents of the toplevel directory."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_str) < 0) __PYX_ERR(0, 107, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_7content, 0, __pyx_n_s_Dir_content, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__18)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 107, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_str) < 0) __PYX_ERR(0, 106, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_7content, 0, __pyx_n_s_Dir_content, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__18)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_content, __pyx_t_7) < 0) __PYX_ERR(0, 107, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_content, __pyx_t_7) < 0) __PYX_ERR(0, 106, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":115
+  /* "fsutils/DirNode.pyx":114
  *             return []
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def objects(self) -> list[GenericFile.File]:
  *         """Return a list of fsutils objects inside self."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_GenericFile_File) < 0) __PYX_ERR(0, 115, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_9objects, 0, __pyx_n_s_Dir_objects, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 115, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_GenericFile_File) < 0) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_9objects, 0, __pyx_n_s_Dir_objects, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_objects_2, __pyx_t_7) < 0) __PYX_ERR(0, 115, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_objects_2, __pyx_t_7) < 0) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":124
+  /* "fsutils/DirNode.pyx":123
  *         return self._objects
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def is_empty(self) -> bool:
  *         """Check if the directory is empty."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_n_s_bool) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_11is_empty, 0, __pyx_n_s_Dir_is_empty, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__20)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_n_s_bool) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_11is_empty, 0, __pyx_n_s_Dir_is_empty, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__20)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_is_empty, __pyx_t_7) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_is_empty, __pyx_t_7) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":129
+  /* "fsutils/DirNode.pyx":128
  *         return len(self.files) == 0
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def images(self) -> list[ImageFile.Img]:
  *         """A list of ImageObject instances found in the directory."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_ImageFile_Img) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_13images, 0, __pyx_n_s_Dir_images, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 129, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_ImageFile_Img) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_13images, 0, __pyx_n_s_Dir_images, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_images, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_images, __pyx_t_7) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":134
+  /* "fsutils/DirNode.pyx":133
  *         return list(filter(lambda x: isinstance(x, ImageFile.Img), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def videos(self) -> list[VideoFile.Video]:
  *         """A list of VideoObject instances found in the directory."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_VideoFile_Video) < 0) __PYX_ERR(0, 134, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_15videos, 0, __pyx_n_s_Dir_videos, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__22)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 134, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_VideoFile_Video) < 0) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_15videos, 0, __pyx_n_s_Dir_videos, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__22)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_videos, __pyx_t_7) < 0) __PYX_ERR(0, 134, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_videos, __pyx_t_7) < 0) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":139
+  /* "fsutils/DirNode.pyx":138
  *         return list(filter(lambda x: isinstance(x, VideoFile.Video), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def logs(self) -> list[LogFile.Log]:
  *         """A list of LogFile.Log instances found in the directory."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_LogFile_Log) < 0) __PYX_ERR(0, 139, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_17logs, 0, __pyx_n_s_Dir_logs, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__23)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 139, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_LogFile_Log) < 0) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_17logs, 0, __pyx_n_s_Dir_logs, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__23)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_logs, __pyx_t_7) < 0) __PYX_ERR(0, 139, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_logs, __pyx_t_7) < 0) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":144
+  /* "fsutils/DirNode.pyx":143
  *         return list(filter(lambda x: isinstance(x, LogFile.Log), self.__iter__()))  # type: ignore
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def dirs(self) -> list[GenericFile.File]:
  *         """A list of DirectoryObject instances found in the directory."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_GenericFile_File) < 0) __PYX_ERR(0, 144, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_19dirs, 0, __pyx_n_s_Dir_dirs, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__24)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 144, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_GenericFile_File) < 0) __PYX_ERR(0, 143, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_19dirs, 0, __pyx_n_s_Dir_dirs, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__24)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_dirs, __pyx_t_7) < 0) __PYX_ERR(0, 144, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_dirs, __pyx_t_7) < 0) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":149
+  /* "fsutils/DirNode.pyx":148
  *         return list(filter(lambda x: isinstance(x, "Dir"), self.__iter__()))
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def summary(self) -> None:
  *         """Print a formatted table of each file extention and their count."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_n_s_None) < 0) __PYX_ERR(0, 149, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_21summary, 0, __pyx_n_s_Dir_summary, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__26)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_n_s_None) < 0) __PYX_ERR(0, 148, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_21summary, 0, __pyx_n_s_Dir_summary, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__26)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_summary, __pyx_t_7) < 0) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_summary, __pyx_t_7) < 0) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":166
+  /* "fsutils/DirNode.pyx":165
  *             print(f"{key: <{max_key_length}} {value}")
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def size(self) -> int:
  *         """Return the total size of all files and directories in the current directory."""
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 166, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_n_s_int) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_23size, 0, __pyx_n_s_Dir_size, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__28)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 166, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_n_s_int) < 0) __PYX_ERR(0, 165, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_23size, 0, __pyx_n_s_Dir_size, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__28)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 166, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_size, __pyx_t_7) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_size, __pyx_t_7) < 0) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":181
+  /* "fsutils/DirNode.pyx":180
  *         return self._size
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def size_human(self) -> str:
  *         return tools.format_bytes(self.size)
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 181, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_n_s_str) < 0) __PYX_ERR(0, 181, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_25size_human, 0, __pyx_n_s_Dir_size_human, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 181, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_n_s_str) < 0) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_25size_human, 0, __pyx_n_s_Dir_size_human, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 181, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_size_human, __pyx_t_7) < 0) __PYX_ERR(0, 181, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_size_human, __pyx_t_7) < 0) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":185
+  /* "fsutils/DirNode.pyx":184
  *         return tools.format_bytes(self.size)
  * 
  *     def search(self, pattern: str, attr: str = "name") -> list[GenericFile.File]:             # <<<<<<<<<<<<<<
  *         """Query the object for files with the given `name | regex` pattern.
  * 
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_pattern, __pyx_n_s_str) < 0) __PYX_ERR(0, 185, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_attr, __pyx_n_s_str) < 0) __PYX_ERR(0, 185, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_GenericFile_File) < 0) __PYX_ERR(0, 185, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_27search, 0, __pyx_n_s_Dir_search, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 185, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_pattern, __pyx_n_s_str) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_attr, __pyx_n_s_str) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_list_GenericFile_File) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_27search, 0, __pyx_n_s_Dir_search, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_6, __pyx_tuple__32);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_search, __pyx_t_6) < 0) __PYX_ERR(0, 185, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_search, __pyx_t_6) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "fsutils/DirNode.pyx":197
+  /* "fsutils/DirNode.pyx":196
  *         return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
  * 
  *     def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:             # <<<<<<<<<<<<<<
  *         """Return a list of duplicate files in the directory.
  * 
  */
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 197, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_refresh, __pyx_n_s_bool) < 0) __PYX_ERR(0, 197, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_return, __pyx_kp_s_list_list_str) < 0) __PYX_ERR(0, 197, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_29duplicates, 0, __pyx_n_s_Dir_duplicates, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__34)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 197, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_refresh, __pyx_n_s_bool) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_return, __pyx_kp_s_list_list_str) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_29duplicates, 0, __pyx_n_s_Dir_duplicates, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__34)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_7, __pyx_tuple__35);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_7, __pyx_t_6);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_duplicates, __pyx_t_7) < 0) __PYX_ERR(0, 197, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_duplicates, __pyx_t_7) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "fsutils/DirNode.pyx":210
+  /* "fsutils/DirNode.pyx":209
  *         return [value for value in hashes.values() if len(value) > num_keep]
  * 
  *     def load_database(self) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
  *         """Deserialize the pickled database."""
  *         if self._pkl_path.exists():
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_dict_int_list_str) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_31load_database, 0, __pyx_n_s_Dir_load_database, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__36)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 210, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_dict_int_list_str) < 0) __PYX_ERR(0, 209, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_31load_database, 0, __pyx_n_s_Dir_load_database, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__36)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_load_database, __pyx_t_6) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_load_database, __pyx_t_6) < 0) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "fsutils/DirNode.pyx":216
+  /* "fsutils/DirNode.pyx":215
  *         return {}
  * 
- *     def serialize(self, *, replace=False) -> dict[int, list[str]]:             # <<<<<<<<<<<<<<
+ *     def serialize(self,  *, replace=False)-> dict[int, list[str]]:             # <<<<<<<<<<<<<<
  *         """Create an hash index of all files in self."""
- *         if self._pkl_path.exists() and replace is True:
+ * 
  */
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_replace, ((PyObject *)Py_False)) < 0) __PYX_ERR(0, 216, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 216, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_replace, ((PyObject *)Py_False)) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_dict_int_list_str) < 0) __PYX_ERR(0, 216, __pyx_L1_error)
-  __pyx_t_8 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_33serialize, 0, __pyx_n_s_Dir_serialize, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 216, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_return, __pyx_kp_s_dict_int_list_str) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_CyFunction_New(&__pyx_mdef_7fsutils_7DirNode_3Dir_33serialize, 0, __pyx_n_s_Dir_serialize, NULL, __pyx_n_s_fsutils_DirNode, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_CyFunction_SetDefaultsKwDict(__pyx_t_8, __pyx_t_6);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_8, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_serialize, __pyx_t_8) < 0) __PYX_ERR(0, 216, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_serialize, __pyx_t_8) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
   /* "fsutils/DirNode.pyx":240
@@ -16495,18 +16495,18 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_n_s_repr, __pyx_t_8) < 0) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "fsutils/DirNode.pyx":31
+  /* "fsutils/DirNode.pyx":30
  * 
  * 
  * class Dir(GenericFile.File):             # <<<<<<<<<<<<<<
  *     """A class representing information about a directory.
  * 
  */
-  __pyx_t_8 = __Pyx_Py3ClassCreate(__pyx_t_4, __pyx_n_s_Dir, __pyx_t_3, __pyx_t_5, NULL, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_Py3ClassCreate(__pyx_t_4, __pyx_n_s_Dir, __pyx_t_3, __pyx_t_5, NULL, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (__Pyx_CyFunction_InitClassCell(__pyx_t_2, __pyx_t_8) < 0) __PYX_ERR(0, 31, __pyx_L1_error)
+  if (__Pyx_CyFunction_InitClassCell(__pyx_t_2, __pyx_t_8) < 0) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Dir, __pyx_t_8) < 0) __PYX_ERR(0, 31, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Dir, __pyx_t_8) < 0) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;

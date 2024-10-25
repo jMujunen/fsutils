@@ -27,7 +27,6 @@ from . import GenericFile
 # from fsutils.GenericFile import File
 
 
-
 class Dir(GenericFile.File):
     """A class representing information about a directory.
 
@@ -213,8 +212,9 @@ class Dir(GenericFile.File):
             return pickle.loads(self._pkl_path.read_bytes())
         return {}
 
-    def serialize(self, *, replace=False) -> dict[int, list[str]]:
+    def serialize(self,  *, replace=False)-> dict[int, list[str]]:
         """Create an hash index of all files in self."""
+
         if self._pkl_path.exists() and replace is True:
             self._pkl_path.unlink()
             self.db = {}
