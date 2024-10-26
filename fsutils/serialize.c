@@ -3048,7 +3048,7 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
  * 
  *     if self._pkl_path.exists():             # <<<<<<<<<<<<<<
  *         self._pkl_path.unlink()
- *     # else self._pkl_path.exists() and replace is False:
+ * 
  */
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -3085,8 +3085,8 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
  * 
  *     if self._pkl_path.exists():
  *         self._pkl_path.unlink()             # <<<<<<<<<<<<<<
- *     # else self._pkl_path.exists() and replace is False:
- *         # return self.load_database()
+ * 
+ *     pool = Pool()
  */
     __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
@@ -3122,18 +3122,18 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
  * 
  *     if self._pkl_path.exists():             # <<<<<<<<<<<<<<
  *         self._pkl_path.unlink()
- *     # else self._pkl_path.exists() and replace is False:
+ * 
  */
   }
 
-  /* "fsutils/serialize.pyx":39
+  /* "fsutils/serialize.pyx":30
+ *         self._pkl_path.unlink()
  * 
- *     # with Pool() as pool:
  *     pool = Pool()             # <<<<<<<<<<<<<<
  * 
  *     for result in pool.execute(
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Pool); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 39, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Pool); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   __pyx_t_4 = 0;
@@ -3153,68 +3153,68 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
     PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+1-__pyx_t_4, 0+__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 39, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 30, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
   __pyx_v_pool = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "fsutils/serialize.pyx":41
+  /* "fsutils/serialize.pyx":32
  *     pool = Pool()
  * 
  *     for result in pool.execute(             # <<<<<<<<<<<<<<
  *         helper,
  *         file_objects,
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_pool, __pyx_n_s_execute); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 41, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_pool, __pyx_n_s_execute); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "fsutils/serialize.pyx":42
+  /* "fsutils/serialize.pyx":33
  * 
  *     for result in pool.execute(
  *         helper,             # <<<<<<<<<<<<<<
  *         file_objects,
  *         progress_bar=True,
  */
-  __pyx_t_2 = __Pyx_CFunc_7fsutils_9serialize_list__lParenlist__rParen_to_py_12file_objects(__pyx_f_7fsutils_9serialize_helper); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 42, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CFunc_7fsutils_9serialize_list__lParenlist__rParen_to_py_12file_objects(__pyx_f_7fsutils_9serialize_helper); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "fsutils/serialize.pyx":41
+  /* "fsutils/serialize.pyx":32
  *     pool = Pool()
  * 
  *     for result in pool.execute(             # <<<<<<<<<<<<<<
  *         helper,
  *         file_objects,
  */
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 41, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2)) __PYX_ERR(1, 41, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2)) __PYX_ERR(1, 32, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_file_objects);
   __Pyx_GIVEREF(__pyx_v_file_objects);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_v_file_objects)) __PYX_ERR(1, 41, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_v_file_objects)) __PYX_ERR(1, 32, __pyx_L1_error);
   __pyx_t_2 = 0;
 
-  /* "fsutils/serialize.pyx":44
+  /* "fsutils/serialize.pyx":35
  *         helper,
  *         file_objects,
  *         progress_bar=True,             # <<<<<<<<<<<<<<
  *     ):
  *         if result:
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 44, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 35, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_progress_bar, Py_True) < 0) __PYX_ERR(1, 44, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_progress_bar, Py_True) < 0) __PYX_ERR(1, 35, __pyx_L1_error)
 
-  /* "fsutils/serialize.pyx":41
+  /* "fsutils/serialize.pyx":32
  *     pool = Pool()
  * 
  *     for result in pool.execute(             # <<<<<<<<<<<<<<
  *         helper,
  *         file_objects,
  */
-  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 41, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3224,9 +3224,9 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
     __pyx_t_7 = 0;
     __pyx_t_8 = NULL;
   } else {
-    __pyx_t_7 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 41, __pyx_L1_error)
+    __pyx_t_7 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 32, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_8 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 41, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 32, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   for (;;) {
@@ -3235,28 +3235,28 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(1, 41, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(1, 32, __pyx_L1_error)
           #endif
           if (__pyx_t_7 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_6); __pyx_t_7++; if (unlikely((0 < 0))) __PYX_ERR(1, 41, __pyx_L1_error)
+        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_6); __pyx_t_7++; if (unlikely((0 < 0))) __PYX_ERR(1, 32, __pyx_L1_error)
         #else
-        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 41, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 32, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         #endif
       } else {
         {
           Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_2);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(1, 41, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(1, 32, __pyx_L1_error)
           #endif
           if (__pyx_t_7 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_6); __pyx_t_7++; if (unlikely((0 < 0))) __PYX_ERR(1, 41, __pyx_L1_error)
+        __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_6); __pyx_t_7++; if (unlikely((0 < 0))) __PYX_ERR(1, 32, __pyx_L1_error)
         #else
-        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 41, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 32, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         #endif
       }
@@ -3266,17 +3266,17 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(1, 41, __pyx_L1_error)
+          else __PYX_ERR(1, 32, __pyx_L1_error)
         }
         break;
       }
       __Pyx_GOTREF(__pyx_t_6);
     }
-    if (!(likely(PyTuple_CheckExact(__pyx_t_6))||((__pyx_t_6) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_6))) __PYX_ERR(1, 41, __pyx_L1_error)
+    if (!(likely(PyTuple_CheckExact(__pyx_t_6))||((__pyx_t_6) == Py_None) || __Pyx_RaiseUnexpectedTypeError("tuple", __pyx_t_6))) __PYX_ERR(1, 32, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_result, ((PyObject*)__pyx_t_6));
     __pyx_t_6 = 0;
 
-    /* "fsutils/serialize.pyx":46
+    /* "fsutils/serialize.pyx":37
  *         progress_bar=True,
  *     ):
  *         if result:             # <<<<<<<<<<<<<<
@@ -3286,7 +3286,7 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
     __pyx_t_5 = (__pyx_v_result != Py_None)&&(PyTuple_GET_SIZE(__pyx_v_result) != 0);
     if (__pyx_t_5) {
 
-      /* "fsutils/serialize.pyx":47
+      /* "fsutils/serialize.pyx":38
  *     ):
  *         if result:
  *             sha, path = result             # <<<<<<<<<<<<<<
@@ -3299,7 +3299,7 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
         if (unlikely(size != 2)) {
           if (size > 2) __Pyx_RaiseTooManyValuesError(2);
           else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-          __PYX_ERR(1, 47, __pyx_L1_error)
+          __PYX_ERR(1, 38, __pyx_L1_error)
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
         __pyx_t_6 = PyTuple_GET_ITEM(sequence, 0); 
@@ -3307,51 +3307,51 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
         __Pyx_INCREF(__pyx_t_6);
         __Pyx_INCREF(__pyx_t_3);
         #else
-        __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 47, __pyx_L1_error)
+        __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 38, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_3 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 47, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 38, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       } else {
-        __Pyx_RaiseNoneNotIterableError(); __PYX_ERR(1, 47, __pyx_L1_error)
+        __Pyx_RaiseNoneNotIterableError(); __PYX_ERR(1, 38, __pyx_L1_error)
       }
       __Pyx_XDECREF_SET(__pyx_v_sha, __pyx_t_6);
       __pyx_t_6 = 0;
       __Pyx_XDECREF_SET(__pyx_v_path, __pyx_t_3);
       __pyx_t_3 = 0;
 
-      /* "fsutils/serialize.pyx":48
+      /* "fsutils/serialize.pyx":39
  *         if result:
  *             sha, path = result
  *             if sha not in self.db:             # <<<<<<<<<<<<<<
  *                 self.db[sha] = [path]
  *             else:
  */
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 48, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 39, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_5 = (__Pyx_PySequence_ContainsTF(__pyx_v_sha, __pyx_t_3, Py_NE)); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(1, 48, __pyx_L1_error)
+      __pyx_t_5 = (__Pyx_PySequence_ContainsTF(__pyx_v_sha, __pyx_t_3, Py_NE)); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(1, 39, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       if (__pyx_t_5) {
 
-        /* "fsutils/serialize.pyx":49
+        /* "fsutils/serialize.pyx":40
  *             sha, path = result
  *             if sha not in self.db:
  *                 self.db[sha] = [path]             # <<<<<<<<<<<<<<
  *             else:
  *                 self.db[sha].append(path)
  */
-        __pyx_t_3 = PyList_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 49, __pyx_L1_error)
+        __pyx_t_3 = PyList_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 40, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_v_path);
         __Pyx_GIVEREF(__pyx_v_path);
-        if (__Pyx_PyList_SET_ITEM(__pyx_t_3, 0, __pyx_v_path)) __PYX_ERR(1, 49, __pyx_L1_error);
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 49, __pyx_L1_error)
+        if (__Pyx_PyList_SET_ITEM(__pyx_t_3, 0, __pyx_v_path)) __PYX_ERR(1, 40, __pyx_L1_error);
+        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 40, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        if (unlikely((PyObject_SetItem(__pyx_t_6, __pyx_v_sha, __pyx_t_3) < 0))) __PYX_ERR(1, 49, __pyx_L1_error)
+        if (unlikely((PyObject_SetItem(__pyx_t_6, __pyx_v_sha, __pyx_t_3) < 0))) __PYX_ERR(1, 40, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "fsutils/serialize.pyx":48
+        /* "fsutils/serialize.pyx":39
  *         if result:
  *             sha, path = result
  *             if sha not in self.db:             # <<<<<<<<<<<<<<
@@ -3361,7 +3361,7 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
         goto __pyx_L7;
       }
 
-      /* "fsutils/serialize.pyx":51
+      /* "fsutils/serialize.pyx":42
  *                 self.db[sha] = [path]
  *             else:
  *                 self.db[sha].append(path)             # <<<<<<<<<<<<<<
@@ -3369,17 +3369,17 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
  *     db = self.db
  */
       /*else*/ {
-        __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 51, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 42, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_3, __pyx_v_sha); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 51, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_3, __pyx_v_sha); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 42, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_t_9 = __Pyx_PyObject_Append(__pyx_t_6, __pyx_v_path); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(1, 51, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyObject_Append(__pyx_t_6, __pyx_v_path); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(1, 42, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       }
       __pyx_L7:;
 
-      /* "fsutils/serialize.pyx":46
+      /* "fsutils/serialize.pyx":37
  *         progress_bar=True,
  *     ):
  *         if result:             # <<<<<<<<<<<<<<
@@ -3388,7 +3388,7 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
  */
     }
 
-    /* "fsutils/serialize.pyx":41
+    /* "fsutils/serialize.pyx":32
  *     pool = Pool()
  * 
  *     for result in pool.execute(             # <<<<<<<<<<<<<<
@@ -3398,24 +3398,24 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "fsutils/serialize.pyx":52
+  /* "fsutils/serialize.pyx":43
  *             else:
  *                 self.db[sha].append(path)
  *     self._pkl_path.write_bytes(pickle.dumps(self.db))             # <<<<<<<<<<<<<<
  *     db = self.db
  *     return db
  */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 52, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_pkl_path); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_write_bytes); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 52, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_write_bytes); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_pickle); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 52, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_pickle); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_dumps); if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 52, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_dumps); if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 52, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_11 = NULL;
   __pyx_t_4 = 0;
@@ -3436,7 +3436,7 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
     __pyx_t_6 = __Pyx_PyObject_FastCall(__pyx_t_10, __pyx_callargs+1-__pyx_t_4, 1+__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 52, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 43, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   }
@@ -3459,25 +3459,25 @@ static PyObject *__pyx_f_7fsutils_9serialize_serialize(PyObject *__pyx_v_self, C
     __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_4, 1+__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 52, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 43, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "fsutils/serialize.pyx":53
+  /* "fsutils/serialize.pyx":44
  *                 self.db[sha].append(path)
  *     self._pkl_path.write_bytes(pickle.dumps(self.db))
  *     db = self.db             # <<<<<<<<<<<<<<
  *     return db
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 53, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_db); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 44, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (!(likely(PyDict_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_2))) __PYX_ERR(1, 53, __pyx_L1_error)
+  if (!(likely(PyDict_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_2))) __PYX_ERR(1, 44, __pyx_L1_error)
   __Pyx_DECREF_SET(__pyx_v_db, ((PyObject*)__pyx_t_2));
   __pyx_t_2 = 0;
 
-  /* "fsutils/serialize.pyx":54
+  /* "fsutils/serialize.pyx":45
  *     self._pkl_path.write_bytes(pickle.dumps(self.db))
  *     db = self.db
  *     return db             # <<<<<<<<<<<<<<
