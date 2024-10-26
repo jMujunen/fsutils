@@ -26,16 +26,7 @@ cpdef serialize (self) :
 
     if self._pkl_path.exists():
         self._pkl_path.unlink()
-    # else self._pkl_path.exists() and replace is False:
-        # return self.load_database()
 
-    # results = [(lambda x: (x.sha(), x.path))(item) for item in file_objects]
-    # for item in file_objects:
-        # sha = item.sha256()
-        # result = (sha, item.path)
-        # print("Result", result)
-
-    # with Pool() as pool:
     pool = Pool()
 
     for result in pool.execute(
