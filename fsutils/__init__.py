@@ -21,6 +21,7 @@ from .mimecfg import (
     FILE_TYPES as FILE_TYPES,
     IGNORED_DIRS as IGNORED_DIRS,
 )
+from .utils import obj
 from .VideoFile import Video as Video
 
 __all__ = [
@@ -38,4 +39,5 @@ __all__ = [
     "FILE_TYPES",
     "IGNORED_DIRS",
     "Presets",
+    "obj",
 ]
