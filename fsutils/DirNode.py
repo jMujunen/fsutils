@@ -14,6 +14,7 @@ from ProgressBar import ProgressBar
 from size import Size
 from ThreadPoolHelper import Pool
 
+from fsutils import serialize
 from fsutils.GenericFile import File
 from fsutils.GitObject import Git
 from fsutils.ImageFile import Img
@@ -210,27 +211,10 @@ class Dir(File):
 
     def serialize(self, *, replace=False) -> dict[int, list[str]]:
         """Create an hash index of all files in self."""
-        if self._pkl_path.exists() and replace is True:
-            self._pkl_path.unlink()
-            self.db = {}
-        elif self._pkl_path.exists() and replace is False:
+        if not replace and self._pkl_path.exists():
             return self.load_database()
 
-        pool = Pool()
-
-        for result in pool.execute(
-            lambda x: (x.sha256(), x.path),
-            self.file_objects,
-            progress_bar=True,
-        ):
-            if result:
-                sha, path = result
-                if sha not in self.db:
-                    self.db[sha] = [path]
-                else:
-                    self.db[sha].append(path)
-        self._pkl_path.write_bytes(pickle.dumps(self.db))
-        return self.db
+        return serialize.serialize(self)
 
     def sha256(self) -> str:
         return super().sha256()
