@@ -235,6 +235,16 @@ class Dir(File):
             case _:
                 return f"Spec {format_spec} is not supported yet"
 
+    def __getitem__(self, index, /) -> File | None:
+        """Get File object by index."""
+        if isinstance(index, int):
+            return self.file_objects[index]
+        if isinstance(index, str):
+            for file in self.file_objects:
+                if file.name == index:
+                    return file
+        return None
+
     def __contains__(self, item: File) -> bool:
         """Is `File` in self?"""  # noqa
         return item.sha256() in self.serialize()

@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Any
 
 import chardet
-
 from mimecfg import FILE_TYPES
 from tools import format_bytes
 
@@ -60,7 +59,9 @@ class File(Path):
             - `path (str)` : The path to the file
             - `encoding (str)` : Encoding type of the file (default is utf-8)
         """
-        self.path = os.path.abspath(os.path.expanduser(path))
+        if isinstance(path, str):
+            path = Path(path)
+        self.path = os.path.abspath(os.path.expanduser(str(path)))
         self.encoding = encoding
         if not self.exists:
             raise FileNotFoundError(f"File '{self.path}' does not exist")
