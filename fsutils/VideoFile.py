@@ -12,11 +12,11 @@ from pathlib import Path
 from typing import Any, LiteralString
 
 import cv2
+
 from Exceptions import CorruptMediaError, FFProbeError
 from FFProbe import FFProbe, FFStream
 from GenericFile import File
 from ImageFile import Img
-from size import Size
 from tools import format_bytes, format_timedelta, frametimes
 
 cv2.setLogLevel(1)

@@ -60,14 +60,13 @@ class Dir(File):
 
         """
         super().__init__(path, *args, **kwargs)
-        self._pkl_path = Path(self.path, f"{self.prefix}.pkl")
+        self._pkl_path = Path(self.path, f".{self.prefix}.pkl")
         if self._pkl_path.exists():
             self.db = pickle.loads(self._pkl_path.read_bytes())
         else:
             self.db = {}
-        # MetaData.__post_init__(self)
-        self._objects = []
         self.metadata = defaultdict(int)
+        self._objects = []
 
     @property
     def files(self) -> list[str]:
@@ -155,8 +154,25 @@ class Dir(File):
         sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))
         # Print the sorted table
         max_key_length = max([len(k) for k in sorted_stat])
+        total = sum([v for k, v in sorted_stat.items()])
+        total_digits = len([int(i) for i in list(str(total))])
         for key, value in sorted_stat.items():
-            print(f"{key: <{max_key_length}} {value}")
+            percentage = round((int(value) / total) * 100, 1)
+            if percentage < 5:
+                color = "\x1b[0m"
+            elif 5 < percentage < 20:
+                color = "\x1b[32m"
+            elif 20 <= percentage < 50:
+                color = "\x1b[33m"
+            else:
+                color = "\x1b[31m"
+            print(
+                f"{key: <{max_key_length+1}} {value:<{total_digits+4}} {color}{percentage}\x1b[0m"
+            )
+        print(
+            f"{'\x1b[1;40mTotal': <{max_key_length+1}} {total:<{total_digits+5}}{'100%':}",
+            end="\x1b[0m\n",
+        )
 
     @property
     def size(self) -> Size:
@@ -178,7 +194,7 @@ class Dir(File):
     def size_human(self) -> str:
         return str(self.size)
 
-    def search(self, pattern: str, attr: str = "name") -> list[File]:
+    def search(self, pattern: str, attr: str = "name") -> Generator:
         """Query the object for files with the given `name | regex` pattern.
 
         Paramaters:
@@ -188,7 +204,13 @@ class Dir(File):
 
         Return an list of `File` instances if found
         """
-        return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
+        pool = Pool()
+        yield from pool.execute(
+            lambda x: x if re.search(pattern, getattr(x, attr)) else None,
+            self.file_objects,
+            progress_bar=False,
+        )
+        # return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
 
     def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
