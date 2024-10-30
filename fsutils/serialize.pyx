@@ -2,33 +2,26 @@ import cython
 from ThreadPoolHelper import Pool
 import pickle
 from DirNode import Dir
-from typing import Generator
-# @cython.boundscheck(False)
-# @cython.wraparound(False)
+from typing import  Generator
 
 
-cdef list helper (list file_objects):
-    cdef tuple result
-    cdef list results
-    results =  []
-    for item in file_objects:
-        sha = item.sha256()
-        result = (sha, item.path)
-        results.append(result)
-    return results
+cdef tuple helper (file):
+    cdef str name, path, sha
+    path, sha = file.path, file.sha256()
+
+    return sha, path
 
 cpdef serialize (self) :
     """Create an hash index of all files in self."""
     cdef dict[int,list[str]] db = {}
     cdef tuple result
-    cdef list file_objects
     file_objects = self.file_objects
 
     if self._pkl_path.exists():
         self._pkl_path.unlink()
 
     pool = Pool()
-
+    self.db = {}
     for result in pool.execute(
         helper,
         file_objects,

@@ -343,10 +343,6 @@ class Video(File):
             {
                 "md5": self.md5_checksum(),
                 "size": self.size,
-                "fps": self.fps,
-                "bitrate": self.bitrate,
-                "codec": self.codec,
-                "duration": self.duration,
             }
         )
         return hashlib.sha256(serialized_object).hexdigest()

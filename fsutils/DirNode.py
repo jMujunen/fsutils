@@ -10,11 +10,11 @@ from collections.abc import Generator, Iterator
 from pathlib import Path
 from typing import LiteralString
 
+import serialize
 from ProgressBar import ProgressBar
 from size import Size
 from ThreadPoolHelper import Pool
 
-from fsutils import serialize
 from fsutils.GenericFile import File
 from fsutils.GitObject import Git
 from fsutils.ImageFile import Img

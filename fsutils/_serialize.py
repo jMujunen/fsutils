@@ -1,17 +1,16 @@
 import pickle
 
-from ThreadPoolHelper import Pool
-
 import cython
+from ThreadPoolHelper import Pool
 
 
 # @cython.boundscheck(False)
 # @cython.wraparound(False)
 def serialize(self):
     """Create an hash index of all files in self."""
-    _result: cython.tuple
-    _file_objects: cython.list
-    db = cython.dict
+    # _result: cython.tuple
+    # _file_objects: cython.list
+    # db = cython.dict
 
     # cdef dict[int,list[str]] db = {}
     # cdef tuple result
