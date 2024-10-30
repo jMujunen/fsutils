@@ -150,12 +150,7 @@ class File(Path):
     @property
     def is_video(self) -> bool:
         """Check if the file is a video."""
-        return all(
-            (
-                self.suffix.lower() in mimecfg.FILE_TYPES["video"],
-                self.__class__.__name__ == "VideoFile.Video",
-            )
-        )
+        return self.suffix.lower() in mimecfg.FILE_TYPES["video"]
 
     def detect_encoding(self) -> str:
         """Detect encoding of the file."""

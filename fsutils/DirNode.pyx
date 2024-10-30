@@ -22,6 +22,7 @@ from . import VideoFile
 from . import GitObject
 from . import tools
 from . import GenericFile
+# cimport GenericFile.File as GenericFile
 # from . import cimport GenericFile as File
 # from .GenericFile cimport File
 # from fsutils.GenericFile import File
@@ -52,9 +53,6 @@ class Dir(GenericFile.File):
 
     """
 
-    _content: list[GenericFile.File]
-    _encoding: str
-
     def __init__(self, path: str | Path, *args, **kwargs) -> None:
         """Initialize a new instance of the "Dir" class.
 
@@ -63,8 +61,18 @@ class Dir(GenericFile.File):
             path (str) : The path to the directory.
 
         """
+        cdef  list _content, _objects
+        cdef  dict metadata
+        cdef  dict[int,str] db
+        cdef  int  len, _size
+        cdef  str encoding
+
         super().__init__(path, *args, **kwargs)
-        self._pkl_path = Path(self.path, f"{self.prefix}.pkl")
+        self._pkl_path = Path(self.path, f".{self.prefix}.pkl")
+        depreciated_pkl = Path(self.path, f"{self.prefix}.pkl")
+        if depreciated_pkl.exists():
+            depreciated_pkl.rename(self._pkl_path)
+            print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
         if self._pkl_path.exists():
             self.db = pickle.loads(self._pkl_path.read_bytes())
         else:
@@ -76,7 +84,8 @@ class Dir(GenericFile.File):
     @property
     def files(self) -> list[str]:
         """Return a list of file names in the directory represented by this object."""
-        files = []
+        cdef list files = []
+
         for f in self.objects:
             try:
                 if not f.is_dir():

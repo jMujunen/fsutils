@@ -9,15 +9,6 @@ from enum import Enum
 
 SECONDS_PER_HOUR = 60 * 60
 
-
-class SizeUnit(Enum):
-    B = 1
-    KB = 1024
-    MB = 1024**2
-    GB = 1024**3
-    TB = 1024**4
-
-
 class SizeUnit(Enum):
     B = 1
     KB = 1024
