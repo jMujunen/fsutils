@@ -12,12 +12,11 @@ from pathlib import Path
 from typing import Any, LiteralString
 
 import cv2
-from size import Size
-
 from Exceptions import CorruptMediaError, FFProbeError
 from FFProbe import FFProbe, FFStream
 from GenericFile import File
 from ImageFile import Img
+from size import Size
 from tools import format_bytes, format_timedelta, frametimes
 
 cv2.setLogLevel(1)
@@ -238,7 +237,7 @@ class Video(File):
 
         """
         # Define output
-        output_dir = kwargs.get("output", f"{self.name}-frames/")
+        output_dir = Path(kwargs.get("output", f"{self.name}-frames/"))
         Path.mkdir(output_dir, parents=True, exist_ok=True)
         # Init opencv video capture object and get properties
         cap = cv2.VideoCapture(self.path)
@@ -263,8 +262,11 @@ class Video(File):
                 # if closest duration is less than or equals the frametime,
                 # then save the frame
                 frame_duration_formatted = format_timedelta(timedelta(seconds=frametime))
+                print(
+                    f"Writing frame {count} at {output_dir}/{format_timedelta(timedelta(seconds=frametime))}.jpg..."
+                )
                 cv2.imwrite(
-                    os.path.join(f"{self.name}-frames", f"frame{frame_duration_formatted}.jpg"),
+                    Path(output_dir, f"frame{frame_duration_formatted}.jpg"),
                     frame,
                 )
                 # drop the duration spot from the list, since this duration spot is already saved
