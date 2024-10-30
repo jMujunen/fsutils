@@ -61,6 +61,11 @@ class Dir(File):
         """
         super().__init__(path, *args, **kwargs)
         self._pkl_path = Path(self.path, f".{self.prefix}.pkl")
+        depreciated_pkl = Path(self.path, f"{self.prefix}.pkl")
+        if depreciated_pkl.exists():
+            depreciated_pkl.rename(self._pkl_path)
+            print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
+
         if self._pkl_path.exists():
             self.db = pickle.loads(self._pkl_path.read_bytes())
         else:
@@ -276,7 +281,7 @@ class Dir(File):
 
     def __len__(self) -> int:
         """Return the number of items in the object."""
-        return len(self.objects)
+        return len(list(self.rglob("*")))
 
     def __iter__(self) -> Iterator[File]:
         """Yield a sequence of File instances for each item in self."""
