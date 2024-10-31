@@ -27,24 +27,22 @@ class Dir(File):
     """A class representing information about a directory.
 
     Attributes
-    ----------
-        - `path (str)` : The path to the directory.
+    -----------
+        path (str): The path to the directory.
 
     Methods
-    -------
-        - `file_info (other)` :     # Check for `other` in self and return it as an object of `other`
-        - `getinfo()` :             # Returns a list of extentions and their count
-        - `__eq__ (other)` :        # Compare properties of two Dir objects
-        - `__contains__ (other)` :  # Check if `other` is present in self
-        - `__len__`:                # Return the number of objects in self
-        - `__iter__`  :             # Iterator which yields the appropriate File instance
+    --------
+        file_info(): Check for `other` in self and return it as an object of `other`
+        getinfo(): Returns a list of extentions and their count
+        __eq__(): Compare properties of two Dir objects
+        __contains__(): Check if `other` is present in self
+        __len__: Return the number of objects in self
+        __iter__: Iterator which yields the appropriate File instance
 
-
-    Properties
-    -----------
-        - `files`       : Read only propery returning a list of file names
-        - `objects`     : Read-only property yielding a sequence of DirectoryObject or FileObject instances
-        - `directories` : Read-only property yielding a list of absolute paths for subdirectories
+    Properties:
+        files: Read only propery returning a list of file names
+        objects: Read-only property yielding a sequence of DirectoryObject or FileObject instances
+        directories: Read-only property yielding a list of absolute paths for subdirectories
 
     """
 
@@ -55,8 +53,7 @@ class Dir(File):
         """Initialize a new instance of the Dir class.
 
         Parameters
-        ----------
-            path (str) : The path to the directory.
+            path (str): The path to the directory.
 
         """
         super().__init__(path, *args, **kwargs)
@@ -158,6 +155,9 @@ class Dir(File):
                 self.metadata[ext[1:]] += 1  # Remove the dot from extention
         sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))
         # Print the sorted table
+        if not sorted_stat:
+            print("No files found.")
+            return None
         max_key_length = max([len(k) for k in sorted_stat])
         total = sum([v for k, v in sorted_stat.items()])
         total_digits = len([int(i) for i in list(str(total))])
@@ -199,7 +199,7 @@ class Dir(File):
     def size_human(self) -> str:
         return str(self.size)
 
-    def search(self, pattern: str, attr: str = "name") -> Generator:
+    def search(self, pattern: str, attr: str = "name") -> list[File]:
         """Query the object for files with the given `name | regex` pattern.
 
         Paramaters:
@@ -210,11 +210,12 @@ class Dir(File):
         Return an list of `File` instances if found
         """
         pool = Pool()
-        yield from pool.execute(
+        results = pool.execute(
             lambda x: x if re.search(pattern, getattr(x, attr)) else None,
             self.file_objects,
             progress_bar=False,
         )
+        return list(results)
         # return [obj for obj in self.file_objects if re.search(pattern, getattr(obj, attr))]
 
     def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:

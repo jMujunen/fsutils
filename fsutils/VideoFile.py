@@ -134,19 +134,20 @@ class Video(File):
         """Check if the video is corrupt."""
         try:
             cap = cv2.VideoCapture(self.path)
-            return cap.isOpened()
+            return not cap.isOpened()
         except (OSError, SyntaxError):
             return True  # Video is corrupt
         except KeyboardInterrupt:
             sys.exit(0)
 
     @property
-    def ffprobe(self) -> FFStream:
+    def ffprobe(self) -> FFStream | None:
         """Return the first video stream."""
         try:
-            return next(
-                stream for stream in FFProbe(str(self.resolve())).streams if stream.is_video()
-            )
+            stream = next(s for s in FFProbe(str(self.resolve())).streams if s.is_video())
+            self.metadata.update({k: v for k, v in stream.__dict__.items() if "tags" not in k})
+            return stream
+
         except StopIteration:
             if self.is_corrupt:
                 raise CorruptMediaError(f"{self.absolute()} is corrupt.") from StopIteration
@@ -156,6 +157,7 @@ class Video(File):
             raise FFProbeError(
                 f"FFprobe did not find any video streams for {self.path}."
             ) from IndexError
+        return None
 
     @property
     def fps(self) -> int:

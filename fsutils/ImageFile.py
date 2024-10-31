@@ -21,25 +21,18 @@ ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 
 
 class Img(File):
-    """A class representing information about an image.
-
-    Attributes
-    ----------
-        - `path (str)` : The absolute path to the file.
+    """Represents an image.
 
     Methods
     -------
-        - `calculate_hash(self)` : Calculate the hash value of the image
-        - `render(self, size=None`): Render an image using kitty at a specified size (optional)
-        - `generate_title()` : EXPERIMENTAL! - Generate a title for the image using ollama
-        - `resize(width=320, height=320)` : Resize the image to a specified width and height
-
-    Properties:
-    ----------
-        - `capture_date` (str) : Return the capture date of the image
-        - `dimensions` (tuple) : Return a tuple containing the width and height of the image
-        - `exif` (dict)        : Return a dictionary containing EXIF data about the image if available
-        - `is_corrupted` (bool): Return True if the file is corrupted, False otherwise
+        - `calculate_hash(spec)` : Calculate the hash value of the image using a specified algorithm
+        - `render()`             : Render the image in the terminal with a title for the image using ollama
+        - `open()`                : Open the image in the OS default image viewer
+        - `save(path)`            : Save the image to a specified location
+        - `resize(height=480, tempfile=False, overwrite=False, **kwargs)`: Resize the image to specified size and mode.
+        - `compress()`            : Compresses an image.
+        - `encode()`              : Base64 encode the image.
+        - `grayscale(output)`     : Convert the image to grayscale and save it to the specified output path.
     """
 
     def __init__(self, path: str | Path) -> None:

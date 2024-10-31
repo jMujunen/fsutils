@@ -1,15 +1,11 @@
 """Python wrapper for ffprobe command line tool. ffprobe must exist in the path."""
 
 import functools
+import json
 import operator
-import os
-import pipes
-import platform
-import re
 import subprocess
 from pathlib import Path
 
-# from ..fsutils import Video
 from Exceptions import CorruptMediaError, FFProbeError
 
 
@@ -18,8 +14,6 @@ class FFProbe:
     metadata = FFProbe("multimedia-file.mov").
     """
 
-    streams: list["FFStream"]
-
     def __init__(self, filepath: str) -> None:
         """Initialize the FFProbe object.
 
@@ -27,133 +21,51 @@ class FFProbe:
         ------------
             - `path_to_video (str)` : Path to video file.
         """
-        self.file = Path(filepath)
+        self.streams = []
+        cmd = "ffprobe -print_format json -show_streams {path} -v quiet"
+        data = json.loads(subprocess.getoutput(cmd.format(path=filepath))).get("streams", [])
 
-        try:
-            with open(os.devnull, "w") as tempf:
-                subprocess.check_call(["ffprobe", "-h"], stdout=tempf, stderr=tempf)
-        except FileNotFoundError:
-            raise OSError("ffprobe not found.") from FileNotFoundError
-        if self.file.is_file() or str(self.file.absolute()).startswith("http"):
-            if platform.system() == "Windows":
-                cmd = ["ffprobe", "-show_streams", f"{self.file}"]
-            else:
-                cmd = ["ffprobe -show_streams " + pipes.quote(f"{self.file}")]
+        if not data:
+            raise FFProbeError(f"No streams found in file {filepath}")
 
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-
-            stream = False
-            ignoreLine = False
-            self.streams = []
-            self.video = []
-            self.audio = []
-            self.subtitle = []
-            self.attachment = []
-
-            for line in iter(proc.stdout.readline, b""):
-                line = line.decode("UTF-8", "ignore")
-                if "[STREAM]" in line:
-                    stream = True
-                    ignoreLine = False
-                    data_lines = []
-                elif "[/STREAM]" in line and stream:
-                    stream = False
-                    ignoreLine = False
-                    self.streams.append(FFStream(data_lines))
-                elif stream:
-                    if "[SIDE_DATA]" in line:
-                        ignoreLine = True
-                    elif "[/SIDE_DATA]" in line:
-                        ignoreLine = False
-                    elif not ignoreLine:
-                        data_lines.append(line)
-
-            self.metadata = {}
-            is_metadata = False
-            stream_metadata_met = False
-
-            for line in iter(proc.stderr.readline, b""):
-                line = line.decode("UTF-8", "ignore")
-
-                if "Metadata:" in line and not stream_metadata_met:
-                    is_metadata = True
-                elif "Stream #" in line:
-                    is_metadata = False
-                    stream_metadata_met = True
-                elif is_metadata:
-                    splits = line.split(",")
-                    for s in splits:
-                        m = re.search(r"(\w+)\s*:\s*(.*)$", s)
-                        if m is not None:
-                            # print(m.groups())
-                            self.metadata[m.groups()[0]] = m.groups()[1].strip()
-
-                if "[STREAM]" in line:
-                    stream = True
-                    data_lines = []
-                elif "[/STREAM]" in line and stream:
-                    stream = False
-                    self.streams.append(FFStream(data_lines))
-                elif stream:
-                    data_lines.append(line)
-
-            proc.stdout.close()
-            proc.stderr.close()
-
-            for stream in self.streams:
-                if stream.is_audio():
-                    self.audio.append(stream)
-                elif stream.is_video():
-                    self.video.append(stream)
-                elif stream.is_subtitle():
-                    self.subtitle.append(stream)
-                elif stream.is_attachment():
-                    self.attachment.append(stream)
-        elif not self.file.exists():
-            raise FileNotFoundError(f"File does not exist: {self.file}")
-        elif self.file.is_dir():
-            raise IsADirectoryError("Given path is a directory, not a file.")
-        else:
-            raise CorruptMediaError(f"{self.file} is corrupt")
+        for stream in data:
+            self.streams.append(FFStream(stream))
 
     def __repr__(self) -> str:
-        return "FFprobe(metadata={metadata}, video={video}, audio={audio})".format(**vars(self))
+        return f"<FFProbe {len(self.streams)} streams>"
 
 
 class FFStream:
     """An object representation of an individual stream in a multimedia file."""
 
-    def __init__(self, data_lines):
-        for line in data_lines:
-            self.__dict__.update({key: value for key, value, *_ in [line.strip().split("=")]})
-
-            try:
-                self.__dict__["framerate"] = round(
-                    functools.reduce(
-                        operator.truediv,
-                        map(int, self.__dict__.get("avg_frame_rate", "").split("/")),
-                    )
+    def __init__(self, index: dict) -> None:
+        """Initialize the FFStream object."""
+        self.__dict__.update(index)
+        try:
+            self.__dict__["framerate"] = round(
+                functools.reduce(
+                    operator.truediv,
+                    map(int, self.__dict__.get("avg_frame_rate", "").split("/")),
                 )
+            )
 
-            except ValueError:
-                self.__dict__["framerate"] = None
-            except ZeroDivisionError:
-                self.__dict__["framerate"] = 0
+        except ValueError:
+            self.__dict__["framerate"] = None
+        except ZeroDivisionError:
+            self.__dict__["framerate"] = 0
 
     def __repr__(self) -> str:
         if self.is_video():
-            template = (
-                "Stream: #{index} [{codec_type}] {codec_long_name}, {framerate}, ({width}x{height})"
-            )
+            template = "Stream[{codec_type}]({codec_name}, {framerate}, ({width}x{height}))"
 
         elif self.is_audio():
             template = (
-                "Stream: #{index} [{codec_type}] {codec_long_name}, channels: {channels} ({channel_layout}), "
-                "{sample_rate}Hz "
+                "Stream[{codec_type}]({codec_name}, channels: {channels} ({channel_layout}), "
+                "{sample_rate}Hz)"
             )
 
         elif self.is_subtitle() or self.is_attachment():
-            template = "Stream: #{index} [{codec_type}] {codec_long_name}"
+            template = "Stream: #{index} [{codec_type}] {codec_name}"
 
         else:
             template = ""
