@@ -225,7 +225,7 @@ class Video(File):
         # Other options: "-pix_fmt","rgb24" |
         return Img(output_path)
 
-    def extract_frames(self, fps=1, **kwargs: Any) -> None:
+    def extract_frames(self, fps=1, **kwargs: Any) -> list[Img]:
         """Extract frames from video.
 
         Paramaters
@@ -248,6 +248,7 @@ class Video(File):
         interval = round(min(clip_fps, fps))
         frametime_refs = frametimes(num_frames, clip_fps, interval)
 
+        saved_frames = []
         count = 0
         while cap.isOpened():
             ret, frame = cap.read()
@@ -263,21 +264,23 @@ class Video(File):
             if frametime >= closest_duration:
                 # if closest duration is less than or equals the frametime,
                 # then save the frame
-                frame_duration_formatted = format_timedelta(timedelta(seconds=frametime))
-                print(
-                    f"Writing frame {count} at {output_dir}/{format_timedelta(timedelta(seconds=frametime))}.jpg..."
+                output_path = Path(
+                    output_dir, f"frame{format_timedelta(timedelta(seconds=frametime))}.jpg"
                 )
+                print(f"Writing frame {count} to {output_path}")
                 cv2.imwrite(
-                    Path(output_dir, f"frame{frame_duration_formatted}.jpg"),
+                    output_path,
                     frame,
                 )
+                saved_frames.append(Img(output_path))
                 # drop the duration spot from the list, since this duration spot is already saved
                 with contextlib.suppress(IndexError):
                     frametime_refs.pop(0)
             # increment the frame count
             count += 1
+        return saved_frames
 
-    def trim(self, start_: int = 0, end_: int = 100, output: str | Path | None = None) -> int:
+    def subclip(self, start_: int, end_: int, output: str | Path) -> "Video":
         """Trim the video from start to end time (seconds).
 
         Parameters
@@ -287,10 +290,16 @@ class Video(File):
             - `output (str)` : (default is current working directory)
         """
 
-        output_path = output if output else str(self)[:-4] + f"_trimmed.{self.suffix}"
-        return subprocess.call(
-            f"ffmpeg -ss mm:ss -to mm2:ss2 -i {self:!s} -codec copy {output_path}"
+        template = "{}:{}"
+        start = template.format(*divmod(start_, 60))
+        end = template.format(*divmod(end_, 60))
+
+        output_path = Path(output).resolve()
+        result = subprocess.check_call(
+            f"ffmpeg -ss {start} -to {end} -i {self!s} -codec copy -v quiet -y {output_path}",
+            shell=True,
         )
+        return Video(output_path)
 
     def compress(self, **kwargs: Any) -> "Video":
         """Compress video using x265 codec with crf 18.
