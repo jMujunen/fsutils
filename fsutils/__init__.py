@@ -1,15 +1,18 @@
 """fsutils - a collection of utilities for file system manipulation and data extraction."""
 
 from . import mimecfg
-from .DirNode import (
-    Dir as Dir,
-    obj as obj,
-)
+from .compiled import Dir, File, obj
+
+# from .DirNode import (
+# Dir as Dir,
+# obj as obj,
+# )
 from .FFProbe import (
     FFProbe as FFProbe,
     FFStream as FFStream,
 )
-from .GenericFile import File as File
+
+# from .GenericFile import File as File
 from .GitObject import Git as Git
 from .ImageFile import Img as Img
 from .LogFile import (
@@ -39,6 +42,7 @@ __all__ = [
     "FILE_TYPES",
     "IGNORED_DIRS",
     "Presets",
+    "mimecfg",
 ]
 __package_name__ = "fsutils"
 __version__ = "0.1.0"

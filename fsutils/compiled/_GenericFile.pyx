@@ -17,6 +17,7 @@ from fsutils.tools import format_bytes
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
+
 class File(Path):
     """This is the base class for all of the following objects.
 
@@ -126,16 +127,6 @@ class File(Path):
             self._content = self.read_text().splitlines()
         return self._content
 
-    def _read_chunk(self, size=4096) -> bytes:
-        """Read a chunk of the file and return it as bytes."""
-        with open(self.path, "rb") as f:  # noqa
-            return f.read(size)
-
-    def md5_checksum(self, size=4096) -> str:
-        """Return the MD5 checksum of a portion of the image file."""
-        data = self._read_chunk(size)
-        return hashlib.md5(data).hexdigest()
-
     @property
     def is_executable(self) -> bool:
         """Check if the file has the executable bit set."""
@@ -171,19 +162,6 @@ class File(Path):
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
-    def detect_encoding(self) -> str:
-        """Detect encoding of the file."""
-        self.encoding = chardet.detect(self._read_chunk(2048))["encoding"] or self.encoding
-        return self.encoding
-
-    def sha256(self) -> str:
-        """Return a reproducable sha256 hash of the file."""
-        serialized_object = pickle.dumps({"md5": self.md5_checksum(), "size": self.size})
-        return hashlib.sha256(serialized_object).hexdigest()
-
-    def __hash__(self) -> int:
-        return hash(self.sha256())
-        # return hash((self.md5_checksum(), self.size))
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""
@@ -232,5 +210,49 @@ class File(Path):
             **vars(self)
         )
 
-    # def __init_subclass__(cls) -> None:
-    #     return super().__init_subclass__()
+
+    def detect_encoding(self) -> str:
+        """Detect encoding of the file."""
+        return _cdetect_encoding(self)
+
+
+    def sha256(self) -> str:
+        """Return a reproducable sha256 hash of the file."""
+        return _csha256(self)
+
+
+    def _read_chunk(self, size=4096) -> bytes:
+        """Read a chunk of the file and return it as bytes."""
+        return _c_read_chunk(self, size)
+
+
+    def md5_checksum(self, size=4096) -> str:
+        """Return the MD5 checksum of a portion of the image file."""
+        return _cmd5_checksum(self, size)
+
+    def __hash__(self) -> int:
+        return _chash(self)
+cdef bytes _c_read_chunk(self, int size=4096):
+    """Read a chunk of the file and return it as bytes."""
+    f = open(self.path, 'rb')
+    return f.read(size)
+
+cdef _cmd5_checksum(self, int size=4096):
+    """Return the MD5 checksum of a portion of the image file."""
+    cdef bytes data = self._read_chunk(size)
+    return hashlib.md5(data).hexdigest()
+
+cdef _cdetect_encoding(self):
+        """Detect encoding of the file."""
+        cdef unicode encoding = chardet.detect(self._read_chunk(2048))["encoding"] or self.encoding
+        return encoding
+
+cdef _csha256(self):
+        """Return a reproducable sha256 hash of the file."""
+        cdef bytes serialized_object = pickle.dumps({"md5": self.md5_checksum(), "size": self.size})
+        return hashlib.sha256(serialized_object).hexdigest()
+
+cdef int _chash(self):
+        cdef unicode file_object_hash = _csha256(self)
+        return hash(file_object_hash)
+
