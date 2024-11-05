@@ -13,9 +13,10 @@ from typing import Any, Never
 
 import cv2
 import imagehash
-from GenericFile import File
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
+
+from fsutils.GenericFile import File
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 

@@ -11,7 +11,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 
-from GenericFile import File
+from fsutils.GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
 
@@ -264,7 +264,7 @@ class Log(File, LogMetaData):
         header = self.head
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', size_human={self.size_human})"
+        return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', size_human={self.size_human})"  # type: ignore
 
     def compare(self, other: pd.DataFrame) -> pd.DataFrame:
         """Compare two log files."""

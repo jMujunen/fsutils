@@ -13,11 +13,11 @@ from typing import Any, LiteralString
 
 import cv2
 
-from Exceptions import CorruptMediaError, FFProbeError
-from FFProbe import FFProbe, FFStream
-from GenericFile import File
-from ImageFile import Img
-from tools import format_bytes, format_timedelta, frametimes
+from fsutils.Exceptions import CorruptMediaError, FFProbeError
+from fsutils.FFProbe import FFProbe, FFStream
+from fsutils.GenericFile import File
+from fsutils.ImageFile import Img
+from fsutils.tools import format_bytes, format_timedelta, frametimes
 
 cv2.setLogLevel(1)
 
@@ -189,7 +189,7 @@ class Video(File):
         -----------
             - `scale` : int, optional (default is 500)
             - `fps`   : int, optional (default is 10)
-            - `output_path` : str, optional (default is "./output.gif")
+            - `output` : str, optional (default is "./output.gif")
             - `bitrate` : int, optional (default is 3MB)
 
             Breakdown:
@@ -206,9 +206,10 @@ class Video(File):
         --------
             - `Img` : New `Img` object of the gif created from this video file.
         """
-        output = kwargs.get("output_path", f'{self.parent}/{self.prefix}{".gif"}')
+        output = kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}')
         output_path = Path(output)
         if output_path.exists():
+            print("Not overwriting exisisting file")
             return Img(output_path)
         subprocess.check_output(
             [
@@ -218,8 +219,20 @@ class Video(File):
                 "-vf",
                 f"fps={fps},scale=-1:{scale!s}:flags=lanczos",
                 f"{output_path}",
-                "-loglevel",
-                "quiet",
+                # "-loglevel",
+                # "quiet",
+            ]
+        )
+        print(
+            *[
+                "ffmpeg",
+                "-i",
+                f"{self.path}",
+                "-vf",
+                f"fps={fps},scale=-1:{scale!s}:flags=lanczos",
+                f"{output_path}",
+                # "-loglevel",
+                # "quiet",
             ]
         )
         # Other options: "-pix_fmt","rgb24" |

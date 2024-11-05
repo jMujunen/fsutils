@@ -6,7 +6,7 @@ import operator
 import subprocess
 from pathlib import Path
 
-from Exceptions import CorruptMediaError, FFProbeError
+from fsutils.Exceptions import CorruptMediaError, FFProbeError
 
 
 class FFProbe:

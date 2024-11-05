@@ -5,7 +5,7 @@ from typing import Any
 
 from ThreadPoolHelper import Pool
 
-from VideoFile import Video
+from fsutils.VideoFile import Video
 
 
 def parse_args() -> argparse.Namespace:

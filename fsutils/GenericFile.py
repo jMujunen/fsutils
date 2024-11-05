@@ -4,14 +4,16 @@ import hashlib
 import os
 import pickle
 import re
+import sys
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import chardet
-from mimecfg import FILE_TYPES
-from tools import format_bytes
+
+from fsutils.mimecfg import FILE_TYPES
+from fsutils.tools import format_bytes
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 

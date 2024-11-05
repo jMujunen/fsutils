@@ -1,6 +1,6 @@
 """Represents a git object."""
 
-from .GenericFile import File
+from fsutils.GenericFile import File
 
 
 class Git(File):

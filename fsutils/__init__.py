@@ -1,5 +1,6 @@
 """fsutils - a collection of utilities for file system manipulation and data extraction."""
 
+from . import mimecfg
 from .DirNode import (
     Dir as Dir,
     obj as obj,

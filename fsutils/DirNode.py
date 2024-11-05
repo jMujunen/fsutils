@@ -1,6 +1,5 @@
 """Represents a directory. Contains methods to list objects inside this directory."""
 
-import datetime
 import os
 import pickle
 import re
@@ -10,8 +9,6 @@ from collections.abc import Generator, Iterator
 from pathlib import Path
 from typing import LiteralString
 
-import serialize
-from ProgressBar import ProgressBar
 from size import Size
 from ThreadPoolHelper import Pool
 
@@ -20,7 +17,15 @@ from fsutils.GitObject import Git
 from fsutils.ImageFile import Img
 from fsutils.LogFile import Log
 from fsutils.mimecfg import FILE_TYPES
+
+# from fsutils.pyx import _serialize
 from fsutils.VideoFile import Video
+
+class_map = {
+    "video": Video,
+    "img": Img,
+    "log": Log,
+}
 
 
 class Dir(File):
@@ -57,8 +62,8 @@ class Dir(File):
 
         """
         super().__init__(path, *args, **kwargs)
-        self._pkl_path = Path(self.path, f".{self.prefix}.pkl")
-        depreciated_pkl = Path(self.path, f"{self.prefix}.pkl")
+        self._pkl_path = Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")
+        depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl")
         if depreciated_pkl.exists():
             depreciated_pkl.rename(self._pkl_path)
             print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
@@ -90,7 +95,7 @@ class Dir(File):
 
         Returns
         -------
-            List[File,  Log, Img, Video, Git]: A list of file objects.
+            >>>List[File,  Log, Img, Video, Git]: A list of file objects.
 
         """
         return list(filter(lambda x: not isinstance(x, Dir), self))
@@ -242,7 +247,19 @@ class Dir(File):
         if not replace and self._pkl_path.exists():
             return self.load_database()
 
-        return serialize.serialize(self)
+        pool = Pool()
+        self.db = {}
+        for result in pool.execute(
+            lambda x: (x.sha256(), x.path), self.file_objects, progress_bar=True
+        ):
+            if result:
+                sha, path = result
+                if sha not in self.db:
+                    self.db[sha] = [path]
+                else:
+                    self.db[sha].append(path)
+        self._pkl_path.write_bytes(pickle.dumps(self.db))
+        return self.db
 
     def sha256(self) -> str:
         return super().sha256()
@@ -338,3 +355,6 @@ def obj(path: str) -> File | None:
     except FileNotFoundError as e:
         return None
     return File(path)
+
+
+print(sys.modules[__name__].__name__)
