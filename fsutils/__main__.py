@@ -142,7 +142,7 @@ def parse_kwargs(*args) -> dict:
         key, value = arg.split("=", 1)
         with contextlib.suppress(ValueError):
             value = int(value)  # Try to convert to integer if possible
-        kwargs_dict[key] = value
+        kwargs_dict[key.strip("-")] = value
     return kwargs_dict
 
 
@@ -168,11 +168,12 @@ def video_parser(arguments: argparse.Namespace) -> Any:
     ```
     """
 
-    def action(videos: list[Video]) -> Any:
+    def action(videos: list[Video], **kwargs: Any) -> Any:
         match arguments.action:
             case "makegif":
                 for vid in videos:
-                    vid.make_gif(arguments.scale, arguments.fps)
+                    print(kwargs)
+                    vid.make_gif(arguments.scale, arguments.fps, **kwargs)
                 return 0
             case "info":
                 print(Video.fmtheader())
@@ -189,10 +190,11 @@ def video_parser(arguments: argparse.Namespace) -> Any:
         if isinstance(arguments.PATH, list)
         else [Video(arguments.PATH)]
     )
+    kwargs = {}
     with contextlib.suppress(AttributeError):
         kwargs = parse_kwargs(*arguments.kwargs)
 
-    return action(videos)
+    return action(videos, **kwargs)
 
 
 if __name__ == "__main__":

@@ -209,18 +209,23 @@ class Video(File):
         output = kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}')
         output_path = Path(output)
         if output_path.exists():
-            print("Not overwriting exisisting file")
-            return Img(output_path)
+            if input("Overwrite existing file? (y/n): ").lower() in ["Y", "y", "yes"]:
+                output_path.unlink()
+            else:
+                print("Not overwriting exisisting file")
+                return Img(output_path)
         subprocess.check_output(
             [
                 "ffmpeg",
                 "-i",
                 f"{self.path}",
                 "-vf",
-                f"fps={fps},scale=-1:{scale!s}:flags=lanczos",
+                f"fps={fps},scale={scale!s}:-1:flags=lanczos",
+                "-v",
+                "error",
+                "-loglevel",
+                "quiet",
                 f"{output_path}",
-                # "-loglevel",
-                # "quiet",
             ]
         )
         print(
@@ -229,10 +234,13 @@ class Video(File):
                 "-i",
                 f"{self.path}",
                 "-vf",
-                f"fps={fps},scale=-1:{scale!s}:flags=lanczos",
+                f"fps={fps},scale={scale!s}:-1:flags=lanczos",
                 f"{output_path}",
-                # "-loglevel",
-                # "quiet",
+                "-v",
+                "error",
+                "-loglevel",
+                "quiet",
+                "-y",
             ]
         )
         # Other options: "-pix_fmt","rgb24" |
@@ -319,11 +327,25 @@ class Video(File):
 
         Keyword Arguments:
         ----------------
-            - `output` : Save compressed video to this path
+        The following default ffmpeg params can be modifed by specifying them as keyword arguments
+
+        | Flag         | Default Parameters |
+        | :-------     | ------------------:|
+        | -c:v         | hevc_nvenc         |
+        | -crf         | 20                 |
+        | -qp          | 24                 |
+        | -rc          | constqp            |
+        | -preset      | slow               |
+        | -tune        | hq                 |
+        | -v           | quiet              |
+        | --output     | ./origname.mp4     |
 
         Examples
         --------
-        >>> vid.compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
+        ```python
+        # ffmpeg -hwaccel cuda -i <input> -c:v hevc_nvenc -preset slow -crf 18 -c:a copy -v quiet -y <output>
+        vid.compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
+        ```
         """
         output = kwargs.get("output") or f"{self.parent}/_{self.prefix}.mp4"
         output_path = Path(output).resolve()
