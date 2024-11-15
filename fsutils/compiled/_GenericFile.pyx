@@ -8,14 +8,25 @@ from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-
+from dataclasses import dataclass, field
 import chardet
-
 from fsutils.mimecfg import FILE_TYPES
 from fsutils.tools import format_bytes
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
+@dataclass
+class St(Iterator):
+    """A class representing file stats."""
+    path: Path = field(default_factory=Path, repr=False)
+    mtime: datetime = field(default_factory=datetime) # type: ignore
+    atime: datetime = field(default_factory=datetime) # type: ignore
+    ctime: datetime = field(default_factory=datetime) # type: ignore
+    def __post_init__(self):
+        self.mtime = datetime.fromtimestamp(self.path.stat().st_mtime)
+        self.atime = datetime.fromtimestamp(self.path.stat().st_atime)
+        self.ctime = datetime.fromtimestamp(self.path.stat().st_ctime)
+        return self
 
 
 class File(Path):
@@ -127,10 +138,6 @@ class File(Path):
             self._content = self.read_text().splitlines()
         return self._content
 
-    @property
-    def is_executable(self) -> bool:
-        """Check if the file has the executable bit set."""
-        return os.access(self.path, os.X_OK)
 
     @property
     def is_gitobject(self) -> bool:
@@ -158,7 +165,7 @@ class File(Path):
         return datetime.fromtimestamp(self.stat().st_ctime)
 
     @property
-    def atime(self) -> datetime:
+    def atime(self):# -> datetime:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 

@@ -8,7 +8,7 @@ import sys
 from collections import defaultdict
 from collections.abc import Generator, Iterator
 from pathlib import Path
-from typing import LiteralString
+from typing import LiteralString, Type
 
 from ThreadPoolHelper import Pool
 
@@ -20,6 +20,7 @@ from fsutils.VideoFile import Video
 from fsutils.GitObject import Git
 from fsutils.tools  import format_bytes
 from fsutils.GenericFile import File
+
 
 
 class Dir(File):
@@ -46,8 +47,9 @@ class Dir(File):
         - `directories` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
-    _objects: list[File] = []
-    db: dict[str,list[str]] = {}
+    _objects: list[File]
+    db: dict[str,list[str]]
+    metadata: defaultdict
     def __init__(self, path: str | Path| None=None, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
 
@@ -56,19 +58,26 @@ class Dir(File):
             path (str) : The path to the directory.
 
         """
+        self.metadata = defaultdict(int)
+        self._objects = []
+
         if not path:
             path = './'
+
         super().__init__(path, *args, **kwargs)
+
         self._pkl_path = Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")
         depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl")
+
         if depreciated_pkl.exists():
             depreciated_pkl.rename(self._pkl_path)
             print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
 
         if self._pkl_path.exists():
             self.db = pickle.loads(self._pkl_path.read_bytes())
+        else:
+            self.db = {}
 
-        self.metadata = defaultdict(int)
 
     @property
     def files(self) -> list[str]:
