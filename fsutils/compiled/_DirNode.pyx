@@ -19,7 +19,7 @@ from fsutils.mimecfg import FILE_TYPES
 from fsutils.VideoFile import Video
 from fsutils.GitObject import Git
 from fsutils.tools  import format_bytes
-from fsutils.GenericFile import File
+from fsutils.compiled._GenericFile import File
 
 
 

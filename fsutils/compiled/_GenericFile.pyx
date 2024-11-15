@@ -12,21 +12,12 @@ from dataclasses import dataclass, field
 import chardet
 from fsutils.mimecfg import FILE_TYPES
 from fsutils.tools import format_bytes
-
+from collections import namedtuple
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
-@dataclass
-class St(Iterator):
-    """A class representing file stats."""
-    path: Path = field(default_factory=Path, repr=False)
-    mtime: datetime = field(default_factory=datetime) # type: ignore
-    atime: datetime = field(default_factory=datetime) # type: ignore
-    ctime: datetime = field(default_factory=datetime) # type: ignore
-    def __post_init__(self):
-        self.mtime = datetime.fromtimestamp(self.path.stat().st_mtime)
-        self.atime = datetime.fromtimestamp(self.path.stat().st_atime)
-        self.ctime = datetime.fromtimestamp(self.path.stat().st_ctime)
-        return self
+
+St = namedtuple('St',['mtime', 'atime', 'ctime'])
+
 
 
 class File(Path):
@@ -169,6 +160,10 @@ class File(Path):
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
+    def times(self):
+        m, a, c = self.stat()[-3:]
+        self.st = St(m, a, c)
+        return self.st
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""

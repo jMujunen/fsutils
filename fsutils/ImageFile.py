@@ -16,7 +16,7 @@ import imagehash
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
 
-from fsutils.GenericFile import File
+from fsutils.compiled._GenericFile import File
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 

@@ -13,9 +13,9 @@ from typing import Any, LiteralString
 
 import cv2
 
+from fsutils.compiled._GenericFile import File
 from fsutils.Exceptions import CorruptMediaError, FFProbeError
 from fsutils.FFProbe import FFProbe, FFStream
-from fsutils.GenericFile import File
 from fsutils.ImageFile import Img
 from fsutils.tools import format_bytes, format_timedelta, frametimes
 

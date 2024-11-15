@@ -11,7 +11,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 
-from fsutils.GenericFile import File
+from fsutils.compiled._GenericFile import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
 
