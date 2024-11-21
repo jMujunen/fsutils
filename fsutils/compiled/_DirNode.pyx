@@ -6,9 +6,19 @@ import pickle
 import re
 import sys
 from collections import defaultdict
+import subprocess
 from collections.abc import Generator, Iterator
 from pathlib import Path
-from typing import LiteralString, Type
+from typing import LiteralString, Optional, Iterator, Generator
+import glob
+
+
+from  typing import Generator
+import os
+from pathlib import Path
+from ThreadPoolHelper import Pool
+import glob
+from cython.parallel import prange
 
 from ThreadPoolHelper import Pool
 
@@ -21,6 +31,7 @@ from fsutils.GitObject import Git
 from fsutils.tools  import format_bytes
 from fsutils.compiled._GenericFile import File
 
+# ctypedef dict[unicode, list[str]] db
 
 
 class Dir(File):
@@ -42,7 +53,7 @@ class Dir(File):
 
     Properties
     -----------
-        - `files`       : Read only propery returning a list of file names
+        - `files`       : Read only property returning a list of file names
         - `objects`     : Read-only property yielding a sequence of DirectoryObject or FileObject instances
         - `directories` : Read-only property yielding a list of absolute paths for subdirectories
 
@@ -50,7 +61,10 @@ class Dir(File):
     _objects: list[File]
     db: dict[str,list[str]]
     metadata: defaultdict
-    def __init__(self, path: str | Path| None=None, *args, **kwargs) -> None:
+    _files: list[os.DirEntry|Path]
+    _dirs: list[Path]
+
+    def __init__(self, path: Optional[str | Path] = None, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
@@ -59,6 +73,8 @@ class Dir(File):
 
         """
         self.metadata = defaultdict(int)
+        self._files = []
+        self._dirs = []
         self._objects = []
 
         if not path:
@@ -73,31 +89,25 @@ class Dir(File):
             depreciated_pkl.rename(self._pkl_path)
             print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
 
-        if self._pkl_path.exists():
-            self.db = pickle.loads(self._pkl_path.read_bytes())
-        else:
-            self.db = {}
+        self.db = pickle.loads(self._pkl_path.read_bytes()) if self._pkl_path.exists() else {}
 
 
-    @property
-    def files(self) -> list[str]:
-        """Return a list of file names in the directory represented by this object."""
-        return _cfiles(self)
     @property
     def file_objects(
         self,
     ) -> list[File | Log | Img | Video | Git]:
         """Return a list of objects contained in the directory.
 
-        This property iterates over all items in the directory and filters out those that are instances
-        of File,  Log, Img, Video, or Git, excluding directories.
+        This property iterates over all items in the directory
+        and filters out those that are instances of File,  Log,
+        Img, Video, or Git, excluding directories.
 
         Returns
         -------
             List[File,  Log, Img, Video, Git]: A list of file objects.
 
         """
-        return list(filter(lambda x: not isinstance(x, Dir), self))
+        return list(filter(lambda x: not isinstance(x, Dir), self.__iter__()))
 
     @property
     def content(self) -> list[str]:
@@ -107,61 +117,62 @@ class Dir(File):
         except NotADirectoryError:
             return []
 
-    @property
-    def objects(self) -> list[File]:
+
+    def objects(self) -> Generator:
         """Return a list of fsutils objects inside self."""
         try:
-            self._objects = list(self.__iter__())
+            yield from self.__iter__()
         except AttributeError:
             self._objects = []
-        return self._objects
+        yield from self._objects
 
-    @property
+
     def is_empty(self) -> bool:
         """Check if the directory is empty."""
-        return len(self.files) == 0
-
-    @property
+        try:
+            if next(iter(self.ls_files())):
+                return False
+        except StopIteration:
+            return True
+        return False
     def images(self) -> list[Img]:
         """A list of ImageObject instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Img), self.__iter__()))  # type: ignore
 
-    @property
     def videos(self) -> list[Video]:
         """A list of VideoObject instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Video), self.__iter__()))  # type: ignore
 
-    @property
     def logs(self) -> list[Log]:
         """A list of Log instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
 
-    @property
-    def dirs(self) -> list[File]:
-        """A list of DirectoryObject instances found in the directory."""
-        return list(filter(lambda x: isinstance(x, Dir), self.__iter__()))
-
-    @property
-    def describe(self) -> None:
+    def describe(self) -> defaultdict[str, int]:
         """Print a formatted table of each file extention and their count."""
-        if not self.metadata:
-            self.metadata = defaultdict(int)
-            for item in self.file_objects:
-                ext = item.suffix or ""
-                if ext == "":
+        cdef str suffix, key
+        cdef unsigned short int max_key_length, num_total, value
+        cdef unsigned long int total
+        cdef float percentage
+        cdef dict[str, int] sorted_stat
+        for item in self.ls_files():
+            suffix = item.path.split('.')[-1]
+            if  not suffix:
                     self.metadata["None"] += 1
                     continue
-                self.metadata[ext[1:]] += 1  # Remove the dot from extention
+            self.metadata[suffix] += 1
+
         sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))
         # Print the sorted table
         if not sorted_stat:
-            print("No files found.")
-            return None
+            return defaultdict(int)
+
         max_key_length = max([len(k) for k in sorted_stat])
-        total = sum([v for k, v in sorted_stat.items()])
-        total_digits = len([int(i) for i in list(str(total))])
+        total = sum([v for v in sorted_stat.values()])
+        num_total = len([int(i) for i in list(str(total))])
+
         for key, value in sorted_stat.items():
             percentage = round((int(value) / total) * 100, 1)
+
             if percentage < 5:
                 color = ""
             elif 5 < percentage < 20:
@@ -171,26 +182,20 @@ class Dir(File):
             else:
                 color = ""
             print(
-                f"{key: <{max_key_length+1}} {value:<{total_digits+4}} {color}{percentage}"
+                f"{key: <{max_key_length+1}} {value:<{num_total+4}} {color}{percentage}"
             )
-        print(
-            f"{'Total': <{max_key_length+1}} {total:<{total_digits+5}}{'100%':}",
-            end="\n",
-        )
-
+        print('-'*100)
+        print(f"Total: <{max_key_length+1} {total:<{num_total+5}}{'100%':}")
+        return self.metadata
     @property
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
-        if hasattr(self, "_size") and self._size is not None:
-            return self._size
-        pool = Pool()
-        self._size = sum(
-                pool.execute(
-                    lambda x: x.size,
-                    self.file_objects,
-                    progress_bar=False,
-                ),
-            )
+        if hasattr(self, "_size"):
+            if self._size is not None:
+                return self._size
+        awk = "awk '{ print $1 }'"
+        cmd = f"du -bsx {self.path} | {awk}"
+        self._size = int(subprocess.getoutput(cmd))
         return self._size
 
     @property
@@ -198,7 +203,7 @@ class Dir(File):
         return format_bytes(self.size)
 
 
-    def duplicates(self, num_keep=2, refresh: bool = False) -> list[list[str]]:
+    def duplicates(self, int num_keep=2, updatedb=False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
 
         Uses pre-calculated hash values to find duplicates.
@@ -206,61 +211,125 @@ class Dir(File):
         Paramaters:
         -----------
             - num_keep (int): The number of copies of each file to keep.
-            - refresh (bool): If True, re-calculate the hash values for all files
+            - updatedb (bool): If True, re-calculate the hash values for all files
         """
-        hashes = self.serialize(replace=refresh)
-        return [value for value in hashes.values() if len(value) > num_keep]
+        cdef dict[int, list[str]] hashes
+        hashes = self.serialize(replace=updatedb) # type: ignore
+        return [value for value in hashes.values() if len(value) > num_keep] # type: ignore
 
-    def load_database(self) -> dict[int, list[str]]:
+    def load_database(self) -> dict[str, list[str]]:
         """Deserialize the pickled database."""
         if self._pkl_path.exists():
             return pickle.loads(self._pkl_path.read_bytes())
         return {}
 
-    def serialize(self, replace=False) -> dict[int, list[str]]:
+    def serialize(self, bint replace=True, unsigned int chunk_size=8196) ->  dict[str, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
-        if self._pkl_path.exists() and replace is True:
+        cdef tuple result
+        cdef str sha
+        cdef str path
+
+        print('Replace: ', replace)
+        self._pkl_path = Path(self._pkl_path.parent, f".{self._pkl_path.name.lstrip('.')}")
+        if self._pkl_path.exists() and replace:
             self._pkl_path.unlink()
             self.db = {}
         elif self._pkl_path.exists() and replace is False:
             return self.load_database()
-        return serialize(self, int(replace))
 
-    def sha256(self) -> str:
-        return super().sha256()
+        pool = Pool()
+
+        for result in pool.execute(
+            lambda x: (x.sha256(chunk_size), x.path),
+            self.file_objects,
+            progress_bar=True,
+        ):
+            if result:
+                sha, path = result
+                if sha not in self.db:
+                    self.db[sha] = [path]
+                else:
+                    self.db[sha].append(path)
+        self._pkl_path.write_bytes(pickle.dumps(self.db))
+        return self.db
+
+
+    def ls(self, follow_symlinks=False, recursive=True) -> Generator[os.DirEntry, None, None]:
+        if not recursive:
+            yield from os.scandir(self.path)
+        yield from self.traverse(follow_symlinks=follow_symlinks)
+
+    def ls_dirs(self,follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
+        """Return a list of paths for all directories in self."""
+        for item in self.ls():
+            if item.is_dir(follow_symlinks=follow_symlinks):
+                yield item
+    def ls_files(self,follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
+        """Return a list of paths for all files in self."""
+        for item in self.ls():
+            if item.is_file(follow_symlinks=follow_symlinks):
+                yield item
+
+    def traverse(self, root=None, follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
+        """Recursively traverse a directory tree starting from the given path.
+
+        Yields
+        ------
+            Generator[os.DirEntry]
+        """
+        cdef str path = self.path if root is None else root
+        with os.scandir(path) as entries:
+            for entry in entries:
+                if entry.is_file(follow_symlinks=follow_symlinks):
+                    yield entry
+                elif entry.is_dir(follow_symlinks=follow_symlinks):
+                    yield from self.traverse(root=entry.path, follow_symlinks=follow_symlinks)
+
 
     def __format__(self, format_spec: str, /) -> LiteralString | str:
         pool = Pool()
         if format_spec == "videos":
             print(Video.fmtheader())
             return "\n".join(
-                result for result in pool.execute(format, self.videos, progress_bar=False)
+                result for result in pool.execute(format, self.videos(), progress_bar=False)
             )
         elif format_spec == "images":
             print(Img.fmtheader())
             return "\n".join(
-                result for result in pool.execute(format, self.images, progress_bar=False)
+                result for result in pool.execute(format, self.images(), progress_bar=False)
             )
         else:
             raise ValueError("Invalid format specifier")
 
-    def __contains__(self, item: File) -> bool:
+    def __contains__(self, other: File) -> bool:
         """Is `File` in self?"""  # noqa
-        return bool(_c_contains(self, item))
+        self.db = self.serialize(replace=True) # type: ignore
+        return hash(other) in self.db
 
     def __hash__(self) -> int:
         return hash((tuple(self.content), self.is_empty))
 
     def __len__(self) -> int:
         """Return the number of items in the object."""
-        return len(list(self.rglob("*")))
+        return len(list(self.traverse()))
 
-    def __iter__(self): # -> Iterator[File]:
+    def __iter__(self) -> Iterator[File]:
         """Yield a sequence of File instances for each item in self."""
-        cdef int num_objects = len(self._objects)
-        cdef int NULL_INT = 0
-        if num_objects == NULL_INT:
-            yield from walk(self)
+        cdef unicode root, directory
+        cdef list[str] _, files
+
+        if not self._objects:
+            for root, _, files in os.walk(self.path):
+                # Yield directories first to avoid unnecessary checks inside the loop
+                for directory in _:
+                    _object =  Dir(os.path.join(root, directory))  # noqa
+                    self._objects.append(_object)
+                    yield _object
+                for file in files:
+                    _object = _obj(os.path.join(root, file))  # noqa
+                    if _object is not None:
+                        self._objects.append(_object)
+                        yield _object
         else:
             yield from self._objects
 
@@ -282,6 +351,7 @@ class Dir(File):
 cdef _obj(str path):
     """Return a File object for the given path."""
     cdef unicode ext, file_type
+    cdef list[str] extensions
     cdef str class_name
 
 
@@ -310,71 +380,19 @@ cdef _obj(str path):
     return File(path)
 
 
-cdef serialize(dirObj,  int replace=0):
-    """Create an hash index of all files in dirObj."""
-    cdef tuple result
-    cdef unicode sha, path
 
 
-    if dirObj._pkl_path.exists() and replace == 1:
-        dirObj._pkl_path.unlink()
-        dirObj.db = {}
-    elif dirObj._pkl_path.exists() and replace  == 0:
-        return dirObj.load_database()
-
-    pool = Pool()
-
-    for result in pool.execute(
-        lambda x: (x.sha256(), x.path),
-        dirObj.file_objects,
-        progress_bar=True,
-    ):
-        if result:
-            sha, path = result
-            if sha not in dirObj.db:
-                dirObj.db[sha] = [path]
-            else:
-                dirObj.db[sha].append(path)
-    dirObj._pkl_path.write_bytes(pickle.dumps(dirObj.db))
-    return dirObj.db
-
-cdef list walk(self):
-    """Yield a sequence of File instances for each item in self."""
-    cdef int num_objects = len(self._objects)
-    cdef int null_int = 0
-    cdef unicode root, directory
-    cdef list _, files
 
 
-    if num_objects == null_int:
-        for root, _, files in os.walk(self.path):
-            # Yield directories first to avoid unnecessary checks inside the loop
-            for directory in _:
-                obj = Dir(os.path.join(root, directory))  # noqa
-                self._objects.append(obj)
-                continue
-            for file in files:
-                obj = _obj(os.path.join(root, file))  # noqa
-                if obj is not None:
-                    self._objects.append(obj)
-    return self._objects
-cdef list[str] _cfiles(self):
-    cdef list[str] files = []
-    for f in self.objects:
-        try:
-            if not f.is_dir():
-                files.append(f.name)
-        except Exception as e:
-            # continue
-            print(f"{e}: {f}")
-    return files
 
 
-cdef bint _c_contains(self, item):
-    cdef dict db = self.serialize()
-    cdef unicode sha256 = item.sha256()
-    return int(item in db)
+
+
 
 def obj(file_path: str):
     """Return a File instance for the given file path."""
     return _obj(file_path)
+
+
+
+

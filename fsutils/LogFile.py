@@ -139,7 +139,7 @@ class LogMetaData:
     def __post_init__(self):
         if not self.path.exists():
             raise FileNotFoundError("The file does not exist.")
-        if self.path.suffix.lower() not in [".csv", ".txt", ".log"]:
+        if self.path.suffix.lower() not in {".csv", ".txt", ".log"}:
             return
         self.__dict__.update(self.preset().__dict__)
 

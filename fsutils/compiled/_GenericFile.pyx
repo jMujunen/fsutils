@@ -1,4 +1,5 @@
 """Base class and building block for all other classes defined in this library."""
+import cython
 
 import hashlib
 import os
@@ -44,7 +45,7 @@ class File(Path):
 
     Attributes
     ----------
-        - `encoding (str)` : The encoding to use when reading/writing the file. De faults to utf-8.
+        - `encoding (str)` : The encoding to use when reading/writing the file. Defaults to utf-8.
         - `path (str)` : The absolute path to the file.
 
     Properties:
@@ -231,29 +232,23 @@ class File(Path):
             encoding = 'utf-8'
         return encoding
 
+    def sha256(self, unsigned int chunk_size=8196) -> str:
+        """Return a reproducible sha256 hash of the file."""
+        cdef str md5  = hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
+        cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
+        return hashlib.sha256(serialized_object).hexdigest()
 
-    def serialize(self, unsigned int chunk_size=8196) -> tuple[int, str]:
-        """Serialize the current object state.
 
-        Paramaters
-        ----------
-            chunk_size (unsigned int) - The size of the chunk to consider when hashing the object
-        """
-        cdef bytes pickled_object
-        cdef str chunk = hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
-        pickled_object = pickle.dumps({"chunk": chunk, "stat": self.stat(), "size": self.size})
-        return hash(pickled_object), self.path
-
-    def _read_chunk(self, unsigned int chunk_size=8196, str spec='c') -> Any:
+    def _read_chunk(self, unsigned int size=8196, str spec='c') -> bytes:
         """Read a chunk of the file and return it as bytes."""
         if spec == 'c':
-            return c_read_chunk(self, chunk_size)
+            return c_read_chunk(self,  size)
         else:
             with self.open('rb', encoding=self.encoding) as f:
-                return f.read(chunk_size)
+                return f.read(size)
 
-    def __hash__(self) -> int:
-        return self.serialize()[0]
+    def __hash__(self, unsigned int chunk_size=8196) -> int:
+        return hash(self.sha256(chunk_size))
 
 
 cdef c_read_chunk(self, unsigned int size=8196):
@@ -263,29 +258,29 @@ cdef c_read_chunk(self, unsigned int size=8196):
     cdef FILE* fptr
 
     # Allocate memory for the buffer
-    buffer = <char*>malloc(size * sizeof(char))
+    buffer = <char*>malloc(size * sizeof(char)) # type: ignore
     if not buffer:
         raise MemoryError("Failed to allocate memory for buffer")
 
     try:
         # Open the file in binary read mode
-        fptr = fopen(self.path.encode('utf-8'), 'rb'.encode('utf-8'))
+        fptr = fopen(self.path.encode('utf-8'), 'rb'.encode('utf-8'))# type: ignore
         if not fptr:
             raise IOError(f"Failed to open file: {self.path}")
 
         try:
             # Read data into the buffer
-            bytes_read = fread(buffer, 1, size, fptr)
-            if bytes_read < 0:
+            bytes_read = fread(buffer, 1, size, fptr)# type: ignore
+            if bytes_read < 0:# type: ignore
                 raise IOError("Error reading from file")
 
             # Convert the buffer to a Python bytes object and return it
-            return bytes(buffer[:bytes_read])
+            return bytes(buffer[:bytes_read]) # type: ignore
         finally:
             # Close the file
             fclose(fptr)
     finally:
         # Free the allocated memory for the buffer
-        free(buffer)
+        free(buffer) # type: ignore
 
 

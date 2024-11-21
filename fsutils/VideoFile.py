@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any, LiteralString
 
 import cv2
+from rich.console import Console
+from rich.table import Table, box
 
 from fsutils.compiled._GenericFile import File
 from fsutils.Exceptions import CorruptMediaError, FFProbeError
@@ -22,7 +24,7 @@ from fsutils.tools import format_bytes, format_timedelta, frametimes
 cv2.setLogLevel(1)
 
 
-class Video(File):
+class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
     """A class representing information about a video.
 
     | Method | Description |
@@ -49,8 +51,6 @@ class Video(File):
     """
 
     _metadata: dict | None = None
-    _info = None
-    _stream = None
 
     def __init__(self, path: str | Path, *args, **kwargs) -> None:
         """Initialize a new Video object.
@@ -209,10 +209,10 @@ class Video(File):
         output = kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}')
         output_path = Path(output)
         if output_path.exists():
-            if input("Overwrite existing file? (y/n): ").lower() in ["Y", "y", "yes"]:
+            if input("Overwrite existing file? (y/n): ").lower() in {"Y", "y", "yes"}:
                 output_path.unlink()
             else:
-                print("Not overwriting exisisting file")
+                print("Not overwriting existing file")
                 return Img(output_path)
         subprocess.check_output(
             [
@@ -262,8 +262,8 @@ class Video(File):
         # Define output
         output_dir = Path(kwargs.get("output", f"{self.name}-frames/"))
         Path.mkdir(output_dir, parents=True, exist_ok=True)
-        # Init opencv video capture object and get properties
         cap = cv2.VideoCapture(self.path)
+        # Init opencv video capture object and get properties
         clip_fps = round(cap.get(cv2.CAP_PROP_FPS))
         num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         interval = round(min(clip_fps, fps))
@@ -343,7 +343,8 @@ class Video(File):
         Examples
         --------
         ```python
-        # ffmpeg -hwaccel cuda -i <input> -c:v hevc_nvenc -preset slow -crf 18 -c:a copy -v quiet -y <output>
+        # ffmpeg -hwaccel cuda -i <input> -c:v hevc_nvenc -preset slow \
+           -crf 18 -c:a copy -v quiet -y <output>
         vid.compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         ```
         """
@@ -384,14 +385,14 @@ class Video(File):
         print(subprocess.check_output(ffmpeg_cmd))
         return Video(output_path)
 
-    def sha256(self) -> str:
-        serialized_object = pickle.dumps(
-            {
-                "md5": self.md5_checksum(),
-                "size": self.size,
-            }
-        )
-        return hashlib.sha256(serialized_object).hexdigest()
+    # def sha256(self) -> str:
+    #     serialized_object = pickle.dumps(
+    #         {
+    #             "md5": self.md5_checksum(),
+    #             "size": self.size,
+    #         }
+    #     )
+    #     return hashlib.sha256(serialized_object).hexdigest()
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
@@ -399,9 +400,9 @@ class Video(File):
             **vars(self)
         )
 
-    def __hash__(self) -> int:
-        return hash(self.sha256())
-        # return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
+    # def __hash__(self) -> int:
+    #     return hash(self.sha256())
+    # return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
 
     def __format__(self, format_spec: str, /) -> str:
         """Return the object in tabular format."""

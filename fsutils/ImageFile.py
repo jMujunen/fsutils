@@ -21,7 +21,7 @@ from fsutils.compiled._GenericFile import File
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 
 
-class Img(File):
+class Img(File):  # noqa - FIXME: Too many methods
     """Represents an image.
 
     Methods
