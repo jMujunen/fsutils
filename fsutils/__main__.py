@@ -5,6 +5,7 @@ from typing import Any
 
 from ThreadPoolHelper import Pool
 
+from fsutils.compiled._DirNode import Dir
 from fsutils.VideoFile import Video
 
 
@@ -115,10 +116,22 @@ def parse_args() -> argparse.Namespace:
     dir_serialize.add_argument(
         "--refresh",
         "-r",
-        action="store_true",
-        help="Refresh the data if it exists",
-        default=False,
+        action="store_false",
+        help="Set this flag to avoid re-serializing the directory",
+        default=True,
     )
+    dir_serialize.add_argument(
+        "--chunk",
+        "-c",
+        help="Chunk refers to how many bytes should be read from each file during the serialization process. A higher number might yield more accurate results at the cost of time/space complexity",
+        default=8196,
+    )
+    dir_serialize.add_argument(
+        "--prefix", "-p", help="Prepends the given prefix to the pickled file name", default=""
+    )
+
+    dir_describe = dir_subparsers.add_parser("describe", help="")
+    dir_describe.add_argument("PATH", help="Target directory")
     return main_parser.parse_args()
 
 
@@ -127,7 +140,19 @@ def log_parser(arguments: argparse.Namespace) -> None:
 
 
 def dir_parser(arguments: argparse.Namespace) -> int:
-    return 1
+    """Do the thing."""
+    path = Dir(arguments.PATH)
+    match arguments.action:
+        case "serialize":
+            db = path.serialize(
+                replace=arguments.refresh, chunk_size=arguments.chunk, prefix=arguments.prefix
+            )
+            return len(db)
+        case "describe":
+            print(path.describe)
+            return 0
+        case _:
+            return -1
 
 
 def image_parser(arguments: argparse.Namespace) -> None:
@@ -151,21 +176,20 @@ def video_parser(arguments: argparse.Namespace) -> Any:
 
     Commands:
     ---------
-        - `makegif` : Create a GIF from a video file.
-        - `info` : Display information about one or more video files.
-        - `compress` : Compress a video file.
+    - `makegif` : Create a GIF from a video file.
+    - `info` : Display information about one or more video files.
+    - `compress` : Compress a video file.
 
 
     Example usage:
     --------------
-    ```sh
-        # Gif
-        fstuils video makegif input_video.mp4  --scale 750 --fps 15 -o output_video.gif
-        # Info
-        fstuils video info ~/Videos/*.mp4
-        # Compress/transcode
-        fstuils video compress video.mp4 --output=/path/to/result.MOV
-    ```
+    >>> # GIF
+    fstuils video makegif input_video.mp4  --scale 750 --fps 15 -o output_video.gif
+    # Info
+    fstuils video info ~/Videos/*.mp4
+    # Compress/transcode
+    fstuils video compress video.mp4 --output=/path/to/result.MOV
+
     """
 
     def action(videos: list[Video], **kwargs: Any) -> Any:
@@ -208,6 +232,8 @@ if __name__ == "__main__":
         case "img":
             sys.exit(image_parser(args))
         case "dir":
-            sys.exit(dir_parser(args))
+            ret = dir_parser(args)
+            print(ret)
+            sys.exit(ret)
         case _:
             sys.exit("Invalid category")
