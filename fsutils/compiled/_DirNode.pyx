@@ -318,20 +318,12 @@ class Dir(File):
         cdef unicode root, directory
         cdef list[str] _, files
 
-        if not self._objects:
-            for root, _, files in os.walk(self.path):
-                # Yield directories first to avoid unnecessary checks inside the loop
-                for directory in _:
-                    _object =  Dir(os.path.join(root, directory))  # noqa
-                    self._objects.append(_object)
-                    yield _object
-                for file in files:
-                    _object = _obj(os.path.join(root, file))  # noqa
-                    if _object is not None:
-                        self._objects.append(_object)
-                        yield _object
-        else:
-            yield from self._objects
+        for root, _, files in os.walk(self.path):
+            # Yield directories first to avoid unnecessary checks inside the loop
+            for directory in _:
+                yield Dir(os.path.join(root, directory))  # noqa
+            for file in files:
+                yield _obj(os.path.join(root, file))  # noqa
 
     def __eq__(self, other: "Dir", /) -> bool:
         """Compare the contents of two Dir objects."""
@@ -343,7 +335,7 @@ class Dir(File):
         )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty})".format(
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})".format(
             **vars(self),
         )
 
