@@ -358,12 +358,12 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
         ffmpeg_cmd = [
             "ffmpeg",
-            "-hwaccel",
-            "cuda",
+            # "-hwaccel",
+            # "cuda",
             "-i",
             self.path,
             "-c:v",
-            kwargs.get("codec", "hevc_nvenc"),
+            kwargs.get("codec", "libx264"),
             "-crf",
             kwargs.get("crf", "20"),
             "-qp",
