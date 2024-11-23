@@ -149,7 +149,7 @@ def dir_parser(arguments: argparse.Namespace) -> int:
             )
             return len(db)
         case "describe":
-            print(path.describe)
+            print(path.describe())
             return 0
         case _:
             return -1

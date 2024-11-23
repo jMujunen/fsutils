@@ -194,7 +194,7 @@ class Dir(File):
             if self._size is not None:
                 return self._size
         awk = "awk '{ print $1 }'"
-        cmd = f"du -bsx {self.path} | {awk}"
+        cmd = f'du -bsx "{self.path}" | {awk}'
         self._size = int(subprocess.getoutput(cmd))
         return self._size
 

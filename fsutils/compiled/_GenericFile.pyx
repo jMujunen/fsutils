@@ -22,10 +22,6 @@ GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 St = namedtuple('St',['mtime', 'atime', 'ctime'])
 
-
-cdef extern from "math.h":
-    double sin(double x)
-
 cdef extern from "stdio.h":
     ctypedef ssize_t ssize_t
     ctypedef size_t size_t
