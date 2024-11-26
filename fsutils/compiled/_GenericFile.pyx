@@ -81,7 +81,6 @@ class File(Path):
         self.encoding = encoding
         if not self.exists:
             raise FileNotFoundError(f"File '{self.path}' does not exist")
-        self._content = []
         super().__init__(self.path, *args, **kwargs) # type: ignore
 
     def head(self, n: int = 5) -> list[str]:
@@ -95,6 +94,7 @@ class File(Path):
         if self.content is not None:
             return self.content[-n:]
         return self.content
+
 
     @property
     def parent(self):
@@ -133,13 +133,10 @@ class File(Path):
         return False
 
     @property
-    def content(self) -> list[Any]:
+    def content(self) -> list[str]:
         """Helper for self.read()."""
         print(f"\033[33mWARNING\033[0m - Depreciated function <{self.__class__.__name__}.content>")
-        if not self._content:
-            # self._content = self.read()
-            self._content = self.read_text().splitlines()
-        return self._content
+        return self.read_text().splitlines()
 
 
     @property
@@ -218,7 +215,6 @@ class File(Path):
         return f"{self.__class__.__name__}(name={self.name}, encoding={self.encoding}, size={self.size_human})".format(
             **vars(self)
         )
-
 
     def detect_encoding(self) -> str:
         """Detect encoding of the file."""

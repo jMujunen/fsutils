@@ -174,10 +174,6 @@ class Log(File, LogMetaData):
         LogMetaData.__init__(self, path=Path(path), **kwargs)
         super().__init__(path, encoding)
 
-    def __hash__(self):
-        """Return a hash of the log file."""
-        return hash((type(self), self.md5_checksum()))
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
@@ -265,6 +261,11 @@ class Log(File, LogMetaData):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', size_human={self.size_human})"  # type: ignore
+
+    def __hash__(self):
+        """Return a hash of the log file."""
+        return super().__hash__()
+        # return hash((type(self), self.md5_checksum()))
 
     def compare(self, other: pd.DataFrame) -> pd.DataFrame:
         """Compare two log files."""

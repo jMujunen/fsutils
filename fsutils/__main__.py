@@ -144,9 +144,7 @@ def dir_parser(arguments: argparse.Namespace) -> int:
     path = Dir(arguments.PATH)
     match arguments.action:
         case "serialize":
-            db = path.serialize(
-                replace=arguments.refresh, chunk_size=arguments.chunk, prefix=arguments.prefix
-            )
+            db = path.serialize(replace=arguments.refresh, chunk_size=arguments.chunk)
             return len(db)
         case "describe":
             print(path.describe())

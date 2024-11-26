@@ -16,7 +16,6 @@ import glob
 from  typing import Generator
 import os
 from pathlib import Path
-from ThreadPoolHelper import Pool
 import glob
 from cython.parallel import prange
 
@@ -25,14 +24,16 @@ from ThreadPoolHelper import Pool
 from fsutils.GitObject import Git
 from fsutils.ImageFile import Img
 from fsutils.LogFile import Log, Presets
-from fsutils.mimecfg import FILE_TYPES
+from fsutils.mimecfg import FILE_TYPES, IGNORED_DIRS
 from fsutils.VideoFile import Video
 from fsutils.GitObject import Git
 from fsutils.tools  import format_bytes
 from fsutils.compiled._GenericFile import File
+from typing import TypeVar
 
 # ctypedef dict[unicode, list[str]] db
 
+T = TypeVar('T', bound=File)
 
 class Dir(File):
     """A class representing information about a directory.
@@ -59,10 +60,8 @@ class Dir(File):
 
     """
     _objects: list[File]
-    db: dict[str,list[str]]
-    metadata: defaultdict
-    _files: list[os.DirEntry|Path]
-    _dirs: list[Path]
+    # _files: list[os.DirEntry|Path]
+    # _dirs: list[Path]
 
     def __init__(self, path: Optional[str | Path] = None, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
@@ -72,14 +71,8 @@ class Dir(File):
             path (str) : The path to the directory.
 
         """
-        self.metadata = defaultdict(int)
-        self._files = []
-        self._dirs = []
-        self._objects = []
-
         if not path:
             path = './'
-
         super().__init__(path, *args, **kwargs)
 
         self._pkl_path = Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")
@@ -89,9 +82,10 @@ class Dir(File):
             depreciated_pkl.rename(self._pkl_path)
             print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
 
-        self.db = pickle.loads(self._pkl_path.read_bytes()) if self._pkl_path.exists() else {}
-
-
+        self._db = pickle.loads(self._pkl_path.read_bytes()) if self._pkl_path.exists() else {}
+        self._objects = []
+        # Remove a few unnecessary attributes from inherited class
+        del self.encoding
     @property
     def file_objects(
         self,
@@ -123,8 +117,7 @@ class Dir(File):
         try:
             yield from self.__iter__()
         except AttributeError:
-            self._objects = []
-        yield from self._objects
+            yield from self._objects
 
 
     def is_empty(self) -> bool:
@@ -147,46 +140,57 @@ class Dir(File):
         """A list of Log instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
 
-    def describe(self) -> defaultdict[str, int]:
+    def describe(self): # -> dict[str, int]:
         """Print a formatted table of each file extention and their count."""
-        cdef str suffix, key
-        cdef unsigned short int max_key_length, num_total, value
-        cdef unsigned long int total
+        cdef str key
+        cdef list[str] ext
+        cdef unsigned short int max_key_length, value
+        cdef unsigned long int total, num_total
         cdef float percentage
-        cdef dict[str, int] sorted_stat
-        for item in self.ls_files():
-            suffix = item.path.split('.')[-1]
-            if  not suffix:
-                    self.metadata["None"] += 1
-                    continue
-            self.metadata[suffix] += 1
 
-        sorted_stat = dict(sorted(self.metadata.items(), key=lambda x: x[1]))
+        # cdef dictsorted_stat, file_types
+        file_types = defaultdict(int)
+        for item in self.ls_files():
+            ext = item.path.split(os.sep)[-1].split(".")
+            if len(ext) > 1:
+                file_types[ext[-1]] += 1
+            else:
+                file_types["other"] += 1
+
+        sorted_stat = dict(sorted(file_types.items(), key=lambda x: x[1]))
         # Print the sorted table
         if not sorted_stat:
-            return defaultdict(int)
+            return {}
 
-        max_key_length = max([len(k) for k in sorted_stat])
+        max_key_length = max([len(k) for k in sorted_stat]) + 1
         total = sum([v for v in sorted_stat.values()])
-        num_total = len([int(i) for i in list(str(total))])
-
-        for key, value in sorted_stat.items():
-            percentage = round((int(value) / total) * 100, 1)
-
-            if percentage < 5:
-                color = ""
+        num_total = len([int(i) for i in list(str(total))]) + 5
+        color = ''
+        # bar_width = 100  # Width of the bar chart
+        for key, value in filter(lambda x: file_types[x[0]] / total > 0.01, sorted_stat.items()):
+            percentage = (int(value) / total) * 100
+            if percentage < 1:
+                continue
+            elif percentage < 5:
+                color = "\033[37m"
             elif 5 < percentage < 20:
                 color = ""
             elif 20 <= percentage < 50:
-                color = ""
+                color = "\033[32m"
             else:
-                color = ""
-            print(
-                f"{key: <{max_key_length+1}} {value:<{num_total+4}} {color}{percentage}"
-            )
-        print('-'*100)
-        print(f"Total: <{max_key_length+1} {total:<{num_total+5}}{'100%':}")
-        return self.metadata
+                color = "\033[31m"
+            bars = f'█' *  int((value / total) * 50)
+            print(f"{key: <{8}} {bars:<50} {value:<{num_total-1}} {color}{percentage:.2f}%\033[0m")
+            # print(
+            #     f"{key: <{max_key_length}} {value:<{num_total-1}} {color}{percentage:.2f}\033[0m"
+            # )
+        return sorted_stat
+
+
+    @property
+    def db(self):
+        if not self._db:
+            self._db = self.serialize()
     @property
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
@@ -217,41 +221,40 @@ class Dir(File):
         hashes = self.serialize(replace=updatedb) # type: ignore
         return [value for value in hashes.values() if len(value) > num_keep] # type: ignore
 
-    def load_database(self) -> dict[str, list[str]]:
+    def load_database(self) -> dict[int, list[str]]:
         """Deserialize the pickled database."""
         if self._pkl_path.exists():
             return pickle.loads(self._pkl_path.read_bytes())
         return {}
 
-    def serialize(self, bint replace=True, unsigned int chunk_size=8196) ->  dict[str, list[str]]:# type: ignore
+    def serialize(self, bint replace=True, unsigned int chunk_size=8196, bint progress_bar=True) ->  dict[int, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
         cdef tuple result
-        cdef str sha
+        cdef long long int sha
         cdef str path
 
-        print('Replace: ', replace)
         self._pkl_path = Path(self._pkl_path.parent, f".{self._pkl_path.name.lstrip('.')}")
         if self._pkl_path.exists() and replace:
             self._pkl_path.unlink()
-            self.db = {}
+            self._db = {}
         elif self._pkl_path.exists() and replace is False:
             return self.load_database()
 
         pool = Pool()
 
         for result in pool.execute(
-            lambda x: (x.sha256(chunk_size), x.path),
+            lambda x: (x.__hash__(chunk_size), x.path),
             self.file_objects,
-            progress_bar=True,
+            progress_bar=progress_bar,
         ):
             if result:
                 sha, path = result
-                if sha not in self.db:
-                    self.db[sha] = [path]
+                if sha not in self._db:
+                    self._db[sha] = [path]
                 else:
-                    self.db[sha].append(path)
-        self._pkl_path.write_bytes(pickle.dumps(self.db))
-        return self.db
+                    self._db[sha].append(path)
+        self._pkl_path.write_bytes(pickle.dumps(self._db))
+        return self._db
 
 
     def ls(self, follow_symlinks=False, recursive=True) -> Generator[os.DirEntry, None, None]:
@@ -284,7 +287,7 @@ class Dir(File):
                     yield entry
                 elif entry.is_dir(follow_symlinks=follow_symlinks):
                     yield from self.traverse(root=entry.path, follow_symlinks=follow_symlinks)
-
+                    yield entry
 
     def __format__(self, format_spec: str, /) -> LiteralString | str:
         pool = Pool()
@@ -303,8 +306,8 @@ class Dir(File):
 
     def __contains__(self, other: File) -> bool:
         """Is `File` in self?"""  # noqa
-        self.db = self.serialize(replace=True) # type: ignore
-        return hash(other) in self.db
+        self._db = self.serialize(replace=True, progress_bar=False) # type: ignore
+        return hash(other) in self._db
 
     def __hash__(self) -> int:
         return hash((tuple(self.content), self.is_empty))
@@ -317,13 +320,19 @@ class Dir(File):
         """Yield a sequence of File instances for each item in self."""
         cdef unicode root, directory
         cdef list[str] _, files
-
-        for root, _, files in os.walk(self.path):
-            # Yield directories first to avoid unnecessary checks inside the loop
-            for directory in _:
-                yield Dir(os.path.join(root, directory))  # noqa
-            for file in files:
-                yield _obj(os.path.join(root, file))  # noqa
+        if self._objects:
+            yield from self._objects
+        else:
+            for root, _, files in os.walk(self.path):
+                # Yield directories first to avoid unnecessary checks inside the loop
+                for directory in _:
+                    cls_instance = Dir(os.path.join(root, directory))
+                    yield cls_instance
+                    self._objects.append(cls_instance)
+                for file in files:
+                    cls_instance = _obj(os.path.join(root, file))
+                    yield cls_instance
+                    self._objects.append(cls_instance)
 
     def __eq__(self, other: "Dir", /) -> bool:
         """Compare the contents of two Dir objects."""
@@ -345,7 +354,7 @@ cdef _obj(str path):
     cdef unicode ext, file_type
     cdef list[str] extensions
     cdef str class_name
-
+    cdef object FileClass
 
     pathobj = Path(path)
     if pathobj.is_dir():
@@ -359,7 +368,7 @@ cdef _obj(str path):
             module = sys.modules[__name__]
             try:
                 FileClass = getattr(module, class_name)
-                return FileClass(path)
+                return FileClass(path) # type: ignore
             except FileNotFoundError as e:
                 print(f"{e!r}")
             except AttributeError:
@@ -370,6 +379,8 @@ cdef _obj(str path):
     except FileNotFoundError as e:
         return None
     return File(path)
+
+
 
 
 

@@ -400,8 +400,9 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             **vars(self)
         )
 
-    # def __hash__(self) -> int:
-    #     return hash(self.sha256())
+    def __hash__(self) -> int:
+        return super().__hash___()
+
     # return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
 
     def __format__(self, format_spec: str, /) -> str:
