@@ -6,6 +6,7 @@ import pickle
 import re
 from collections.abc import Iterator
 from datetime import datetime
+import json
 from pathlib import Path
 from typing import Any
 import chardet
@@ -230,6 +231,8 @@ class File(Path):
         cdef str md5  = self.md5_checksum(chunk_size)
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
         return hashlib.sha256(serialized_object).hexdigest()
+    def read_json(self)-> dict:
+        return json.loads(self.read_text())
 
 
     def _read_chunk(self, unsigned int size=8196, str spec='c') -> bytes:
@@ -241,6 +244,7 @@ class File(Path):
                 return f.read(size)
 
     def __hash__(self) -> int:
+        """Return the hash of the file."""
         return hash(self.sha256())
 
 
