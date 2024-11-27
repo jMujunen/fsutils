@@ -1,5 +1,4 @@
 """Base class and building block for all other classes defined in this library."""
-import cython
 
 import hashlib
 import os
@@ -9,7 +8,6 @@ from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-from dataclasses import dataclass, field
 import chardet
 from fsutils.mimecfg import FILE_TYPES
 from fsutils.tools import format_bytes
@@ -224,9 +222,12 @@ class File(Path):
             encoding = 'utf-8'
         return encoding
 
-    def sha256(self, unsigned int chunk_size=8196) -> str:
+    def md5_checksum(self, chunk_size=131072) -> str:
+        return hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
+
+    def sha256(self, unsigned int chunk_size=131072) -> str:
         """Return a reproducible sha256 hash of the file."""
-        cdef str md5  = hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
+        cdef str md5  = self.md5_checksum(chunk_size)
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
         return hashlib.sha256(serialized_object).hexdigest()
 
@@ -239,8 +240,8 @@ class File(Path):
             with self.open('rb', encoding=self.encoding) as f:
                 return f.read(size)
 
-    def __hash__(self, unsigned int chunk_size=8196) -> int:
-        return hash(self.sha256(chunk_size))
+    def __hash__(self) -> int:
+        return hash(self.sha256())
 
 
 cdef c_read_chunk(self, unsigned int size=8196):

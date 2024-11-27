@@ -1,9 +1,6 @@
 """Represents a directory. Contains methods to list objects inside this directory."""
-import cython
-import datetime
 import os
 import pickle
-import re
 import sys
 from collections import defaultdict
 import subprocess
@@ -23,7 +20,7 @@ from ThreadPoolHelper import Pool
 
 from fsutils.GitObject import Git
 from fsutils.ImageFile import Img
-from fsutils.LogFile import Log, Presets
+from fsutils.LogFile import Log
 from fsutils.mimecfg import FILE_TYPES, IGNORED_DIRS
 from fsutils.VideoFile import Video
 from fsutils.GitObject import Git
@@ -227,7 +224,7 @@ class Dir(File):
             return pickle.loads(self._pkl_path.read_bytes())
         return {}
 
-    def serialize(self, bint replace=True, unsigned int chunk_size=8196, bint progress_bar=True) ->  dict[int, list[str]]:# type: ignore
+    def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[int, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
         cdef tuple result
         cdef long long int sha
@@ -243,7 +240,7 @@ class Dir(File):
         pool = Pool()
 
         for result in pool.execute(
-            lambda x: (x.__hash__(chunk_size), x.path),
+            lambda x: (x.__hash__(), x.path),
             self.file_objects,
             progress_bar=progress_bar,
         ):
@@ -379,17 +376,6 @@ cdef _obj(str path):
     except FileNotFoundError as e:
         return None
     return File(path)
-
-
-
-
-
-
-
-
-
-
-
 
 
 def obj(file_path: str):

@@ -61,7 +61,6 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
         """
         super().__init__(path, *args, **kwargs)
-        del self._content
 
     @property
     def metadata(self) -> dict | None:
@@ -386,13 +385,14 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         return Video(output_path)
 
     # def sha256(self) -> str:
-    #     serialized_object = pickle.dumps(
-    #         {
-    #             "md5": self.md5_checksum(),
-    #             "size": self.size,
-    #         }
-    #     )
-    #     return hashlib.sha256(serialized_object).hexdigest()
+    # return super().sha256()
+    # serialized_object = pickle.dumps(
+    # {
+    # "md5": self.md5_checksum(),
+    # "size": self.size,
+    # }
+    # )
+    # return hashlib.sha256(serialized_object).hexdigest()
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
@@ -400,8 +400,8 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             **vars(self)
         )
 
-    def __hash__(self) -> int:
-        return super().__hash___()
+    # def __hash__(self) -> int:
+    # return super().__hash___()
 
     # return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
 

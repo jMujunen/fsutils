@@ -324,7 +324,7 @@ class Img(File):  # noqa - FIXME: Too many methods
 
     def sha265(self) -> str:
         serialized_object = pickle.dumps(
-            {"md5": self.md5_checksum(), "size": self.size, "dimensions": self.dimensions}
+            {"md5": super().md5_checksum(), "size": self.size, "dimensions": self.dimensions}
         )
         return hashlib.sha256(serialized_object).hexdigest()
 
@@ -332,8 +332,7 @@ class Img(File):  # noqa - FIXME: Too many methods
         return super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash(self.sha256())
-        # return hash((super().md5_checksum(), self.dimensions, self.size))
+        return hash(self.sha265())
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted table representation of the file."""
