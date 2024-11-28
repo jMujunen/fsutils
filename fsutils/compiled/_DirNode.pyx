@@ -26,11 +26,7 @@ from fsutils.VideoFile import Video
 from fsutils.GitObject import Git
 from fsutils.tools  import format_bytes
 from fsutils.compiled._GenericFile import File
-from typing import TypeVar
 
-# ctypedef dict[unicode, list[str]] db
-
-T = TypeVar('T', bound=File)
 
 class Dir(File):
     """A class representing information about a directory.
@@ -125,11 +121,12 @@ class Dir(File):
         except StopIteration:
             return True
         return False
-    def images(self) -> list[Img]:
+
+    def images_(self) -> list[Img]:
         """A list of ImageObject instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Img), self.__iter__()))  # type: ignore
 
-    def videos(self) -> list[Video]:
+    def videos_(self) -> list[Video]:
         """A list of VideoObject instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Video), self.__iter__()))  # type: ignore
 
@@ -141,7 +138,7 @@ class Dir(File):
         """Print a formatted table of each file extention and their count."""
         cdef str key
         cdef list[str] ext
-        cdef unsigned short int max_key_length, value
+        cdef unsigned int max_key_length, value
         cdef unsigned long int total, num_total
         cdef float percentage
 
@@ -187,7 +184,7 @@ class Dir(File):
     @property
     def db(self):
         if not self._db:
-            self._db = self.serialize()
+            self._db = self.serialize(replace=False)
     @property
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
@@ -280,11 +277,35 @@ class Dir(File):
         cdef str path = self.path if root is None else root
         with os.scandir(path) as entries:
             for entry in entries:
-                if entry.is_file(follow_symlinks=follow_symlinks):
-                    yield entry
-                elif entry.is_dir(follow_symlinks=follow_symlinks):
-                    yield from self.traverse(root=entry.path, follow_symlinks=follow_symlinks)
-                    yield entry
+                try:
+                    if entry.is_file(follow_symlinks=follow_symlinks):
+                        yield entry
+                    elif entry.is_dir(follow_symlinks=follow_symlinks):
+                        yield from self.traverse(root=entry.path, follow_symlinks=follow_symlinks)
+                        yield entry
+                except PermissionError:
+                    continue
+
+    def videos(self) -> Generator[Video, None, None]:
+        """Return a generator of Video objects for all video files."""
+        for file in self.ls_files():
+            if file.name.endswith((".mp4", ".avi", ".mkv")):
+                yield Video(file.path)
+
+    def images(self) -> Generator[Img, None, None]:
+        """Return a generator of Img objects for all image files."""
+        for file in self.ls_files():
+            if file.name.endswith((".jpg", ".jpeg", ".png", ".gif")):
+                yield Img(file.path)
+
+
+    def __getitem__(self, key: str) -> File:
+        """Get a file by name."""
+        for item in self.ls():
+            if item.name == key:
+                yield _obj(item.path)
+        raise KeyError(f"File '{key}' not found")
+
 
     def __format__(self, format_spec: str, /) -> LiteralString | str:
         pool = Pool()

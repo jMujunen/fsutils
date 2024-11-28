@@ -16,13 +16,14 @@ from collections import namedtuple
 
 from libc.stdlib cimport free, malloc, realloc
 
+
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
 St = namedtuple('St',['mtime', 'atime', 'ctime'])
 
 cdef extern from "stdio.h":
-    ctypedef ssize_t ssize_t
+    ctypedef ssize_t ssize_ts
     ctypedef size_t size_t
     ctypedef int FILE
 
@@ -223,10 +224,10 @@ class File(Path):
             encoding = 'utf-8'
         return encoding
 
-    def md5_checksum(self, chunk_size=131072) -> str:
+    def md5_checksum(self, chunk_size=16384) -> str:
         return hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
 
-    def sha256(self, unsigned int chunk_size=131072) -> str:
+    def sha256(self, unsigned int chunk_size=16384) -> str:
         """Return a reproducible sha256 hash of the file."""
         cdef str md5  = self.md5_checksum(chunk_size)
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
@@ -235,7 +236,7 @@ class File(Path):
         return json.loads(self.read_text())
 
 
-    def _read_chunk(self, unsigned int size=8196, str spec='c') -> bytes:
+    def _read_chunk(self, unsigned int size=16384, str spec='c') -> bytes:
         """Read a chunk of the file and return it as bytes."""
         if spec == 'c':
             return c_read_chunk(self,  size)
@@ -248,7 +249,7 @@ class File(Path):
         return hash(self.sha256())
 
 
-cdef c_read_chunk(self, unsigned int size=8196):
+cdef c_read_chunk(self, unsigned int size=16384):
     """Read a chunk of data from the file."""
     cdef char* buffer
     cdef ssize_t bytes_read
