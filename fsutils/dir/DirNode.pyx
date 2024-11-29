@@ -133,7 +133,7 @@ class Dir(File):
         """A list of Log instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
 
-    def describe(self): # -> dict[str, int]:
+    def describe(self, bint include_size=False) -> dict[str, int]:  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
         cdef list[str] ext
@@ -183,7 +183,9 @@ class Dir(File):
     @property
     def db(self):
         if not self._db:
-            self._db = self.serialize(replace=False) # type: ignore
+            self._db = self.load_database(replace=True) # type: ignore
+        else:
+            return self._db
     @property
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""

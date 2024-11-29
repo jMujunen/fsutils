@@ -5,8 +5,8 @@ from typing import Any
 
 from ThreadPoolHelper import Pool
 
-from fsutils.compiled._DirNode import Dir
-from fsutils.VideoFile import Video
+from fsutils.dir import Dir
+from fsutils.video import Video
 
 
 def parse_args() -> argparse.Namespace:
