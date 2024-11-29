@@ -15,11 +15,11 @@ import cv2
 from rich.console import Console
 from rich.table import Table, box
 
-from fsutils.compiled._GenericFile import File
-from fsutils.Exceptions import CorruptMediaError, FFProbeError
-from fsutils.FFProbe import FFProbe, FFStream
-from fsutils.ImageFile import Img
+from fsutils.file import File
+from fsutils.img import Img
 from fsutils.tools import format_bytes, format_timedelta, frametimes
+from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
+from fsutils.video import FFProbe, FFStream
 
 cv2.setLogLevel(1)
 

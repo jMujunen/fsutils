@@ -1,7 +1,5 @@
 """fsutils - a collection of utilities for file system manipulation and data extraction."""
 
-from . import mimecfg
-
 __package_name__ = "fsutils"
 __version__ = "0.1.0"
 __author__ = "jMujunen"

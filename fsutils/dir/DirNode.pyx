@@ -18,14 +18,13 @@ from cython.parallel import prange
 
 from ThreadPoolHelper import Pool
 
-from fsutils.GitObject import Git
-from fsutils.ImageFile import Img
-from fsutils.LogFile import Log
-from fsutils.mimecfg import FILE_TYPES, IGNORED_DIRS
-from fsutils.VideoFile import Video
-from fsutils.GitObject import Git
+from fsutils.git import Git
+from fsutils.img import Img
+from fsutils.log import Log
+from fsutils.utils import FILE_TYPES, IGNORED_DIRS
+from fsutils.video import Video
 from fsutils.tools  import format_bytes
-from fsutils.compiled._GenericFile import File
+from fsutils.file import File
 
 
 class Dir(File):
@@ -184,7 +183,7 @@ class Dir(File):
     @property
     def db(self):
         if not self._db:
-            self._db = self.serialize(replace=False)
+            self._db = self.serialize(replace=False) # type: ignore
     @property
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""

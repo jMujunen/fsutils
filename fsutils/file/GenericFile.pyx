@@ -6,15 +6,30 @@ import pickle
 import re
 from collections.abc import Iterator
 from datetime import datetime
+import json
 from pathlib import Path
 from typing import Any
-
 import chardet
-
-from fsutils.mimecfg import FILE_TYPES
+from fsutils.utils import FILE_TYPES
 from fsutils.tools import format_bytes
+from collections import namedtuple
+
+from libc.stdlib cimport free, malloc, realloc
+
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
+
+
+St = namedtuple('St',['mtime', 'atime', 'ctime'])
+
+cdef extern from "stdio.h":
+    ctypedef ssize_t ssize_ts
+    ctypedef size_t size_t
+    ctypedef int FILE
+
+    cdef FILE* fopen(const char* filename, const char* mode)
+    ssize_t fread(void* ptr, size_t size, size_t nmemb, FILE* stream)
+    int fclose(FILE* stream)
 
 
 class File(Path):
@@ -66,8 +81,7 @@ class File(Path):
         self.encoding = encoding
         if not self.exists:
             raise FileNotFoundError(f"File '{self.path}' does not exist")
-        self._content = []
-        super().__init__(self.path, *args, **kwargs)
+        super().__init__(self.path, *args, **kwargs) # type: ignore
 
     def head(self, n: int = 5) -> list[str]:
         """Return the first n lines of the file."""
@@ -80,6 +94,7 @@ class File(Path):
         if self.content is not None:
             return self.content[-n:]
         return self.content
+
 
     @property
     def parent(self):
@@ -118,28 +133,11 @@ class File(Path):
         return False
 
     @property
-    def content(self) -> list[Any]:
+    def content(self) -> list[str]:
         """Helper for self.read()."""
         print(f"\033[33mWARNING\033[0m - Depreciated function <{self.__class__.__name__}.content>")
-        if not self._content:
-            # self._content = self.read()
-            self._content = self.read_text().splitlines()
-        return self._content
+        return self.read_text().splitlines()
 
-    def _read_chunk(self, size=4096) -> bytes:
-        """Read a chunk of the file and return it as bytes."""
-        with open(self.path, "rb") as f:  # noqa
-            return f.read(size)
-
-    def md5_checksum(self, size=4096) -> str:
-        """Return the MD5 checksum of a portion of the image file."""
-        data = self._read_chunk(size)
-        return hashlib.md5(data).hexdigest()
-
-    @property
-    def is_executable(self) -> bool:
-        """Check if the file has the executable bit set."""
-        return os.access(self.path, os.X_OK)
 
     @property
     def is_gitobject(self) -> bool:
@@ -167,32 +165,20 @@ class File(Path):
         return datetime.fromtimestamp(self.stat().st_ctime)
 
     @property
-    def atime(self) -> datetime:
+    def atime(self):# -> datetime:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
-    def detect_encoding(self) -> str:
-        """Detect encoding of the file."""
-        self.encoding = chardet.detect(self._read_chunk(2048))["encoding"] or self.encoding
-        return self.encoding
+    def times(self):
+        m, a, c = self.stat()[-3:]
+        self.st = St(datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c))
+        return self.st
 
-    def sha256(self) -> str:
-        """Return a reproducable sha256 hash of the file."""
-        serialized_object = pickle.dumps({"md5": self.md5_checksum(), "size": self.size})
-        return hashlib.sha256(serialized_object).hexdigest()
-
-    def __hash__(self) -> int:
-        return hash(self.sha256())
-        # return hash((self.md5_checksum(), self.size))
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over the lines of a file."""
-        if self.content is not None:
-            try:
-                for line in self.content:
-                    yield str(line).strip()
-            except TypeError as e:
-                raise TypeError(f"Object of type {type(self)} is not iterable: {e}") from e
+        with self.open('rb', encoding=self.encoding) as f:
+            yield from f
 
     def __len__(self) -> int:
         """Get the number of lines in a file."""
@@ -209,9 +195,7 @@ class File(Path):
             item (str): The line to check for
 
         """
-        return any(item in line for line in self) or any(
-            item in word for word in item.split(" ") for line in self
-        )
+        return any(item in line for line in self)
 
     def __eq__(self, other: "File", /) -> bool:
         """Compare two FileObjects.
@@ -232,5 +216,69 @@ class File(Path):
             **vars(self)
         )
 
-    # def __init_subclass__(cls) -> None:
-    #     return super().__init_subclass__()
+    def detect_encoding(self) -> str:
+        """Detect encoding of the file."""
+        cdef unsigned short int chunk_size = 2048
+        cdef str encoding = chardet.detect(self._read_chunk(chunk_size))["encoding"] or self.encoding
+        if encoding == 'ascii':
+            encoding = 'utf-8'
+        return encoding
+
+    def md5_checksum(self, chunk_size=16384) -> str:
+        return hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
+
+    def sha256(self, unsigned int chunk_size=16384) -> str:
+        """Return a reproducible sha256 hash of the file."""
+        cdef str md5  = self.md5_checksum(chunk_size)
+        cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
+        return hashlib.sha256(serialized_object).hexdigest()
+    def read_json(self)-> dict:
+        return json.loads(self.read_text())
+
+
+    def _read_chunk(self, unsigned int size=16384, str spec='c') -> bytes:
+        """Read a chunk of the file and return it as bytes."""
+        if spec == 'c':
+            return c_read_chunk(self,  size)
+        else:
+            with self.open('rb', encoding=self.encoding) as f:
+                return f.read(size)
+
+    def __hash__(self) -> int:
+        """Return the hash of the file."""
+        return hash(self.sha256())
+
+
+cdef c_read_chunk(self, unsigned int size=16384):
+    """Read a chunk of data from the file."""
+    cdef char* buffer
+    cdef ssize_t bytes_read
+    cdef FILE* fptr
+
+    # Allocate memory for the buffer
+    buffer = <char*>malloc(size * sizeof(char)) # type: ignore
+    if not buffer:
+        raise MemoryError("Failed to allocate memory for buffer")
+
+    try:
+        # Open the file in binary read mode
+        fptr = fopen(self.path.encode('utf-8'), 'rb'.encode('utf-8'))# type: ignore
+        if not fptr:
+            raise IOError(f"Failed to open file: {self.path}")
+
+        try:
+            # Read data into the buffer
+            bytes_read = fread(buffer, 1, size, fptr)# type: ignore
+            if bytes_read < 0:# type: ignore
+                raise IOError("Error reading from file")
+
+            # Convert the buffer to a Python bytes object and return it
+            return bytes(buffer[:bytes_read]) # type: ignore
+        finally:
+            # Close the file
+            fclose(fptr)
+    finally:
+        # Free the allocated memory for the buffer
+        free(buffer) # type: ignore
+
+
