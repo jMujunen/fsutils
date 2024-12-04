@@ -181,15 +181,70 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             except Exception as e:
                 print(f"Error: {e}")
 
-    def make_gif(self, scale=640, fps=24, **kwargs: Any) -> Img:
+    def make_hq_gif(self, scale=640, fps=24, **kwargs) -> Img | None:
+        """Convert the video to a high-quality gif using FFMPEG.
+
+        Paramaters
+        -----------
+            scale : int
+                The width of the output gif. The height will be calculated to maintain the aspect ratio.
+            fps : int
+                The frames per second of the output gif.
+            **kwargs : dict
+                Additional arguments to pass to FFMPEG.
+        """
+
+        output = kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}')
+        output_path = Path(output)
+        if output_path.exists():
+            if input("Overwrite existing file? (y/n): ").lower() in {"Y", "y", "yes"}:
+                output_path.unlink()
+            else:
+                print("Not overwriting existing file")
+                return Img(output_path)
+
+        palette = "/tmp/palette.png"
+        filters = f"fps={fps},scale={scale!s}:-1:flags=lanczos"
+        get_pallet_cmd = [
+            "ffmpeg",
+            "-i",
+            self.path,
+            "-vf",
+            f"{filters},palettegen",
+            "-y",
+            "-v",
+            "error",
+            palette,
+        ]
+        print("doing the work")
+        ffmpeg_cmd = [
+            "ffmpeg",
+            "-i",
+            subprocess.run(get_pallet_cmd, check=False).stdout,
+            "-i",
+            palette,
+            "-lavfi",
+            f"{filters} [x]; [x][1:v] paletteuse",
+            "-y",
+            "-v",
+            "error",
+            output_path,
+        ]
+
+        try:
+            # pallet = subprocess.getoutput(get_pallet_cmd)
+            result = subprocess.getoutput(ffmpeg_cmd)
+            return Img(output_path)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}")
+
+    def make_gif(self, scale=640, fps=15, **kwargs: Any) -> Img:
         """Convert the video to a gif using FFMPEG.
 
         Parameters
         -----------
             - `scale` : int, optional (default is 500)
             - `fps`   : int, optional (default is 10)
-            - `output` : str, optional (default is "./output.gif")
-            - `bitrate` : int, optional (default is 3MB)
 
             Breakdown:
             * `FPS` : Deault is 24 but the for smaller file sizes, try 6-10
@@ -197,7 +252,6 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
                 - 500-1000 = high quality but larger file size.
                 - 100-500   = medium quality and smaller file size.
                 - 10-100    = low quality and smaller file size.
-            * `bitrate` : the bit rate of the video, in mb/s (100mb/s = 1080p | 10mb/s = 480p)
 
             * The default `fps | scale` of `24 | 500` means a decent quality gif.
 
@@ -218,6 +272,14 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
                 "ffmpeg",
                 "-i",
                 f"{self.path}",
+                "-pix_fmt",
+                "rgb24",
+                "-gifflags",
+                "+transdiff",
+                "-dither",
+                "sierra2_4a",
+                "-colors",
+                "256",
                 "-vf",
                 f"fps={fps},scale={scale!s}:-1:flags=lanczos",
                 "-v",
@@ -362,7 +424,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             "-i",
             self.path,
             "-c:v",
-            kwargs.get("codec", "libx264"),
+            kwargs.get("codec", "hevc_nvenc"),
             "-crf",
             kwargs.get("crf", "20"),
             "-qp",

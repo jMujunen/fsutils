@@ -201,7 +201,10 @@ def video_parser(arguments: argparse.Namespace) -> Any:
                 print(Video.fmtheader())
                 return print("\n".join(Pool().execute(format, videos, progress_bar=False)))
             case "compress":
+                print("compressing", len(videos))
+
                 for vid in videos:
+                    print(vid)
                     vid.compress(**kwargs)
                 return 0
             case _:
@@ -215,7 +218,7 @@ def video_parser(arguments: argparse.Namespace) -> Any:
     kwargs = {}
     with contextlib.suppress(AttributeError):
         kwargs = parse_kwargs(*arguments.kwargs)
-
+    print(kwargs)
     return action(videos, **kwargs)
 
 
