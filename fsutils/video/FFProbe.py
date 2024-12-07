@@ -32,7 +32,7 @@ class FFProbe:
             self.streams.append(FFStream(stream))
 
     def __repr__(self) -> str:
-        return f"<FFProbe {len(self.streams)} streams>"
+        return f"{self.__class__.__name__}(streams={self.streams})"
 
 
 class FFStream:

@@ -10,12 +10,11 @@ from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Never
-
+import numpy as np
 import cv2
 import imagehash
 from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
-
 from fsutils.file import File
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
@@ -214,36 +213,58 @@ class Img(File):  # noqa - FIXME: Too many methods
         """Save the image to a specified location."""
         raise NotImplementedError(self.__class__.__name__ + ".save() is not yet implemented.")
 
-    def resize(self, height=480, tempfile=False, overwrite=False, **kwargs: Any) -> "Img":
-        """Resize the image to specified size and mode.
+    def info(self) -> "list[tuple[int, int]]":
+        """Get image data as a list of tuples containing the pixel colors.
 
-        Paramaters:
-        ------------
-            - width : The wifth to resize the image to. Defaults to 480px and maintains ratio.
-            - overwrite (bool): Whether to overwrite existing files with the same name. Defaults to False.
-            - file_path (str): The path to save the resized image at. Defaults to None.
-            - tempfile (bool): Whether to use a temporary file for the resized image. Defaults to False
+        Returns
+        -------
+            - `tuple` : A tuple containing an RGB value for each pixel in the image.
         """
+        # Open the image and convert it to an array of pixels (RGB values)
+        img = Image.open(self.path).convert("RGB")
+        data: np.ndarray[Any, np.dtype[np.int32]] = np.array(img.getdata())
+        print(f"Shape of image data {self.name}: {data.shape}")
+        return list(data)
 
-        # mode = kwargs.get("mode", "fit")
-        _resized_img = kwargs.get("output", f'{self.parent} / f"_resized-{self.name}"')
-        resized_img_path = Path(_resized_img)
-        width = round(height * self.aspect_ratio)
-        # If the image already exists and is of the same dimensions, just return it.
-        if (
-            resized_img_path.exists()
-            and not overwrite
-            and Img(resized_img_path).dimensions == (width, height)
-        ):
-            return self.__class__(resized_img_path)
+    def resize(self, width: int | None = None, height: int | None = None) -> "Img":
+        """Resizes an image.
+
+        Parameters
+        ----------
+            - `width (int)` : The new width of the image after resizing.
+                If this parameter is not set, then the aspect ratio will be maintained while changing only the height to a new value.
+            - `height (int)` : The new height of the image after resizing.
+                If this parameter is not set, then the aspect ratio will be maintained while changing only the width to a new value.
+
+        Returns
+        -------
+            Img: A new instance of the Img class with the resized image path and dimensions.
+
+        Raises
+        ------
+            ValueError : If both `width` and `height` parameters are passed as `None`.
+            OSError : If an error occurred while saving the resized image file to disk.
+        """
+        if not width and not height:
+            raise ValueError("Both Width & Height cannot be none")
+
+        # Make new filename prepending _resized to the original file name
+        new_filename = f"_resized{self.name}"
+        # Load the image to memory
         with Image.open(self.path) as img:
+            # Unpack the tuple into two variables.
+            match width, height:
+                case None, None:
+                    raise ValueError("Both Width & Height cannot be none")
+                case None, _:
+                    width = int(img.width * (height / img.height))
+                case _, None:
+                    height = int(img.height * (width / img.width))
+
             resized_img = img.resize((width, height))
-            if tempfile:
-                with NamedTemporaryFile(delete=True) as temp_file:
-                    resized_img.save(f"{temp_file.name}{self.suffix}")
-                return self.__class__(f"{temp_file.name}{self.suffix}")
-            resized_img.save(resized_img_path)
-            return self.__class__(resized_img_path)
+            new_file_path = Path(self.parent, new_filename)
+            resized_img.save(new_file_path)
+            return self.__class__(new_file_path)
 
     def compress(
         self,
@@ -274,35 +295,43 @@ class Img(File):  # noqa - FIXME: Too many methods
             - `ValueError` : If an invalid value was passed for width, height or new_size_ratio parameters
 
         """
-        # Make new filename prepending _compressed to the original file name
-        new_filename = f"_compressed{self.name}"
-        # Load the image to memory
-        with Image.open(self.path) as img:
-            if to_jpg:
-                # convert the image to RGB mode
-                img.convert("RGB")
-                new_filename = f"{self.name}_compressed.jpg"
-            # Multiply width & height with `ratio`` to reduce image size
-            if new_size_ratio < 1.0:
-                img.resize(
-                    (int(img.size[0] * new_size_ratio), int(img.size[1] * new_size_ratio)),
-                )
-            elif width and height:
-                img.resize((width, height))
-            try:
-                new_file_path = Path(self.parent, new_filename)
-                img.save(new_file_path, quality=quality, optimize=True)
-                resized_img = self.__class__(new_file_path)
-            except (OSError, PermissionError):
-                print("Permission Denied")
-                return None
-            except Exception as e:
-                print(f"Error: {e:!r}")
-                return None
-        # Calculate file size reduction
-        size_diff = (resized_img.size - self.size) / self.size * 100
-        print(f"The image was reduced by {size_diff:.2f}%.")
-        return resized_img
+        if not isinstance(new_size_ratio, float | int) or new_size_ratio <= 0:
+            raise ValueError("Invalid ratio provided.")
+
+        # Create a temporary directory to store the compressed images
+        tmp_dir = Path("/tmp/fsutils")
+        tmp_dir.mkdir(exist_ok=True)
+
+        filename_base = "_compressed" if not to_jpg else f"{self.name}_compressed.jpg"
+        new_filename = Path.joinpath(tmp_dir, filename_base)
+
+        try:
+            with Image.open(self.path) as img:
+                # Resize the image according to given dimensions or ratio
+                if width and height:
+                    resized_img = img.resize((width, height))
+                elif 0 < new_size_ratio < 1.0:
+                    resized_img = img.resize((
+                        int(img.size[0] * new_size_ratio),
+                        int(img.size[1] * new_size_ratio),
+                    ))
+                else:
+                    raise ValueError("Invalid size parameters.")
+
+                # Convert to RGB if converting to JPG
+                if to_jpg:
+                    resized_img.convert("RGB")
+
+                resized_img.save(new_filename, quality=quality, optimize=True)
+
+            return self.__class__(new_filename)
+
+        except (OSError, PermissionError):
+            print("Permission Denied")
+            return None
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
 
     def encode(self) -> str:
         """Base64 encode the image."""
@@ -322,11 +351,13 @@ class Img(File):  # noqa - FIXME: Too many methods
         """Read the image and return its content as a string."""
         return super()._read_chunk(4096)
 
-    def sha265(self) -> str:
-        serialized_object = pickle.dumps(
-            {"md5": super().md5_checksum(), "size": self.size, "dimensions": self.dimensions}
-        )
-        return hashlib.sha256(serialized_object).hexdigest()
+    # def sha265(self) -> str:
+    #     serialized_object = pickle.dumps({
+    #         "md5": super().md5_checksum(),
+    #         "size": self.size,
+    #         "dimensions": self.dimensions,
+    #     })
+    #     return hashlib.sha256(serialized_object).hexdigest()
 
     def __eq__(self, other: "Img", /) -> bool:
         return super().__eq__(other)

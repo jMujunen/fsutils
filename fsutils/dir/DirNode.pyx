@@ -212,21 +212,20 @@ class Dir(File):
             - num_keep (int): The number of copies of each file to keep.
             - updatedb (bool): If True, re-calculate the hash values for all files
         """
-        cdef dict[int, list[str]] hashes
+        cdef dict[str, list[str]] hashes
         hashes = self.serialize(replace=updatedb) # type: ignore
         return [value for value in hashes.values() if len(value) > num_keep] # type: ignore
 
-    def load_database(self) -> dict[int, list[str]]:
+    def load_database(self) -> dict[str, list[str]]:
         """Deserialize the pickled database."""
         if self._pkl_path.exists():
             return pickle.loads(self._pkl_path.read_bytes())
         return {}
 
-    def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[int, list[str]]:# type: ignore
+    def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[str, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
         cdef tuple result
-        cdef long long int sha
-        cdef str path
+        cdef str sha, path
 
         self._pkl_path = Path(self._pkl_path.parent, f".{self._pkl_path.name.lstrip('.')}")
         if self._pkl_path.exists() and replace:
@@ -238,7 +237,7 @@ class Dir(File):
         pool = Pool()
 
         for result in pool.execute(
-            lambda x: (x.__hash__(), x.path),
+            worker,
             self.file_objects,
             progress_bar=progress_bar,
         ):
@@ -250,6 +249,22 @@ class Dir(File):
                     self._db[sha].append(path)
         self._pkl_path.write_bytes(pickle.dumps(self._db))
         return self._db
+    def compare(self, other: 'Dir') -> tuple[set[str], set[str]]:
+        """Compare the current directory with another directory."""
+        cdef set[str] common_files, unique_files
+        cdef unsigned int num_files = len(set(self.ls_files()))
+        cdef str template = '{key:<10} {color}{value:<10}{reset}{percentage}'
+
+        common_files = set(self._db.keys()) & set(other._db.keys())
+        unique_files = set(self._db.keys()) - set(other._db.keys())
+
+        print(template.format(key='Total: ',color='\033[35m', reset='\033[0m', value=num_files, percentage=""))
+        print(template.format(key="Common: ", color='\033[34m', reset='\033[0m',value=len(common_files),percentage=f"{len(common_files)/num_files*100:.0f}%"))
+        print(template.format(key="Unique: ", color='\033[32m', reset='\033[0m',value=len(unique_files),percentage=f"{len(unique_files)/num_files*100:.0f}%"))
+
+        return common_files, unique_files
+
+
 
 
     def ls(self, follow_symlinks=False, recursive=True) -> Generator[os.DirEntry, None, None]:
@@ -404,6 +419,7 @@ def obj(file_path: str):
     """Return a File instance for the given file path."""
     return _obj(file_path)
 
-
-
+cdef tuple[str, str] worker(item):
+    """Worker function to process items in parallel."""
+    return item.sha256(), item.path
 

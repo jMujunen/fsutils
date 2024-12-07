@@ -122,7 +122,7 @@ def main(videos: list[Video], action: str, **kwargs) -> Any:
                 try:
                     vid.compress(**kwargs)
                 except Exception as e:
-                    print(f"{e:!r}")
+                    print(f"{e!r}")
         case _:
             print("\033[31mError:\033[0m ", action, "is not a known action")
 
