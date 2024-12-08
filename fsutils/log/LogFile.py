@@ -182,7 +182,7 @@ class Log(File, LogMetaData):
     def plot(self, columns: tuple[str, ...] = Custom.TEMP_COLS, smooth_factor=1) -> None:
         missing_columns = [col for col in columns if col not in self.df.columns]
         if hasattr(self.preset, "_SANITIZER"):
-            parsed_data = [
+            parsed_data: list[tuple] = [
                 (x, float(y))
                 for x, y in [
                     line.strip().split(",")
@@ -208,16 +208,17 @@ class Log(File, LogMetaData):
         smooth_data = {}
         if smooth_factor == 1:
             smooth_factor = int(self.df.shape[0] / 100) or 1
-        try:
             for column in columns:
-                smooth_data[column] = np.convolve(
-                    self.df[column], np.ones(smooth_factor) / smooth_factor, mode="valid"
-                )
-            smooth_df = pd.DataFrame(smooth_data, index=self.df.index[: -(smooth_factor - 1)])
-
-        except:
-            print(f"\033[31m[ERROR]\033[0m Could not smooth data for column {column}")
-            smooth_df = self.df
+                try:
+                    smooth_data[column] = np.convolve(
+                        self.df[column], np.ones(smooth_factor) / smooth_factor, mode="valid"
+                    )
+                    smooth_df = pd.DataFrame(
+                        smooth_data, index=self.df.index[: -(smooth_factor - 1)]
+                    )
+                except ValueError as e:
+                    print(f"\033[31m[ERROR]\033[0m Could not smooth data for column {column}")
+                    smooth_df = self.df
 
         fig, ax = plt.subplots(
             figsize=(16, 6),
@@ -255,7 +256,7 @@ class Log(File, LogMetaData):
         plt.xticks(rotation=45, fontsize=12, color="#d3c6aa")
         plt.show()
 
-    def sanatize(self):
+    def wrangle(self):
         """Sanitize the log file."""
         header = self.head
 
