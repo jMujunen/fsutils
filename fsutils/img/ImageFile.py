@@ -35,6 +35,9 @@ class Img(File):  # noqa - FIXME: Too many methods
         - `grayscale(output)`     : Convert the image to grayscale and save it to the specified output path.
     """
 
+    _tags: list
+    _exif: Image.Exif
+
     def __init__(self, path: str | Path) -> None:
         """Initialize an Img object.
 
@@ -42,7 +45,6 @@ class Img(File):  # noqa - FIXME: Too many methods
         ----------
             - `path (str)` : The absolute path to the file.
         """
-        self._tags = []
         super().__init__(path)
         self._exif = Image.Exif()
         self._tags = []
@@ -53,6 +55,8 @@ class Img(File):  # noqa - FIXME: Too many methods
         Paramters:
         ---------
             - `spec (str)` : The specification for the hashing algorithm to use.
+                            Supported values are 'avg', 'dhash', and 'phash'.
+
 
         """
         # Ignore heic until feature is implemented to support it.
@@ -78,23 +82,19 @@ class Img(File):  # noqa - FIXME: Too many methods
             width, height = img.size
         return width, height
 
-    @property
-    def exif(self) -> Image.Exif | None:
+    def exif(self) -> Image.Exif:
         """Extract the EXIF data from the image."""
-        try:
-            with Image.open(self.path) as img:
-                self._exif = img.getexif()
+        with Image.open(self.path) as img:
+            self._exif = img.getexif()
             return self._exif
-        except UnidentifiedImageError as e:
-            print(f"{e!r}")
 
     @property
-    def tags(self) -> Generator | None:
+    def tags(self) -> Generator[tuple[str,]] | None:
         """Extract metadata from image files."""
-        for tag_id in self.exif:
+        for tag_id in self.exif():
             try:
                 tags = TAGS.get(tag_id, tag_id)
-                data = self.exif.get(tag_id)
+                data = self.exif().get(tag_id)
                 if isinstance(data, bytes):
                     data = data.decode()
                 if tags == "XMLPacket":
@@ -102,7 +102,7 @@ class Img(File):  # noqa - FIXME: Too many methods
                 tag = (tags, data)
                 if tag not in self._tags:
                     self._tags.append(tag)
-                yield tag
+                yield tag  # type: ignore
             except UnicodeDecodeError:
                 continue
             except Exception as e:
@@ -112,38 +112,32 @@ class Img(File):  # noqa - FIXME: Too many methods
     @property
     def capture_date(self) -> datetime:
         """Return the capture date of the image if it exists in the EXIF data."""
-        # if self.exif is not None:
-        #   tag, data = [(k, v) for k, v in self.exif.items() if isinstance(v, tuple)][0]
-        # Iterating over all EXIF data fields
-        if self._exif is None:
-            for tag_id in self.exif:
-                try:
-                    # Get the tag name, instead of human unreadable tag id
-                    tag = TAGS.get(tag_id, tag_id)
-                    data = self.exif.get(tag_id)
-                    # Decode bytes
-                    if isinstance(data, bytes):
-                        data = data.decode()
-                    if str(tag).startswith("DateTime"):
-                        date, time = str(data).split(" ")
-                        year, month, day = date.split(":")
-                        hour, minute, second = time.split(":")
-                        return datetime(
-                            int(year),
-                            int(month),
-                            int(day),
-                            int(hour),
-                            int(minute),
-                            int(second[:2]),
-                        )
-                except:  # noqa
-                    continue
-        else:
-            self.__dict__.get("capture_date")
+        for tag_id in self.exif():
+            try:
+                # Get the tag name, instead of human unreadable tag id
+                tag = TAGS.get(tag_id, tag_id)
+                data = self.exif().get(tag_id)
+                # Decode bytes
+                if isinstance(data, bytes):
+                    data = data.decode()
+                if str(tag).startswith("DateTime"):
+                    date, time = str(data).split(" ")
+                    year, month, day = date.split(":")
+                    hour, minute, second = time.split(":")
+                    return datetime(
+                        int(year),
+                        int(month),
+                        int(day),
+                        int(hour),
+                        int(minute),
+                        int(second[:2]),
+                    )
+            except:  # noqa
+                continue
+        self.__dict__.get("capture_date")
         date_str = str(datetime.fromtimestamp(self.stat().st_mtime)).split(".")[0]
         return datetime.fromisoformat(date_str)
 
-    @property
     def is_corrupt(self) -> bool:
         """Check if the image is corrupt."""
         # If the file is a HEIC image, it cannot be verified
@@ -213,7 +207,7 @@ class Img(File):  # noqa - FIXME: Too many methods
         """Save the image to a specified location."""
         raise NotImplementedError(self.__class__.__name__ + ".save() is not yet implemented.")
 
-    def info(self) -> "list[tuple[int, int]]":
+    def info(self) -> list[tuple[int, int]]:
         """Get image data as a list of tuples containing the pixel colors.
 
         Returns

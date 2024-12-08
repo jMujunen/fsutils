@@ -79,8 +79,8 @@ class File(Path):
             path = Path(path)
         self.path = os.path.abspath(os.path.expanduser(str(path)))
         self.encoding = encoding
-        if not self.exists:
-            raise FileNotFoundError(f"File '{self.path}' does not exist")
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"File '{path}' does not exist")
         super().__init__(self.path, *args, **kwargs) # type: ignore
 
     def head(self, n: int = 5) -> list[str]:
@@ -116,7 +116,6 @@ class File(Path):
         """Return the file name without extension."""
         return self.stem
 
-    @property
     def is_binary(self) -> bool:
         """Check for null bytes in the file contents, telling us its binary data."""
         try:
@@ -128,7 +127,7 @@ class File(Path):
                 if byte == 0:
                     return True
         except Exception as e:
-            print(f"Error calling `is_binary` on file {self.name}: {e!r}")
+            print(f"Error calling `is_binary()` on file {self.name}: {e!r}")
             return False
         return False
 
@@ -139,17 +138,14 @@ class File(Path):
         return self.read_text().splitlines()
 
 
-    @property
     def is_gitobject(self) -> bool:
         """Check if the file is a git object."""
         return GIT_OBJECT_REGEX.match(self.name) is not None
 
-    @property
     def is_image(self) -> bool:
         """Check if the file is an image."""
         return self.suffix.lower() in FILE_TYPES["img"]
 
-    @property
     def is_video(self) -> bool:
         """Check if the file is a video."""
         return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video"))
@@ -175,11 +171,14 @@ class File(Path):
         return self.st
 
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[str|bytes]:
         """Iterate over the lines of a file."""
-        with self.open('rb', encoding=self.encoding) as f:
-            yield from f
-
+        if self.is_binary():
+            with self.open('rb') as f:
+                yield from f
+        else:
+            with self.open('r', encoding=self.encoding) as f:
+                yield from f
     def __len__(self) -> int:
         """Get the number of lines in a file."""
         try:
