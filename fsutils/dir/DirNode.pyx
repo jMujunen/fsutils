@@ -144,7 +144,7 @@ class Dir(File):
         # cdef dictsorted_stat, file_types
         file_types = defaultdict(int)
         for item in self.ls_files():
-            ext = item.path.split(os.sep)[-1].split(".")
+            ext = item.split(os.sep)[-1].split(".")
             if len(ext) > 1:
                 file_types[ext[-1]] += 1
             else:
@@ -194,7 +194,7 @@ class Dir(File):
                 return self._size
         awk = "awk '{ print $1 }'"
         cmd = f'du -bsx "{self.path}" | {awk}'
-        self._size = int(subprocess.getoutput(cmd))
+        self._size = int(subprocess.getoutput(cmd).splitlines()[-1])
         return self._size
 
     @property
@@ -202,7 +202,7 @@ class Dir(File):
         return format_bytes(self.size)
 
 
-    def duplicates(self, int num_keep=2, updatedb=False) -> list[list[str]]:
+    def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
 
         Uses pre-calculated hash values to find duplicates.
@@ -267,23 +267,23 @@ class Dir(File):
 
 
 
-    def ls(self, follow_symlinks=False, recursive=True) -> Generator[os.DirEntry, None, None]:
+    def ls(self, bint follow_symlinks=False, bint recursive=True) -> Generator[os.DirEntry, None, None]:
         if not recursive:
             yield from os.scandir(self.path)
         yield from self.traverse(follow_symlinks=follow_symlinks)
 
-    def ls_dirs(self,follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
+    def ls_dirs(self,bint follow_symlinks=False) -> Generator[str, None, None]:
         """Return a list of paths for all directories in self."""
         for item in self.ls():
             if item.is_dir(follow_symlinks=follow_symlinks):
-                yield item
-    def ls_files(self,follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
+                yield item.path
+    def ls_files(self,bint follow_symlinks=False) -> Generator[str, None, None]:
         """Return a list of paths for all files in self."""
         for item in self.ls():
             if item.is_file(follow_symlinks=follow_symlinks):
-                yield item
+                yield item.path
 
-    def traverse(self, root=None, follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
+    def traverse(self, root=None, bint follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
         """Recursively traverse a directory tree starting from the given path.
 
         Yields
@@ -305,14 +305,14 @@ class Dir(File):
     def videos(self) -> Generator[Video, None, None]:
         """Return a generator of Video objects for all video files."""
         for file in self.ls_files():
-            if file.name.endswith((".mp4", ".avi", ".mkv")):
-                yield Video(file.path)
+            if file.endswith((".mp4", ".avi", ".mkv")):
+                yield Video(file)
 
     def images(self) -> Generator[Img, None, None]:
         """Return a generator of Img objects for all image files."""
         for file in self.ls_files():
-            if file.name.endswith((".jpg", ".jpeg", ".png", ".gif")):
-                yield Img(file.path)
+            if file.endswith((".jpg", ".jpeg", ".png", ".gif")):
+                yield Img(file)
 
 
     def __getitem__(self, key: str) -> File:
@@ -423,3 +423,21 @@ cdef tuple[str, str] worker(item):
     """Worker function to process items in parallel."""
     return item.sha256(), item.path
 
+cdef class FileMeta(type):
+    def __call__(cls, filepath, *args, **kwargs):
+        # Determine file extension and create the appropriate instance
+        path = Path(filepath)
+        ext = path.suffix.lower()
+        if ext in FILE_TYPES['video']:
+            return Video(filepath, *args, **kwargs)
+        elif ext in FILE_TYPES['img']:
+            return Img(filepath, *args, **kwargs)
+        elif ext in FILE_TYPES['log']:
+            return Log(filepath, *args, **kwargs)
+        elif path.is_dir():
+            return Dir(filepath, *args, **kwargs)
+        else:
+            return File(filepath, *args, **kwargs)
+
+class F(metaclass=FileMeta):
+    pass
