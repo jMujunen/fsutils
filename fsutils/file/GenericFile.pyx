@@ -20,7 +20,7 @@ from libc.stdlib cimport free, malloc, realloc
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 
-St = namedtuple('St',['mtime', 'atime', 'ctime'])
+St = namedtuple('St',['atime', 'mtime', 'ctime'])
 
 cdef extern from "stdio.h":
     ctypedef ssize_t ssize_ts
@@ -166,7 +166,7 @@ class File(Path):
         return datetime.fromtimestamp(self.stat().st_atime)
 
     def times(self):
-        m, a, c = self.stat()[-3:]
+        a, m, c = self.stat()[-3:]
         self.st = St(datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c))
         return self.st
 
@@ -231,7 +231,7 @@ class File(Path):
         cdef str md5  = self.md5_checksum(chunk_size)
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
         return hashlib.sha256(serialized_object).hexdigest()
-    def read_json(self)-> dict:
+    def read_json(self)-> dict|list:
         return json.loads(self.read_text())
 
 

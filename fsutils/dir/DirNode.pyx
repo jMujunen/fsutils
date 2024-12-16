@@ -224,7 +224,7 @@ class Dir(File):
 
     def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[str, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
-        cdef tuple result
+        cdef tuple[str, str] result
         cdef str sha, path
 
         self._pkl_path = Path(self._pkl_path.parent, f".{self._pkl_path.name.lstrip('.')}")
@@ -364,9 +364,12 @@ class Dir(File):
                     yield cls_instance
                     self._objects.append(cls_instance)
                 for file in files:
-                    cls_instance = _obj(os.path.join(root, file))
-                    yield cls_instance
-                    self._objects.append(cls_instance)
+                    try:
+                        cls_instance = _obj(os.path.join(root, file))
+                        yield cls_instance
+                        self._objects.append(cls_instance)
+                    except FileNotFoundError as e:
+                        print(f"DirNode.Dir.__iter__(): {e!r}")
 
     def __eq__(self, other: "Dir", /) -> bool:
         """Compare the contents of two Dir objects."""

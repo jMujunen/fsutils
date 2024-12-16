@@ -342,16 +342,8 @@ class Img(File):  # noqa - FIXME: Too many methods
         return Img(output)
 
     def read(self) -> bytes:
-        """Read the image and return its content as a string."""
+        """Read the image and return its content as bytes."""
         return super()._read_chunk(4096)
-
-    # def sha265(self) -> str:
-    #     serialized_object = pickle.dumps({
-    #         "md5": super().md5_checksum(),
-    #         "size": self.size,
-    #         "dimensions": self.dimensions,
-    #     })
-    #     return hashlib.sha256(serialized_object).hexdigest()
 
     def __eq__(self, other: "Img", /) -> bool:
         return super().__eq__(other)

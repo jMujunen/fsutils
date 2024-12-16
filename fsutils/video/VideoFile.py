@@ -1,25 +1,21 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
 import contextlib
-import hashlib
 import json
 import os
-import pickle
 import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, LiteralString
-
+from typing import Any
+from dataclasses import dataclass, field
 import cv2
-from rich.console import Console
-from rich.table import Table, box
 
 from fsutils.file import File
 from fsutils.img import Img
 from fsutils.tools import format_bytes, format_timedelta, frametimes
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
-from fsutils.video import FFProbe, FFStream
+from fsutils.dev._FFProbe import FFprobe as PROBE
 
 cv2.setLogLevel(1)
 
@@ -140,33 +136,29 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             sys.exit(0)
 
     @property
-    def ffprobe(self) -> FFStream | None:
-        """Return the first video stream."""
-        try:
-            stream = next(s for s in FFProbe(str(self.resolve())).streams if s.is_video())
-            self.metadata.update({k: v for k, v in stream.__dict__.items() if "tags" not in k})
-            return stream
-
-        except StopIteration:
-            if self.is_corrupt:
-                raise CorruptMediaError(f"{self.absolute()} is corrupt.") from StopIteration
-        except IndexError:
-            if self.is_corrupt:
-                raise CorruptMediaError(f"{self.absolute()} is corrupt.") from IndexError
-            raise FFProbeError(
-                f"FFprobe did not find any video streams for {self.path}."
-            ) from IndexError
-        return None
-
-    @property
     def fps(self) -> int:
         """Return the frames per second of the video."""
-        return self.ffprobe.frame_rate()
+        fps = 0
+        if hasattr(self, "framerate"):
+            return self.framerate
+        if hasattr(self, "avg_frame_rate"):
+            num, denum = map(int, self.avg_frame_rate.split("/"))
+            fps = round(num / denum)
+        return fps
 
     @property
     def num_frames(self) -> int:
         """Return the number of frames in the video."""
-        return self.ffprobe.frames()
+        num_frames = 0
+        if hasattr(self, "nb_frames"):
+            num_frames = self.nb_frames
+        else:
+            try:
+                num_frames = round(cv2.VideoCapture(self.path).get(cv2.CAP_PROP_FRAME_COUNT))
+                self.nb_frames = num_frames
+            except Exception as e:
+                print(f"Error getting num_frames with cv2: {e!r}")
+        return num_frames
 
     def render(self) -> None:
         """Render the video."""
@@ -193,9 +185,11 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             **kwargs : dict
                 Additional arguments to pass to FFMPEG.
         """
+        _TMPFILE = "/tmp/palette.png"
+        _fps = min(fps, self.fps)
+        FILTERS = f"fps={_fps},scale={scale}:-1:flags=lanczos"
 
-        output = kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}')
-        output_path = Path(output)
+        output_path = Path(kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}'))
         if output_path.exists():
             if input("Overwrite existing file? (y/n): ").lower() in {"Y", "y", "yes"}:
                 output_path.unlink()
@@ -203,40 +197,19 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
                 print("Not overwriting existing file")
                 return Img(output_path)
 
-        palette = "/tmp/palette.png"
-        filters = f"fps={fps},scale={scale!s}:-1:flags=lanczos"
-        get_pallet_cmd = [
-            "ffmpeg",
-            "-i",
-            self.path,
-            "-vf",
-            f"{filters},palettegen",
-            "-y",
-            "-v",
-            "error",
-            palette,
-        ]
-        print("doing the work")
-        ffmpeg_cmd = [
-            "ffmpeg",
-            "-i",
-            subprocess.run(get_pallet_cmd, check=False).stdout,
-            "-i",
-            palette,
-            "-lavfi",
-            f"{filters} [x]; [x][1:v] paletteuse",
-            "-y",
-            "-v",
-            "error",
-            output_path,
-        ]
-
+        generate_palette_cmd = (
+            f'ffmpeg -i {self.path} -vf "{FILTERS},palettegen" -y -v error  -stats {_TMPFILE}'
+        )
+        generate_gif_cmd = f'ffmpeg -i {self.path} -i {_TMPFILE} -lavfi "{FILTERS} [x]; [x][1:v] paletteuse" -y -v error {output_path}'
         try:
-            # pallet = subprocess.getoutput(get_pallet_cmd)
-            result = subprocess.getoutput(ffmpeg_cmd)
-            return Img(output_path)
-        except subprocess.CalledProcessError as e:
-            print(f"Error: {e}")
+            subprocess.check_call(generate_palette_cmd, shell=True)
+            subprocess.check_call(generate_gif_cmd, shell=True)
+            result = Img(output_path)
+            if result.exists():
+                return result
+        except Exception as e:
+            print(f"\033[31mError:\033[0m{e!r}")
+        return None
 
     def make_gif(self, scale=640, fps=15, **kwargs: Any) -> Img:
         """Convert the video to a gif using FFMPEG.
@@ -267,43 +240,39 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             else:
                 print("Not overwriting existing file")
                 return Img(output_path)
-        subprocess.check_output(
-            [
-                "ffmpeg",
-                "-i",
-                f"{self.path}",
-                "-pix_fmt",
-                "rgb24",
-                "-gifflags",
-                "+transdiff",
-                "-dither",
-                "sierra2_4a",
-                "-colors",
-                "256",
-                "-vf",
-                f"fps={fps},scale={scale!s}:-1:flags=lanczos",
-                "-v",
-                "error",
-                "-loglevel",
-                "quiet",
-                f"{output_path}",
-            ]
-        )
-        print(
-            *[
-                "ffmpeg",
-                "-i",
-                f"{self.path}",
-                "-vf",
-                f"fps={fps},scale={scale!s}:-1:flags=lanczos",
-                f"{output_path}",
-                "-v",
-                "error",
-                "-loglevel",
-                "quiet",
-                "-y",
-            ]
-        )
+        subprocess.check_output([
+            "ffmpeg",
+            "-i",
+            f"{self.path}",
+            "-pix_fmt",
+            "rgb24",
+            "-gifflags",
+            "+transdiff",
+            "-dither",
+            "sierra2_4a",
+            "-colors",
+            "256",
+            "-vf",
+            f"fps={fps},scale={scale!s}:-1:flags=lanczos",
+            "-v",
+            "error",
+            "-loglevel",
+            "quiet",
+            f"{output_path}",
+        ])
+        print(*[
+            "ffmpeg",
+            "-i",
+            f"{self.path}",
+            "-vf",
+            f"fps={fps},scale={scale!s}:-1:flags=lanczos",
+            f"{output_path}",
+            "-v",
+            "error",
+            "-loglevel",
+            "quiet",
+            "-y",
+        ])
         # Other options: "-pix_fmt","rgb24" |
         return Img(output_path)
 
@@ -446,26 +415,21 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         print(subprocess.check_output(ffmpeg_cmd))
         return Video(output_path)
 
-    # def sha256(self) -> str:
-    # return super().sha256()
-    # serialized_object = pickle.dumps(
-    # {
-    # "md5": self.md5_checksum(),
-    # "size": self.size,
-    # }
-    # )
-    # return hashlib.sha256(serialized_object).hexdigest()
+    def ffprobe(self) -> dict:
+        """Return the output of ffprobe."""
+        probe = PROBE(self.path)
+        if probe.video is not None:
+            for k, v in probe.video.items():
+                if k != "video":
+                    with contextlib.suppress(AttributeError | KeyError):
+                        setattr(self, k, v)
+        return probe.video.items()
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human})".format(
             **vars(self)
         )
-
-    # def __hash__(self) -> int:
-    # return super().__hash___()
-
-    # return hash((self.bitrate, self.duration, self.codec, self.fps, self.md5_checksum(4096)))
 
     def __format__(self, format_spec: str, /) -> str:
         """Return the object in tabular format."""
@@ -480,7 +444,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {self.dimensions!s:<10}"
 
     @staticmethod
-    def fmtheader() -> str | LiteralString:
+    def fmtheader() -> str:
         template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n"
         header = template.format(
             "File", "Num Frames", "Bitrate", "Size", "Codec", "Duration", "FPS", "Dimensions"
