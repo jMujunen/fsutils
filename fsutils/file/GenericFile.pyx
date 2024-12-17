@@ -8,7 +8,7 @@ from collections.abc import Iterator
 from datetime import datetime
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Type
 import chardet
 from fsutils.utils import FILE_TYPES
 from fsutils.tools import format_bytes
@@ -19,8 +19,10 @@ from libc.stdlib cimport free, malloc, realloc
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
+ctypedef tuple[datetime, datetime, datetime] DatetimeTuple
 
-St = namedtuple('St',['atime', 'mtime', 'ctime'])
+
+cdef St = namedtuple('St',['atime', 'mtime', 'ctime'])
 
 cdef extern from "stdio.h":
     ctypedef ssize_t ssize_ts
@@ -66,7 +68,6 @@ class File(Path):
 
     def __new__(cls, *args, **kwargs):
         return super().__new__(cls, *args, **kwargs)
-
     def __init__(self, path: str | Path, encoding="utf-8", *args, **kwargs) -> None:
         """Construct the File object.
 
@@ -75,13 +76,16 @@ class File(Path):
             - `path (str)` : The path to the file
             - `encoding (str)` : Encoding type of the file (default is utf-8)
         """
-        if isinstance(path, str):
-            path = Path(path)
-        self.path = os.path.abspath(os.path.expanduser(str(path)))
-        self.encoding = encoding
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"File '{path}' does not exist")
-        super().__init__(self.path, *args, **kwargs) # type: ignore
+        try:
+            if isinstance(path, str):
+                path = Path(path)
+            self.path = os.path.abspath(os.path.expanduser(str(path)))
+            self.encoding = encoding
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"File '{path}' does not exist")
+            super().__init__(self.path, *args, **kwargs) # type: ignore
+        except PermissionError as e:
+            print(f"Permission denied to access file {self.name}: {e!r}")
 
     def head(self, n: int = 5) -> list[str]:
         """Return the first n lines of the file."""
@@ -94,7 +98,6 @@ class File(Path):
         if self.content is not None:
             return self.content[-n:]
         return self.content
-
 
     @property
     def parent(self):
@@ -118,6 +121,8 @@ class File(Path):
 
     def is_binary(self) -> bool:
         """Check for null bytes in the file contents, telling us its binary data."""
+        cdef bytes chunk
+        cdef unsigned int byte
         try:
             chunk = self._read_chunk(1024)
             if not chunk:
@@ -161,11 +166,12 @@ class File(Path):
         return datetime.fromtimestamp(self.stat().st_ctime)
 
     @property
-    def atime(self):# -> datetime:
+    def atime(self) -> datetime:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
-    def times(self):
+    def times(self) -> DatetimeTuple:
+        """Get the modification, access and creation times of a file."""
         a, m, c = self.stat()[-3:]
         self.st = St(datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c))
         return self.st
@@ -223,8 +229,18 @@ class File(Path):
             encoding = 'utf-8'
         return encoding
 
+
     def md5_checksum(self, chunk_size=16384) -> str:
+        """
+        Calculate the MD5 checksum of the file from the specified chunk.
+
+        Parameters
+        ----------
+            chunk_size : int, optional (default=16384)
+
+        """
         return hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
+
 
     def sha256(self, unsigned int chunk_size=16384) -> str:
         """Return a reproducible sha256 hash of the file."""
@@ -233,7 +249,6 @@ class File(Path):
         return hashlib.sha256(serialized_object).hexdigest()
     def read_json(self)-> dict|list:
         return json.loads(self.read_text())
-
 
     def _read_chunk(self, unsigned int size=16384, str spec='c') -> bytes:
         """Read a chunk of the file and return it as bytes."""

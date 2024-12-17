@@ -7,6 +7,7 @@ import subprocess
 from collections.abc import Generator, Iterator
 from pathlib import Path
 from typing import LiteralString, Optional, Iterator, Generator
+cimport cython
 import glob
 
 
@@ -63,21 +64,24 @@ class Dir(File):
             path (str) : The path to the directory.
 
         """
-        if not path:
-            path = './'
-        super().__init__(path, *args, **kwargs)
+        try:
+            if not path:
+                path = './'
+            super().__init__(path, *args, **kwargs)
 
-        self._pkl_path = Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")
-        depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl")
+            self._pkl_path = Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")
+            depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl")
 
-        if depreciated_pkl.exists():
-            depreciated_pkl.rename(self._pkl_path)
-            print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
+            if depreciated_pkl.exists():
+                depreciated_pkl.rename(self._pkl_path)
+                print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
 
-        self._db = pickle.loads(self._pkl_path.read_bytes()) if self._pkl_path.exists() else {}
-        self._objects = []
-        # Remove a few unnecessary attributes from inherited class
-        del self.encoding
+            self._db = pickle.loads(self._pkl_path.read_bytes()) if self._pkl_path.exists() else {}
+            self._objects = []
+            # Remove a few unnecessary attributes from inherited class
+            del self.encoding
+        except PermissionError as e:
+            print(f"Permission denied: {e!r}")
     @property
     def file_objects(
         self,
@@ -136,19 +140,24 @@ class Dir(File):
     def describe(self, bint include_size=False) -> dict[str, int]:  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
-        cdef list[str] ext
+        cdef str ext, _
         cdef unsigned int max_key_length, value
-        cdef unsigned long int total, num_total
+        cdef unsigned long int total, num_total, total_files
         cdef float percentage
+        cdef str red, green, gray
 
-        # cdef dictsorted_stat, file_types
+        gray = "\033[37m"
+        red = "\033[31m"
+        green = "\033[32m"
+
         file_types = defaultdict(int)
         for item in self.ls_files():
-            ext = item.split(os.sep)[-1].split(".")
-            if len(ext) > 1:
-                file_types[ext[-1]] += 1
-            else:
+            _, ext = os.path.splitext(item)
+            if not ext:
                 file_types["other"] += 1
+                continue
+            file_types[ext] += 1
+
 
         sorted_stat = dict(sorted(file_types.items(), key=lambda x: x[1]))
         # Print the sorted table
@@ -165,18 +174,18 @@ class Dir(File):
             if percentage < 1:
                 continue
             elif percentage < 5:
-                color = "\033[37m"
+                color = gray
             elif 5 < percentage < 20:
                 color = ""
             elif 20 <= percentage < 50:
-                color = "\033[32m"
+                color = green
             else:
-                color = "\033[31m"
+                color = red
             bars = f'█' *  int((value / total) * 50)
             print(f"{key: <{8}} {bars:<50} {value:<{num_total-1}} {color}{percentage:.2f}%\033[0m")
-            # print(
-            #     f"{key: <{max_key_length}} {value:<{num_total-1}} {color}{percentage:.2f}\033[0m"
-            # )
+        print(
+            f"{'total': <{8}} {' ':<50} {total:<{num_total-1}}"
+        )
         return sorted_stat
 
 
@@ -254,6 +263,12 @@ class Dir(File):
         cdef set[str] common_files, unique_files
         cdef unsigned int num_files = len(set(self.ls_files()))
         cdef str template = '{key:<10} {color}{value:<10}{reset}{percentage}'
+        cdef str green, purple, blue, yellow, reset
+        green = '\033[32m'
+        blue = '\033[34m'
+        yellow = '\033[33m'
+        reset = '\033[0m'
+        purple = '\033[35m'
 
         common_files = set(self._db.keys()) & set(other._db.keys())
         unique_files = set(self._db.keys()) - set(other._db.keys())
@@ -263,8 +278,6 @@ class Dir(File):
         print(template.format(key="Unique: ", color='\033[32m', reset='\033[0m',value=len(unique_files),percentage=f"{len(unique_files)/num_files*100:.0f}%"))
 
         return common_files, unique_files
-
-
 
 
     def ls(self, bint follow_symlinks=False, bint recursive=True) -> Generator[os.DirEntry, None, None]:
