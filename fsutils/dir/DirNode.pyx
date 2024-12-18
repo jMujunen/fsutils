@@ -4,15 +4,10 @@ import pickle
 import sys
 from collections import defaultdict
 import subprocess
-from collections.abc import Generator, Iterator
 from pathlib import Path
-from typing import LiteralString, Optional, Iterator, Generator
-
-
-from  typing import Generator
+from typing import  Optional, Iterator, Generator
 import os
 from pathlib import Path
-import glob
 from cython.parallel import prange
 
 from ThreadPoolHelper import Pool
@@ -53,7 +48,6 @@ class Dir(File):
     """
     _objects: list[File]
     @exectimer
-
     def __init__(self, path: Optional[str | Path] = None, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
 
@@ -81,6 +75,7 @@ class Dir(File):
         except PermissionError as e:
             print(f"Permission denied: {e!r}")
     @property
+    @exectimer
     def file_objects(
         self,
     ) -> list[File | Log | Img | Video | Git]:
@@ -105,7 +100,6 @@ class Dir(File):
         except NotADirectoryError:
             return []
 
-    @exectimer
     def objects(self) -> Generator:
         """Return a list of fsutils objects inside self."""
         try:
@@ -194,6 +188,7 @@ class Dir(File):
         else:
             return self._db
     @property
+    @exectimer
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
         if hasattr(self, "_size"):
@@ -205,11 +200,11 @@ class Dir(File):
         return self._size
 
     @property
+    @exectimer
     def size_human(self) -> str:
         return format_bytes(self.size)
 
     @exectimer
-
     def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
 
@@ -229,13 +224,13 @@ class Dir(File):
         if self._pkl_path.exists():
             return pickle.loads(self._pkl_path.read_bytes())
         return {}
-
+    @exectimer
     def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[str, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
         cdef tuple[str, str] result
         cdef str sha, path
 
-        self._pkl_path = Path(self._pkl_path.parent, f".{self._pkl_path.name.lstrip('.')}")
+        self._pkl_path = Path(self.path, f".{self._pkl_path.name.lstrip('.')}")
         if self._pkl_path.exists() and replace:
             self._pkl_path.unlink()
             self._db = {}
@@ -258,7 +253,6 @@ class Dir(File):
         self._pkl_path.write_bytes(pickle.dumps(self._db))
         return self._db
     @exectimer
-
     def compare(self, other: 'Dir') -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
         cdef set[str] common_files, unique_files
@@ -338,7 +332,7 @@ class Dir(File):
         raise KeyError(f"File '{key}' not found")
 
 
-    def __format__(self, format_spec: str, /) -> LiteralString | str:
+    def __format__(self, format_spec: str, /) -> str:
         pool = Pool()
         if format_spec == "videos":
             print(Video.fmtheader())

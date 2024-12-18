@@ -348,8 +348,11 @@ class Img(File):  # noqa - FIXME: Too many methods
     def __eq__(self, other: "Img", /) -> bool:
         return super().__eq__(other)
 
+    def sha256(self) -> str:
+        return super().sha256()
+
     def __hash__(self) -> int:
-        return hash(self.sha265())
+        return super().__hash__()
 
     def __format__(self, format_spec: str, /) -> str:
         """Return a formatted table representation of the file."""

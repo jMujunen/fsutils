@@ -275,7 +275,7 @@ cdef class File:
         with open(self.path, 'r', encoding=self.encoding) as f:
             return f.read()
 
-    cdef str sha256(self, unsigned int chunk_size=16384):# -> str:
+    cpdef str sha256(self, unsigned int chunk_size=16384):# -> str:
         """Return a reproducible sha256 hash of the file."""
         cdef str md5  = self.md5_checksum(chunk_size)
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
