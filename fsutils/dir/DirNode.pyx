@@ -4,15 +4,10 @@ import pickle
 import sys
 from collections import defaultdict
 import subprocess
-from collections.abc import Generator, Iterator
 from pathlib import Path
-from typing import LiteralString, Optional, Iterator, Generator
-
-
-from  typing import Generator
+from typing import Optional, Iterator, Generator
 import os
 from pathlib import Path
-import glob
 from cython.parallel import prange
 
 from ThreadPoolHelper import Pool
@@ -20,7 +15,7 @@ from ThreadPoolHelper import Pool
 from fsutils.git import Git
 from fsutils.img import Img
 from fsutils.log import Log
-from fsutils.utils import FILE_TYPES, IGNORED_DIRS
+from fsutils.utils import FILE_TYPES #, IGNORED_DIRS
 from fsutils.video import Video
 from fsutils.tools  import format_bytes
 from fsutils.file import File
