@@ -7,8 +7,6 @@ import subprocess
 from collections.abc import Generator, Iterator
 from pathlib import Path
 from typing import LiteralString, Optional, Iterator, Generator
-cimport cython
-import glob
 
 
 from  typing import Generator
@@ -26,6 +24,7 @@ from fsutils.utils import FILE_TYPES, IGNORED_DIRS
 from fsutils.video import Video
 from fsutils.tools  import format_bytes
 from fsutils.file import File
+from fsutils.utils import exectimer
 
 
 class Dir(File):
@@ -53,8 +52,7 @@ class Dir(File):
 
     """
     _objects: list[File]
-    # _files: list[os.DirEntry|Path]
-    # _dirs: list[Path]
+    @exectimer
 
     def __init__(self, path: Optional[str | Path] = None, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
@@ -107,7 +105,7 @@ class Dir(File):
         except NotADirectoryError:
             return []
 
-
+    @exectimer
     def objects(self) -> Generator:
         """Return a list of fsutils objects inside self."""
         try:
@@ -136,7 +134,7 @@ class Dir(File):
     def logs(self) -> list[Log]:
         """A list of Log instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
-
+    @exectimer
     def describe(self, bint include_size=False) -> dict[str, int]:  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
@@ -210,6 +208,7 @@ class Dir(File):
     def size_human(self) -> str:
         return format_bytes(self.size)
 
+    @exectimer
 
     def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
@@ -258,24 +257,25 @@ class Dir(File):
                     self._db[sha].append(path)
         self._pkl_path.write_bytes(pickle.dumps(self._db))
         return self._db
+    @exectimer
+
     def compare(self, other: 'Dir') -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
         cdef set[str] common_files, unique_files
         cdef unsigned int num_files = len(set(self.ls_files()))
         cdef str template = '{key:<10} {color}{value:<10}{reset}{percentage}'
-        cdef str green, purple, blue, yellow, reset
+        cdef str green, purple, blue, reset
         green = '\033[32m'
         blue = '\033[34m'
-        yellow = '\033[33m'
         reset = '\033[0m'
         purple = '\033[35m'
 
         common_files = set(self._db.keys()) & set(other._db.keys())
         unique_files = set(self._db.keys()) - set(other._db.keys())
 
-        print(template.format(key='Total: ',color='\033[35m', reset='\033[0m', value=num_files, percentage=""))
-        print(template.format(key="Common: ", color='\033[34m', reset='\033[0m',value=len(common_files),percentage=f"{len(common_files)/num_files*100:.0f}%"))
-        print(template.format(key="Unique: ", color='\033[32m', reset='\033[0m',value=len(unique_files),percentage=f"{len(unique_files)/num_files*100:.0f}%"))
+        print(template.format(key='Total: ',color=purple, reset=reset, value=num_files, percentage=""))
+        print(template.format(key="Common: ", color=blue, reset=reset,value=len(common_files),percentage=f"{len(common_files)/num_files*100:.0f}%"))
+        print(template.format(key="Unique: ", color=green, reset=reset,value=len(unique_files),percentage=f"{len(unique_files)/num_files*100:.0f}%"))
 
         return common_files, unique_files
 
@@ -314,12 +314,14 @@ class Dir(File):
                         yield entry
                 except PermissionError:
                     continue
+    @exectimer
 
     def videos(self) -> Generator[Video, None, None]:
         """Return a generator of Video objects for all video files."""
         for file in self.ls_files():
             if file.endswith((".mp4", ".avi", ".mkv")):
                 yield Video(file)
+    @exectimer
 
     def images(self) -> Generator[Img, None, None]:
         """Return a generator of Img objects for all image files."""
@@ -392,6 +394,7 @@ class Dir(File):
                 hash(self) == hash(other),
             ),
         )
+    @exectimer
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})".format(
