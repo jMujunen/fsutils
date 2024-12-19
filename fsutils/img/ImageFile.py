@@ -1,14 +1,13 @@
 """Represents an image."""
 
 import base64
-import hashlib
 import os
-import pickle
 import subprocess
 from collections.abc import Generator
+from collections import namedtuple
+from typing import NamedTuple
 from datetime import datetime
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Any, Never
 import numpy as np
 import cv2
@@ -18,6 +17,8 @@ from PIL.ExifTags import TAGS
 from fsutils.file import File
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
+
+Dims = namedtuple("Dims", ["width", "height"])
 
 
 class Img(File):  # noqa - FIXME: Too many methods
@@ -75,12 +76,10 @@ class Img(File):  # noqa - FIXME: Too many methods
                     raise ValueError("Invalid specification for hash algorithm")
         return img_hash
 
-    @property
-    def dimensions(self) -> tuple[int, int]:
+    def dimensions(self) -> NamedTuple:
         """Extract the dimensions of the image as a tuple."""
         with Image.open(self.path) as img:
-            width, height = img.size
-        return width, height
+            return Dims(*img.size)
 
     def exif(self) -> Image.Exif:
         """Extract the EXIF data from the image."""
@@ -88,7 +87,6 @@ class Img(File):  # noqa - FIXME: Too many methods
             self._exif = img.getexif()
             return self._exif
 
-    @property
     def tags(self) -> Generator[tuple[str,]] | None:
         """Extract metadata from image files."""
         for tag_id in self.exif():
@@ -162,7 +160,7 @@ class Img(File):  # noqa - FIXME: Too many methods
     @property
     def aspect_ratio(self) -> float:
         """Calculate and return the aspect ratio of an image."""
-        width, height = self.dimensions
+        width, height = self.dimensions()
         return round(width / height, 3)
 
     @staticmethod
@@ -206,19 +204,6 @@ class Img(File):  # noqa - FIXME: Too many methods
     def save(self, path: str) -> Never:
         """Save the image to a specified location."""
         raise NotImplementedError(self.__class__.__name__ + ".save() is not yet implemented.")
-
-    def info(self) -> list[tuple[int, int]]:
-        """Get image data as a list of tuples containing the pixel colors.
-
-        Returns
-        -------
-            - `tuple` : A tuple containing an RGB value for each pixel in the image.
-        """
-        # Open the image and convert it to an array of pixels (RGB values)
-        img = Image.open(self.path).convert("RGB")
-        data: np.ndarray[Any, np.dtype[np.int32]] = np.array(img.getdata())
-        print(f"Shape of image data {self.name}: {data.shape}")
-        return list(data)
 
     def resize(self, width: int | None = None, height: int | None = None) -> "Img":
         """Resizes an image.
