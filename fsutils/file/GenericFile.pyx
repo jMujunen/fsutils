@@ -18,7 +18,7 @@ from libc.stdlib cimport free, malloc, realloc
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
-ctypedef tuple[datetime, datetime, datetime] DatetimeTuple
+# ctypedef tuple[datetime, datetime, datetime] DatetimeTuple
 
 
 cdef St = namedtuple('St',['atime', 'mtime', 'ctime'])
@@ -64,11 +64,11 @@ cdef class File:
         - `__str__()` : Return a string representation of the object
 
     """
-    cdef public str _suffix
-    cdef public str _stem
-    cdef public str path
-    cdef public str encoding
-    def __init__(self, path: str, encoding="utf-8", *args, **kwargs) -> None:
+    # cdef public str _suffix
+    # cdef public str _stem
+    # cdef public str path
+    # cdef public str encoding
+    def __init__(self, str path, str encoding="utf-8"): #-> None:
         """Construct the File object.
 
         Paramaters:
@@ -96,12 +96,12 @@ cdef class File:
             return self.content[-n:]
         return self.content
 
-    def stat(self):
+    cdef stat(self):
         """Call os.stat() on the file path."""
         return os.stat(self.path)
 
     @property
-    def name(self) -> str:
+    def name(self):
         """Return the file name with extension."""
         return os.path.basename(self.path)
 
@@ -111,12 +111,12 @@ cdef class File:
         return os.path.dirname(self.path)
 
     @property
-    def size_human(self) -> str:
+    def  size_human(self):
         """Return the size of the file in human readable format."""
         return format_bytes(self.size)
 
     @property
-    def size(self) -> int:
+    def size(self):# -> int:
         """Return the size of the file in bytes."""
         return int(self.stat().st_size)
 
@@ -197,7 +197,7 @@ cdef class File:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
-    cdef DatetimeTuple times(self): # -> DatetimeTuple:
+    cdef DatetimeTuple times(self): #  type: ignore
         """Get the modification, access and creation times of a file."""
         a, m, c = self.stat()[-3:]
         self.st = St(datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c))
@@ -205,7 +205,7 @@ cdef class File:
 
     cdef bint exists(self):# -> bool:
         """Check if the file exists."""
-        return os.path.exists(self.path)
+        return os.path.exists(self.path) # type: ignore
     def __iter__(self) -> Iterator[str|bytes]:
         """Iterate over the lines of a file."""
         if self.is_binary():
@@ -259,7 +259,7 @@ cdef class File:
         return encoding
 
 
-    cdef str md5_checksum(self, chunk_size=16384):
+    cdef str md5_checksum(self, unsigned int chunk_size=16384):
         """
         Calculate the MD5 checksum of the file from the specified chunk.
 
@@ -270,7 +270,7 @@ cdef class File:
         """
         return hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
 
-    cdef str read_text(self):
+    cpdef str read_text(self):
         """Read the contents of the file as a string."""
         with open(self.path, 'r', encoding=self.encoding) as f:
             return f.read()
@@ -284,7 +284,7 @@ cdef class File:
     def read_json(self)-> dict|list:
         return json.loads(self.read_text())
 
-    cdef bytes _read_chunk(self, unsigned int size=16384, str spec='c'):# -> bytes:
+    cpdef bytes _read_chunk(self, unsigned int size=16384, str spec='c'):# -> bytes:
         """Read a chunk of the file and return it as bytes."""
         if spec == 'c':
             return c_read_chunk(self,  size)
@@ -297,7 +297,7 @@ cdef class File:
         return hash(self.sha256())
 
 
-cdef c_read_chunk(self, unsigned int size=16384):
+cdef c_read_chunk(File self, unsigned int size=16384):
     """Read a chunk of data from the file."""
     cdef char* buffer
     cdef ssize_t bytes_read
