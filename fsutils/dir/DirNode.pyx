@@ -342,7 +342,7 @@ cdef class Dir(File):
         else:
             raise ValueError("Invalid format specifier")
 
-    def __contains__(self, other: File) -> bool:
+    def __contains__(self, File other) -> bool:
         """Is `File` in self?"""  # noqa
         self._db = self.serialize(replace=True, progress_bar=False) # type: ignore
         return hash(other) in self._db
@@ -390,7 +390,7 @@ cdef class Dir(File):
         )
 
 
-cdef _obj(str path):
+cdef File _obj(str path):
     """Return a File object for the given path."""
     cdef unicode ext, file_type
     cdef list[str] extensions
