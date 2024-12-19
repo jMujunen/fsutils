@@ -131,15 +131,16 @@ class Presets(Enum):
 class LogMetaData:
     """A class to represent a log entry."""
 
-    path: Path = field(default_factory=Path, repr=False, init=True)
+    path: str = field(default_factory=str, repr=False, init=True)
     encoding: str = field(default="iso-8859-1", repr=True, init=True, kw_only=True)
     df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
     preset: type = field(default=Presets.CUSTOM.value, repr=False, init=True, kw_only=True)
 
     def __post_init__(self):
-        if not self.path.exists():
+        self.pathlibpath = Path(self.path)
+        if not self.pathlibpath.exists():
             raise FileNotFoundError("The file does not exist.")
-        if self.path.suffix.lower() not in {".csv", ".txt", ".log"}:
+        if self.pathlibpath.suffix.lower() not in {".csv", ".txt", ".log"}:
             return
         self.__dict__.update(self.preset().__dict__)
 
@@ -171,7 +172,7 @@ class Log(File, LogMetaData):
     ) -> None:
         """Initialize the File and Log classes with the given parameters."""
         self.encoding = encoding
-        LogMetaData.__init__(self, path=Path(path), **kwargs)
+        LogMetaData.__init__(self, path=path, **kwargs)
         super().__init__(path, encoding)
 
     def __eq__(self, other: object) -> bool:

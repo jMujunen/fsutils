@@ -18,11 +18,11 @@ from fsutils.log import Log
 from fsutils.utils import FILE_TYPES, IGNORED_DIRS
 from fsutils.video import Video
 from fsutils.tools  import format_bytes
-from fsutils.file import File
+from fsutils.file.GenericFile cimport File
 from fsutils.utils import exectimer
 
 
-class Dir(File):
+cdef class Dir(File):
     """A class representing information about a directory.
 
     Attributes
@@ -46,9 +46,11 @@ class Dir(File):
         - `directories` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
-    _objects: list[File]
-    @exectimer
-    def __init__(self, path: Optional[str | Path] = None, *args, **kwargs) -> None:
+    cdef public list[File] _objects
+    cdef public str _pkl_path
+    cdef public dict[str, list[str]] _db
+
+    def __init__(self, path: Optional[str] = None) -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
@@ -59,23 +61,20 @@ class Dir(File):
         try:
             if not path:
                 path = './'
-            super().__init__(path, *args, **kwargs)
+            super().__init__(path)
 
-            self._pkl_path = Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")
+            self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
             depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl")
 
             if depreciated_pkl.exists():
                 depreciated_pkl.rename(self._pkl_path)
-                print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path.name}")
+                print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path}")
 
-            self._db = pickle.loads(self._pkl_path.read_bytes()) if self._pkl_path.exists() else {}
+            self._db = pickle.loads(Path(self._pkl_path).read_bytes()) if Path(Path(self._pkl_path)).exists() else {}
             self._objects = []
-            # Remove a few unnecessary attributes from inherited class
-            del self.encoding
         except PermissionError as e:
             print(f"Permission denied: {e!r}")
     @property
-    @exectimer
     def file_objects(
         self,
     ) -> list[File | Log | Img | Video | Git]:
@@ -188,7 +187,6 @@ class Dir(File):
         else:
             return self._db
     @property
-    @exectimer
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
         if hasattr(self, "_size"):
@@ -200,7 +198,6 @@ class Dir(File):
         return self._size
 
     @property
-    @exectimer
     def size_human(self) -> str:
         return format_bytes(self.size)
 
@@ -221,8 +218,8 @@ class Dir(File):
 
     def load_database(self) -> dict[str, list[str]]:
         """Deserialize the pickled database."""
-        if self._pkl_path.exists():
-            return pickle.loads(self._pkl_path.read_bytes())
+        if Path(self._pkl_path).exists():
+            return pickle.loads(Path(self._pkl_path).read_bytes())
         return {}
     @exectimer
     def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[str, list[str]]:# type: ignore
@@ -230,11 +227,11 @@ class Dir(File):
         cdef tuple[str, str] result
         cdef str sha, path
 
-        self._pkl_path = Path(self.path, f".{self._pkl_path.name.lstrip('.')}")
-        if self._pkl_path.exists() and replace:
-            self._pkl_path.unlink()
+        self._pkl_path = str(Path(self.path, f".{self._pkl_path.lstrip('.')}"))
+        if Path(self._pkl_path).exists() and replace:
+            Path(self._pkl_path).unlink()
             self._db = {}
-        elif self._pkl_path.exists() and replace is False:
+        elif Path(self._pkl_path).exists() and replace is False:
             return self.load_database()
 
         pool = Pool()
@@ -250,7 +247,7 @@ class Dir(File):
                     self._db[sha] = [path]
                 else:
                     self._db[sha].append(path)
-        self._pkl_path.write_bytes(pickle.dumps(self._db))
+        Path(self._pkl_path).write_bytes(pickle.dumps(self._db))
         return self._db
     @exectimer
     def compare(self, other: 'Dir') -> tuple[set[str], set[str]]:
@@ -309,14 +306,12 @@ class Dir(File):
                 except PermissionError:
                     continue
     @exectimer
-
     def videos(self) -> Generator[Video, None, None]:
         """Return a generator of Video objects for all video files."""
         for file in self.ls_files():
             if file.endswith((".mp4", ".avi", ".mkv")):
                 yield Video(file)
     @exectimer
-
     def images(self) -> Generator[Img, None, None]:
         """Return a generator of Img objects for all image files."""
         for file in self.ls_files():
@@ -389,7 +384,6 @@ class Dir(File):
             ),
         )
     @exectimer
-
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})".format(
             **vars(self),
