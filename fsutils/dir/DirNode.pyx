@@ -47,8 +47,6 @@ class Dir(File):
 
     """
     _objects: list[File]
-    @exectimer
-
     def __init__(self, path: Optional[str | Path] = None, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
 
@@ -204,7 +202,6 @@ class Dir(File):
         return format_bytes(self.size)
 
     @exectimer
-
     def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]:
         """Return a list of duplicate files in the directory.
 
@@ -224,7 +221,7 @@ class Dir(File):
         if self._pkl_path.exists():
             return pickle.loads(self._pkl_path.read_bytes())
         return {}
-
+    @exectimer
     def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[str, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
         cdef tuple[str, str] result
@@ -253,7 +250,6 @@ class Dir(File):
         self._pkl_path.write_bytes(pickle.dumps(self._db))
         return self._db
     @exectimer
-
     def compare(self, other: 'Dir') -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
         cdef set[str] common_files, unique_files
@@ -309,15 +305,11 @@ class Dir(File):
                         yield entry
                 except PermissionError:
                     continue
-    @exectimer
-
     def videos(self) -> Generator[Video, None, None]:
         """Return a generator of Video objects for all video files."""
         for file in self.ls_files():
             if file.endswith((".mp4", ".avi", ".mkv")):
                 yield Video(file)
-    @exectimer
-
     def images(self) -> Generator[Img, None, None]:
         """Return a generator of Img objects for all image files."""
         for file in self.ls_files():
