@@ -8,7 +8,6 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
-from dataclasses import dataclass, field
 import cv2
 
 from fsutils.file import File
@@ -46,8 +45,6 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         - `bitrate`
     """
 
-    _metadata: dict | None = None
-
     def __init__(self, path: str | Path, *args, **kwargs) -> None:
         """Initialize a new Video object.
 
@@ -57,9 +54,10 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
         """
         super().__init__(path, *args, **kwargs)
+        self._metadata = {}
 
     @property
-    def metadata(self) -> dict | None:
+    def metadata(self) -> dict:
         if not self._metadata:
             ffprobe_cmd = [
                 "ffprobe",
