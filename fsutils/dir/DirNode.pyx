@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import  Optional, Iterator, Generator
 import os
 from pathlib import Path
-from cython.parallel import prange
 
 from ThreadPoolHelper import Pool
 
@@ -20,6 +19,7 @@ from fsutils.video import Video
 from fsutils.tools  import format_bytes
 from fsutils.file.GenericFile cimport File
 from fsutils.utils import exectimer
+
 
 
 cdef class Dir(File):
@@ -49,6 +49,7 @@ cdef class Dir(File):
     cdef public list[File] _objects
     cdef public str _pkl_path
     cdef public dict[str, list[str]] _db
+    cdef public unsigned long int _size
 
     def __init__(self, path: Optional[str] = None) -> None:
         """Initialize a new instance of the Dir class.
@@ -58,26 +59,20 @@ cdef class Dir(File):
             path (str) : The path to the directory.
 
         """
-        try:
-            if not path:
-                path = './'
-            super().__init__(path)
+        if not path:
+            path = './'
+        super().__init__(path)
 
-            self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
-            depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl")
+        self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
+        depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl")
 
-            if depreciated_pkl.exists():
-                depreciated_pkl.rename(self._pkl_path)
-                print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path}")
+        if depreciated_pkl.exists():
+            depreciated_pkl.rename(self._pkl_path)
+            print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path}")
 
-            self._db = pickle.loads(Path(self._pkl_path).read_bytes()) if Path(Path(self._pkl_path)).exists() else {}
-            self._objects = []
-        except PermissionError as e:
-            print(f"Permission denied: {e!r}")
-    @property
-    def file_objects(
-        self,
-    ) -> list[File | Log | Img | Video | Git]:
+        self._db = pickle.loads(Path(self._pkl_path).read_bytes()) if Path(Path(self._pkl_path)).exists() else {}
+        self._objects = []
+    cpdef list[File] file_objects(self):
         """Return a list of objects contained in the directory.
 
         This property iterates over all items in the directory
@@ -89,8 +84,19 @@ cdef class Dir(File):
             List[File,  Log, Img, Video, Git]: A list of file objects.
 
         """
-        return list(filter(lambda x: not isinstance(x, Dir), self.__iter__()))
-
+        cdef str i
+        cdef list[File] _objects = []
+        for i in self.ls_files():
+            _objects.append(obj(i))
+        return _objects
+    @property
+    def dirs(self) -> list[str]:
+        """Return a list of all directories in the directory."""
+        return list(self.ls_dirs())
+    @property
+    def files(self) -> list[str]:
+        """Return a list of all files in the directory."""
+        return list(self.ls_files())
     @property
     def content(self) -> list[str]:
         """List the the contents of the toplevel directory."""
@@ -98,7 +104,6 @@ cdef class Dir(File):
             return os.listdir(self.path)
         except NotADirectoryError:
             return []
-
     def objects(self) -> Generator:
         """Return a list of fsutils objects inside self."""
         try:
@@ -115,25 +120,25 @@ cdef class Dir(File):
         except StopIteration:
             return True
         return False
-
+    @exectimer
     def images_(self) -> list[Img]:
         """A list of ImageObject instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Img), self.__iter__()))  # type: ignore
-
+    @exectimer
     def videos_(self) -> list[Video]:
         """A list of VideoObject instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Video), self.__iter__()))  # type: ignore
-
+    @exectimer
     def logs(self) -> list[Log]:
         """A list of Log instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
     @exectimer
-    def describe(self, bint include_size=False) -> dict[str, int]:  # type: ignore
+    def describe(self) -> dict[str, int]:  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
         cdef str ext, _
-        cdef unsigned int max_key_length, value
-        cdef unsigned long int total, num_total, total_files
+        cdef unsigned int value
+        cdef unsigned long int total, num_total
         cdef float percentage
         cdef str red, green, gray
 
@@ -155,11 +160,10 @@ cdef class Dir(File):
         if not sorted_stat:
             return {}
 
-        max_key_length = max([len(k) for k in sorted_stat]) + 1
         total = sum([v for v in sorted_stat.values()])
         num_total = len([int(i) for i in list(str(total))]) + 5
         color = ''
-        # bar_width = 100  # Width of the bar chart
+
         for key, value in filter(lambda x: file_types[x[0]] / total > 0.01, sorted_stat.items()):
             percentage = (int(value) / total) * 100
             if percentage < 1:
@@ -190,7 +194,7 @@ cdef class Dir(File):
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
         if hasattr(self, "_size"):
-            if self._size is not None:
+            if self._size:
                 return self._size
         awk = "awk '{ print $1 }'"
         cmd = f'du -bsx "{self.path}" | {awk}'
@@ -227,7 +231,7 @@ cdef class Dir(File):
         cdef tuple[str, str] result
         cdef str sha, path
 
-        self._pkl_path = str(Path(self.path, f".{self._pkl_path.lstrip('.')}"))
+        # self._pkl_path = self._pkl_path.lstrip('.')
         if Path(self._pkl_path).exists() and replace:
             Path(self._pkl_path).unlink()
             self._db = {}
@@ -238,7 +242,7 @@ cdef class Dir(File):
 
         for result in pool.execute(
             worker,
-            self.file_objects,
+            self.file_objects(),
             progress_bar=progress_bar,
         ):
             if result:
@@ -305,21 +309,18 @@ cdef class Dir(File):
                         yield entry
                 except PermissionError:
                     continue
-    @exectimer
     def videos(self) -> Generator[Video, None, None]:
         """Return a generator of Video objects for all video files."""
         for file in self.ls_files():
             if file.endswith((".mp4", ".avi", ".mkv")):
                 yield Video(file)
-    @exectimer
     def images(self) -> Generator[Img, None, None]:
         """Return a generator of Img objects for all image files."""
         for file in self.ls_files():
             if file.endswith((".jpg", ".jpeg", ".png", ".gif")):
                 yield Img(file)
 
-
-    def __getitem__(self, key: str) -> File:
+    def __getitem__(self, str key) -> Generator[File, None, None]:
         """Get a file by name."""
         for item in self.ls():
             if item.name == key:
@@ -327,7 +328,7 @@ cdef class Dir(File):
         raise KeyError(f"File '{key}' not found")
 
 
-    def __format__(self, format_spec: str, /) -> str:
+    def __format__(self, str format_spec, /) -> str:
         pool = Pool()
         if format_spec == "videos":
             print(Video.fmtheader())
@@ -385,9 +386,8 @@ cdef class Dir(File):
         )
     @exectimer
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})".format(
-            **vars(self),
-        )
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"
+
 
 
 cdef File _obj(str path):

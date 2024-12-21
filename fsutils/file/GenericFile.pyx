@@ -18,19 +18,7 @@ from libc.stdlib cimport free, malloc, realloc
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
-# ctypedef tuple[datetime, datetime, datetime] DatetimeTuple
-
-
 cdef St = namedtuple('St',['atime', 'mtime', 'ctime'])
-
-cdef extern from "stdio.h":
-    ctypedef ssize_t ssize_ts
-    ctypedef size_t size_t
-    ctypedef int FILE
-
-    cdef FILE* fopen(const char* filename, const char* mode)
-    ssize_t fread(void* ptr, size_t size, size_t nmemb, FILE* stream)
-    int fclose(FILE* stream)
 
 
 cdef class File:
@@ -48,7 +36,6 @@ cdef class File:
     Properties:
     ----------
         - `size` : The size of the file in bytes.
-        - `is_executable` : Check if the object has an executable flag
         - `is_image` : Check if item is an image
         - `is_video` : Check if item is a video
         - `is_gitobject` : Check if item is a git object
@@ -80,6 +67,7 @@ cdef class File:
         except PermissionError as e:
             print(f"Permission denied to access file {self.name}: {e!r}")
 
+
     cpdef list[str] head(self, unsigned short int n = 5): # -> list[str]:
         """Return the first n lines of the file."""
         if self.content is not None and len(self.content) > n:
@@ -92,7 +80,7 @@ cdef class File:
             return self.content[-n:]
         return self.content
 
-    cdef object stat(self):
+    cdef stat(self):
         """Call os.stat() on the file path."""
         return os.stat(self.path)
 
@@ -242,9 +230,7 @@ cdef class File:
         return bool(self.exists())
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, encoding={self.encoding}, size={self.size_human})".format(
-            **vars(self)
-        )
+        return f"{self.__class__.__name__}(name={self.name}, encoding={self.encoding}, size={self.size_human}"
 
     cpdef str detect_encoding(self):# -> str:
         """Detect encoding of the file."""
@@ -271,7 +257,7 @@ cdef class File:
         with open(self.path, 'r', encoding=self.encoding) as f:
             return f.read()
 
-    cdef str sha256(self, unsigned int chunk_size=16384):# -> str:
+    cpdef str sha256(self, unsigned int chunk_size=16384):# -> str:
         """Return a reproducible sha256 hash of the file."""
         cdef str md5  = self.md5_checksum(chunk_size)
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
@@ -293,7 +279,7 @@ cdef class File:
         return hash(self.sha256())
 
 
-cdef c_read_chunk(File self, unsigned int size=16384):
+cdef bytes c_read_chunk(File self, unsigned int size=16384):
     """Read a chunk of data from the file."""
     cdef char* buffer
     cdef ssize_t bytes_read

@@ -24,6 +24,7 @@ cdef class File:
     cdef public str _stem
     cdef public str path
     cdef public str encoding
+    # def  __init__(self, str path, str encoding) -> None: ...
     cpdef list[str] head(File, unsigned short int n = ?)
     cpdef list[str] tail(File, unsigned short int n = ?)
     cdef object stat(File)
@@ -37,9 +38,9 @@ cdef class File:
     cdef str md5_checksum(File, unsigned int chunk_size=?)
     cpdef str read_text(File)
     cpdef object read_json(File)
-    cdef str sha256(File, unsigned int chunk_size=?)
+    cpdef str sha256(File, unsigned int chunk_size=?)
     cdef bytes _read_chunk(File, unsigned int size=?, str spec=?)
 
 
-cdef c_read_chunk(File self, unsigned int size=?)
+cdef bytes c_read_chunk(File self, unsigned int size=?)
 
