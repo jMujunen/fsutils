@@ -14,12 +14,12 @@ from fsutils.file import File
 from fsutils.img import Img
 from fsutils.tools import format_bytes, format_timedelta, frametimes
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
-from fsutils.dev._FFProbe import FFprobe
+from fsutils.dev._FFProbe import FFprobe as FFProbe
 
 cv2.setLogLevel(1)
 
 
-class PROBE(FFprobe):
+class PROBE(FFProbe):
     """Wrapper around cythonized FFprobe."""
 
     def __init__(self, path: str | Path) -> None:
@@ -32,23 +32,19 @@ class PROBE(FFprobe):
 
 @dataclass
 class CompressOptions:
-    codec: str = "hevc_nvenc"
+    encoder: str = "hevc_nvenc"
     crf: int = 20
     qp: int = 24
     rc: str = "constqp"
     preset: str = "slow"
     tune: str = "hq"
-    verbose: bool = False
-    output: str | None = None
+    loglevel: str = "quiet"
+    output: str = field(default_factory=str)
 
     @classmethod
     def from_dict(cls, options: dict[str, Any]) -> "CompressOptions":
         """Create an instance of CompressOptions from a dictionary."""
         return cls(**options)
-
-    @classmethod
-    def parse(cls):
-        """Parse options to a format ffmpeg understands."""
 
 
 class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
@@ -86,25 +82,17 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
         """
         super().__init__(path, *args, **kwargs)
+        self._prop = None
 
     @property
-    def metadata(self) -> dict:
-        try:
-            if not self._metadata:
-                self._metadata = PROBE(self.path)
-        except AttributeError:
-            self._metadata = PROBE(self.path)
-        return self._metadata
-
-    @property
-    def tags(self) -> dict:
-        return self.metadata.get("tags", {}) if self.metadata else {}
+    def metadata(self) -> PROBE:
+        return PROBE(self.path)
 
     @property
     def bitrate(self) -> int:
         """Extract the bitrate/s with ffprobe."""
         try:
-            return round(int(self.metadata.get("bit_rate", -1)))
+            return round(int(self.metadata.bit_rate))
         except ZeroDivisionError:
             if self.is_corrupt:
                 print(f"\033[31m{self.name} is corrupt!\033[0m")
@@ -119,7 +107,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
     @property
     def duration(self) -> int:
-        return round(float(self.metadata.get("duration", 0)))
+        return round(float(self.metadata.duration))
 
     @property
     def capture_date(self) -> datetime:
@@ -166,11 +154,11 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         """Return the number of frames in the video."""
         num_frames = 0
         if hasattr(self.metadata, "nb_frames"):
-            num_frames = self.nb_frames
+            num_frames = self.metadata.nb_frames
         else:
             try:
                 num_frames = round(cv2.VideoCapture(self.path).get(cv2.CAP_PROP_FRAME_COUNT))
-                self.nb_frames = num_frames
+                self.metadata.nb_frames = num_frames
             except Exception as e:
                 print(f"Error getting num_frames with cv2: {e!r}")
         return num_frames
@@ -348,8 +336,8 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         )
         return Video(output_path)
 
-    def compress(self, options: CompressOptions | dict[str, Any] = CompressOptions) -> "Video":
-        """Compress video using x265 codec with crf 18.
+    def compress(self, **kwargs: Any) -> "Video":
+        """Transcode video.
 
         Keyword Arguments:
         ----------------
@@ -369,48 +357,39 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         Examples
         --------
         ```python
-        # ffmpeg -hwaccel cuda -i <input> -c:v hevc_nvenc -preset slow \
-           -crf 18 -c:a copy -v quiet -y <output>
+        # ffmpeg -i <input> -c:v hevc_nvenc -crf 18 -c:a copy -v quiet -y <output>
         vid.compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         ```
         """
+        try:
+            output = kwargs.pop("output")
+        except KeyError:
+            output = f"{self.parent}/_{self.prefix}.mp4"
 
-        output = kwargs.get("output") or f"{self.parent}/_{self.prefix}.mp4"
-        output_path = Path(output).resolve()
-        fps = self.fps if self.fps < 200 else 30
-        for keyword, value in kwargs.items():
-            if "-r" in kwargs or "fps" in keyword:
-                fps = value
-        print(fps)
+        options = CompressOptions(**kwargs, output=os.path.expanduser(output))
 
         ffmpeg_cmd = [
             "ffmpeg",
-            # "-hwaccel",
-            # "cuda",
             "-i",
             self.path,
             "-c:v",
-            kwargs.get("codec", "hevc_nvenc"),
+            options.encoder,
             "-crf",
-            kwargs.get("crf", "20"),
+            str(options.crf),
             "-qp",
-            kwargs.get("qp", "24"),
+            str(options.qp),
             "-rc",
-            "constqp",
-            "-preset",
-            kwargs.get("preset", "medium"),
-            "-tune",
-            kwargs.get("tune", "hq"),
+            options.rc,
             "-c:a",
             "copy",
             "-v",
-            kwargs.get("loglevel", "quiet"),
+            options.loglevel,
             "-y",
             "-stats",
-            str(output_path),
+            options.output,
         ]
         print(subprocess.check_output(ffmpeg_cmd))
-        return Video(output_path)
+        return Video(options.output)
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
