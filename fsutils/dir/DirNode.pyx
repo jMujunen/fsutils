@@ -51,7 +51,7 @@ cdef class Dir(File):
     cdef public dict[str, list[str]] _db
     cdef public unsigned long int _size
 
-    def __init__(self, path: Optional[str] = None) -> None:
+    def __init__(self, path: Optional[str] = None, bint mkdir=False) -> None: # type: ignore
         """Initialize a new instance of the Dir class.
 
         Parameters
@@ -61,6 +61,12 @@ cdef class Dir(File):
         """
         if not path:
             path = './'
+
+        if not os.path.exists(os.path.expanduser(path)):
+            if mkdir:
+                os.makedirs(os.path.expanduser(path))
+            else:
+                raise FileNotFoundError(f"Directory {path} does not exist")
         super().__init__(path)
 
         self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
