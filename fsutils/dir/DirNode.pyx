@@ -47,7 +47,7 @@ class Dir(File):
 
     """
     _objects: list[File]
-    def __init__(self, path: Optional[str | Path] = None, *args, **kwargs) -> None:
+    def __init__(self, path: Optional[str | Path] = None, mkdir=False, *args, **kwargs) -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
@@ -58,6 +58,12 @@ class Dir(File):
         try:
             if not path:
                 path = './'
+
+            if not os.path.exists(os.path.expanduser(path)):
+                if mkdir:
+                    os.makedirs(os.path.expanduser(path))
+                else:
+                    raise FileNotFoundError(f"Directory {path} does not exist")
             super().__init__(path, *args, **kwargs)
 
             self._pkl_path = Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")
