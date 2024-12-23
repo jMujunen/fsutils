@@ -89,9 +89,12 @@ dependencies = [
     "typing-extensions==4.12.2 ; python_full_version >= '3.12' and python_full_version < '4.0'",
     "tzdata==2024.1 ; python_full_version >= '3.12' and python_full_version < '4.0'",
     "urllib3==2.2.3 ; python_full_version >= '3.12' and python_full_version < '4.0'",
+    "clipboard>=0.0.4",
 ]
 
 [tool.uv]
+package = true
 dev-dependencies = [
     "matplotlib>=3.9.2",
 ]
+

@@ -79,7 +79,6 @@ class Dir(File):
             del self.encoding
         except PermissionError as e:
             print(f"Permission denied: {e!r}")
-    @property
     def file_objects(
         self,
     ) -> list[File | Log | Img | Video | Git]:
@@ -244,7 +243,7 @@ class Dir(File):
 
         for result in pool.execute(
             worker,
-            self.file_objects,
+            self.file_objects(),
             progress_bar=progress_bar,
         ):
             if result:
