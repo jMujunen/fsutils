@@ -15,9 +15,9 @@ from ThreadPoolHelper import Pool
 from fsutils.git import Git
 from fsutils.img import Img
 from fsutils.log import Log
-from fsutils.utils import FILE_TYPES #, IGNORED_DIRS
+from fsutils.utils.mimecfg import FILE_TYPES #, IGNORED_DIRS
 from fsutils.video import Video
-from fsutils.tools  import format_bytes
+from fsutils.utils.tools  import format_bytes
 from fsutils.file import File
 from fsutils.utils import exectimer
 

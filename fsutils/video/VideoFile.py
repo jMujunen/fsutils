@@ -12,9 +12,9 @@ import cv2
 
 from fsutils.file import File
 from fsutils.img import Img
-from fsutils.tools import format_bytes, format_timedelta, frametimes
+from fsutils.utils.tools import format_bytes, format_timedelta, frametimes
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
-from fsutils.dev._FFProbe import FFprobe as PROBE
+from fsutils.video.FFProbe import FFProbe as PROBE
 
 cv2.setLogLevel(1)
 
@@ -187,7 +187,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         _fps = min(fps, self.fps)
         FILTERS = f"fps={_fps},scale={scale}:-1:flags=lanczos"
 
-        output_path = Path(kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}'))
+        output_path = Path(kwargs.get("output", f"{self.parent}/{self.prefix}{'.gif'}"))
         if output_path.exists():
             if input("Overwrite existing file? (y/n): ").lower() in {"Y", "y", "yes"}:
                 output_path.unlink()
@@ -230,7 +230,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         --------
             - `Img` : New `Img` object of the gif created from this video file.
         """
-        output = kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}')
+        output = kwargs.get("output", f"{self.parent}/{self.prefix}{'.gif'}")
         output_path = Path(output)
         if output_path.exists():
             if input("Overwrite existing file? (y/n): ").lower() in {"Y", "y", "yes"}:
