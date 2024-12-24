@@ -18,7 +18,7 @@ from fsutils.utils import FILE_TYPES, IGNORED_DIRS
 from fsutils.video import Video
 from fsutils.tools  import format_bytes
 from fsutils.file.GenericFile cimport File
-from fsutils.utils import exectimer
+from fsutils.utils.decorators import exectimer, exectimer_wargs
 
 
 
@@ -78,6 +78,7 @@ cdef class Dir(File):
 
         self._db = pickle.loads(Path(self._pkl_path).read_bytes()) if Path(Path(self._pkl_path)).exists() else {}
         self._objects = []
+
     cpdef list[File] file_objects(self):
         """Return a list of objects contained in the directory.
 
@@ -117,6 +118,7 @@ cdef class Dir(File):
         except AttributeError:
             yield from self._objects
 
+    @exectimer
 
     def is_empty(self) -> bool:
         """Check if the directory is empty."""
@@ -138,8 +140,8 @@ cdef class Dir(File):
     def logs(self) -> list[Log]:
         """A list of Log instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
-    @exectimer
-    def describe(self) -> dict[str, int]:  # type: ignore
+    @exectimer_wargs(print_result=False)
+    def describe(self, print_result=True) -> dict[str, int]:  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
         cdef str ext, _
@@ -166,27 +168,27 @@ cdef class Dir(File):
         if not sorted_stat:
             return {}
 
-        total = sum([v for v in sorted_stat.values()])
-        num_total = len([int(i) for i in list(str(total))]) + 5
-        color = ''
-
-        for key, value in filter(lambda x: file_types[x[0]] / total > 0.01, sorted_stat.items()):
-            percentage = (int(value) / total) * 100
-            if percentage < 1:
-                continue
-            elif percentage < 5:
-                color = gray
-            elif 5 < percentage < 20:
-                color = ""
-            elif 20 <= percentage < 50:
-                color = green
-            else:
-                color = red
-            bars = f'█' *  int((value / total) * 50)
-            print(f"{key: <{8}} {bars:<50} {value:<{num_total-1}} {color}{percentage:.2f}%\033[0m")
-        print(
-            f"{'total': <{8}} {' ':<50} {total:<{num_total-1}}"
-        )
+        if print_result:
+            total = sum([v for v in sorted_stat.values()])
+            num_total = len([int(i) for i in list(str(total))]) + 5
+            color = ''
+            for key, value in filter(lambda x: file_types[x[0]] / total > 0.01, sorted_stat.items()):
+                percentage = (int(value) / total) * 100
+                if percentage < 1:
+                    continue
+                elif percentage < 5:
+                    color = gray
+                elif 5 < percentage < 20:
+                    color = ""
+                elif 20 <= percentage < 50:
+                    color = green
+                else:
+                    color = red
+                bars = f'█' *  int((value / total) * 50)
+                print(f"{key: <{8}} {bars:<50} {value:<{num_total-1}} {color}{percentage:.2f}%\033[0m")
+            print(
+                f"{'total': <{8}} {' ':<50} {total:<{num_total-1}}"
+            )
         return sorted_stat
 
 
@@ -231,7 +233,7 @@ cdef class Dir(File):
         if Path(self._pkl_path).exists():
             return pickle.loads(Path(self._pkl_path).read_bytes())
         return {}
-    @exectimer
+    @exectimer_wargs(progress_bar=False)
     def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[str, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
         cdef tuple[str, str] result

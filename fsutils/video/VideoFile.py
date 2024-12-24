@@ -14,20 +14,23 @@ from fsutils.file import File
 from fsutils.img import Img
 from fsutils.tools import format_bytes, format_timedelta, frametimes
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
-from fsutils.dev._FFProbe import FFprobe as FFProbe
+from fsutils.video.FFProbe import FFProbe, FFStream
 
 cv2.setLogLevel(1)
 
 
-class PROBE(FFProbe):
-    """Wrapper around cythonized FFprobe."""
+class VideoStream(FFProbe):
+    """Wrapper around FFProbe."""
 
     def __init__(self, path: str | Path) -> None:
         """Init probe."""
         super().__init__(path)
-        self.__dict__.update(self.video)
-        for k, v in self.video.items():
-            setattr(self, k, v)
+        for stream in self.streams:
+            if stream.is_video:
+                dictitems = stream.__dict__.copy()
+                self.__dict__.update(dictitems)
+                for k, v in dictitems.items():
+                    setattr(self, k, v)
 
 
 @dataclass
@@ -85,8 +88,8 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         self._prop = None
 
     @property
-    def metadata(self) -> PROBE:
-        return PROBE(self.path)
+    def metadata(self) -> VideoStream:
+        return VideoStream(self.path)
 
     @property
     def bitrate(self) -> int:
@@ -192,7 +195,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         _fps = min(fps, self.fps)
         FILTERS = f"fps={_fps},scale={scale}:-1:flags=lanczos"
 
-        output_path = Path(kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}'))
+        output_path = Path(kwargs.get("output", f"{self.parent}/{self.prefix}{'.gif'}"))
         if not str(output_path).endswith(".gif"):
             output_path = output_path.with_suffix(".gif")
 
@@ -238,7 +241,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         --------
             - `Img` : New `Img` object of the gif created from this video file.
         """
-        output = kwargs.get("output", f'{self.parent}/{self.prefix}{".gif"}')
+        output = kwargs.get("output", f"{self.parent}/{self.prefix}{'.gif'}")
         output_path = Path(output)
         if output_path.exists():
             if input("Overwrite existing file? (y/n): ").lower() in {"Y", "y", "yes"}:
