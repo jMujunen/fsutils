@@ -126,7 +126,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
     def capture_date(self) -> datetime:
         """Return the capture date of the file."""
         capture_date = str(
-            self.tags.get("creation_time") or datetime.fromtimestamp(self.stat().st_mtime)
+            self.metadata.tags.get("creation_time") or datetime.fromtimestamp(self.stat().st_mtime)
         ).split(".")[0]
         return datetime.fromisoformat(capture_date)
 
