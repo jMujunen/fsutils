@@ -92,10 +92,10 @@ if __name__ == "__main__":
     dirs = [
         Dir(i) for i in {"/mnt/ssd/Media/", "/home/joona/Code", "/home/joona/Pictures/RuneLite/"}
     ]
-
-    for d in dirs:
-        benchmark = Benchmark(d)
-        print(d.path)
-        # result = benchmark._methods(suppress_errors=True)
-        result = benchmark.execute(methods)
-        print("-" * 100)
+    with ExecutionTimer(print_on_exit=False) as total:
+        for d in dirs:
+            benchmark = Benchmark(d)
+            print(d.path)
+            result = benchmark.execute(methods, generators)
+            print("-" * 100)
+    print(f"Total: {total!s}")
