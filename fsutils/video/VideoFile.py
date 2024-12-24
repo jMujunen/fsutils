@@ -85,11 +85,21 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
         """
         super().__init__(path, *args, **kwargs)
-        self._prop = None
+        self._metadata = None
 
     @property
-    def metadata(self) -> VideoStream:
-        return VideoStream(self.path)
+    def metadata(self) -> FFStream:
+        """Extract the metadata of the video."""
+        if self._metadata is None:
+            probe = FFProbe(self.path)
+            for stream in probe.streams:
+                if stream.is_video():
+                    self._metadata = stream
+                    break
+            else:
+                raise ValueError(f"No video stream found in {self.name}")
+
+        return self._metadata
 
     @property
     def bitrate(self) -> int:
