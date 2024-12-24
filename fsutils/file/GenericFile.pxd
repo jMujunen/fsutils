@@ -24,10 +24,16 @@ cdef class File:
     cdef public str _stem
     cdef public str path
     cdef public str encoding
-    # def  __init__(self, str path, str encoding) -> None: ...
+    # def  __init__(self, path: str | None, encoding: str ='utf-8') -> None: ...
     cpdef list[str] head(File, unsigned short int n = ?)
     cpdef list[str] tail(File, unsigned short int n = ?)
-    cdef object stat(File)
+
+    cpdef  mtime(self)# -> datetime: ...
+    cpdef  ctime(self)# -> datetime: ...
+
+    cpdef  atime(self)# -> datetime: ...
+
+    cdef inline stat(File)
     cpdef bint is_binary(File)
     cpdef bint is_gitobject(File)
     cpdef bint is_image(File)

@@ -1,5 +1,6 @@
 """Benchmarks for directory operations."""
 
+from typing import Any
 from fsutils.dir import Dir
 from rich.table import Table, box
 from rich.console import Console
@@ -32,19 +33,23 @@ class Benchmark:
                     print(f"Error calling {self.dir.__class__.__name__}.{name}: {e}")
         return methods
 
-    def execute(self, methods: dict[str, list], generators: dict[str, list] | None = None) -> None:
-        for method in methods:
-            self._benchmark_method(method)
+    def execute(
+        self,
+        methods: dict[str, dict[str, Any]],
+        generators: dict[str, dict[str, Any]] | None = None,
+    ) -> None:
+        for method, kwargs in methods.items():
+            self._benchmark_method(method, **kwargs)
         if generators is not None:
             for generator in generators:
                 self._benchmark_generator(generator)
         self.print_results()
 
-    def _benchmark_method(self, method_name: str) -> None:
+    def _benchmark_method(self, method_name: str, **kwargs) -> None:
         """Benchmark the specified method of DirNode.Dir."""
         with ExecutionTimer(print_on_exit=False) as timer:
             try:
-                getattr(self.dir, method_name)()  # Call the method on the Dir object
+                getattr(self.dir, method_name)(**kwargs)  # Call the method on the Dir object
             except Exception as e:
                 print(f"Error calling {self.dir.__class__.__name__}.{method_name}: {e}")
         self.results.append((method_name, timer))
@@ -74,15 +79,15 @@ class Benchmark:
 
 if __name__ == "__main__":
     methods = {
-        "__repr__": [],
-        "file_objects": [],
-        "videos_": [],
-        "images_": [],
-        "describe": [],
-        "serialize": [],
-        "duplicates": [],
+        "__repr__": {},
+        "file_objects": {},
+        "videos_": {},
+        "images_": {},
+        "describe": {"print_result": False},
+        "serialize": {"progress_bar": False},
+        "duplicates": {},
     }
-    generators = {"__iter__": [], "images": [], "videos": [], "traverse": []}
+    generators = {"__iter__": {}, "traverse": {}, "videos": {}, "objects": {}}
 
     dirs = [
         Dir(i) for i in {"/mnt/ssd/Media/", "/home/joona/Code", "/home/joona/Pictures/RuneLite/"}

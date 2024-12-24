@@ -80,7 +80,7 @@ cdef class File:
             return self.content[-n:]
         return self.content
 
-    cdef stat(self):
+    cdef inline stat(self):
         """Call os.stat() on the file path."""
         return os.stat(self.path)
 
@@ -95,7 +95,7 @@ cdef class File:
         return os.path.dirname(self.path)
 
     @property
-    def  size_human(self):
+    def size_human(self):
         """Return the size of the file in human readable format."""
         return format_bytes(self.size)
 
@@ -105,11 +105,12 @@ cdef class File:
         return int(self.stat().st_size) # type: ignore
 
     @property
-    def prefix(self) -> str:
+    def prefix(self):
         """Return the file name without extension."""
         return self.stem
+
     @property
-    def stem(self) -> str:
+    def stem(self):
         """Return the file name without extension."""
         cdef str stem, _
         stem, _ = os.path.splitext(self.name)
@@ -118,8 +119,9 @@ cdef class File:
     def stem(self, value: str):
         """Set the file name without extension."""
         self._stem = value
+
     @property
-    def suffix(self) -> str:
+    def suffix(self):
         """Return the file extension."""
         cdef str _, suffix
         _, suffix = os.path.splitext(self.path)
@@ -128,7 +130,6 @@ cdef class File:
     def  suffix(self, value: str):
         """Set the file extension."""
         self._suffix = value
-
 
     cpdef bint is_binary(self):# -> bool:
         """Check for null bytes in the file contents, telling us its binary data."""
@@ -149,7 +150,7 @@ cdef class File:
 
     @property
     def content(self) -> list[str]:
-        """Helper for self.read()."""
+        """Return the contents of a file."""
         print(f"\033[33mWARNING\033[0m - Depreciated function <{self.__class__.__name__}.content>")
         return self.read_text().splitlines()
 
@@ -166,18 +167,15 @@ cdef class File:
         """Check if the file is a video."""
         return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video")) # type: ignore
 
-    @property
-    def mtime(self) -> datetime:
+    cpdef  mtime(self):
         """Return the last modification time of the file."""
         return datetime.fromtimestamp(self.stat().st_mtime)
 
-    @property
-    def ctime(self) -> datetime:
+    cpdef ctime(self):# -> datetime:
         """Return the last metadata change of the file."""
         return datetime.fromtimestamp(self.stat().st_ctime)
 
-    @property
-    def atime(self) -> datetime:
+    cpdef  atime(self):# -> datetime:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
@@ -310,5 +308,4 @@ cdef bytes c_read_chunk(File self, unsigned int size=16384):
     finally:
         # Free the allocated memory for the buffer
         free(buffer) # type: ignore
-
 

@@ -67,10 +67,11 @@ cdef class Dir(File):
                 os.makedirs(os.path.expanduser(path))
             else:
                 raise FileNotFoundError(f"Directory {path} does not exist")
-        super().__init__(path)
+        super().__init__(path) #type: ignore
 
-        self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
-        depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl")
+        self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")) # type: ignore
+
+        depreciated_pkl = Path(self.path, f"{self.name.removeprefix('.')}.pkl") # type: ignore
 
         if depreciated_pkl.exists():
             depreciated_pkl.rename(self._pkl_path)
@@ -111,6 +112,7 @@ cdef class Dir(File):
             return os.listdir(self.path)
         except NotADirectoryError:
             return []
+    @exectimer
     def objects(self) -> Generator:
         """Return a list of fsutils objects inside self."""
         try:
@@ -119,7 +121,6 @@ cdef class Dir(File):
             yield from self._objects
 
     @exectimer
-
     def is_empty(self) -> bool:
         """Check if the directory is empty."""
         try:
@@ -140,7 +141,7 @@ cdef class Dir(File):
     def logs(self) -> list[Log]:
         """A list of Log instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
-    @exectimer_wargs(print_result=False)
+    @exectimer
     def describe(self, print_result=True) -> dict[str, int]:  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
@@ -214,7 +215,7 @@ cdef class Dir(File):
         return format_bytes(self.size)
 
     @exectimer
-    def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]:
+    def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]: # type: ignore
         """Return a list of duplicate files in the directory.
 
         Uses pre-calculated hash values to find duplicates.
@@ -233,7 +234,7 @@ cdef class Dir(File):
         if Path(self._pkl_path).exists():
             return pickle.loads(Path(self._pkl_path).read_bytes())
         return {}
-    @exectimer_wargs(progress_bar=False)
+    @exectimer
     def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[str, list[str]]:# type: ignore
         """Create an hash index of all files in self."""
         cdef tuple[str, str] result
@@ -283,23 +284,23 @@ cdef class Dir(File):
         return common_files, unique_files
 
 
-    def ls(self, bint follow_symlinks=False, bint recursive=True) -> Generator[os.DirEntry, None, None]:
+    def ls(self, bint follow_symlinks=False, bint recursive=True) -> Generator[os.DirEntry, None, None]: # type: ignore
         if not recursive:
             yield from os.scandir(self.path)
         yield from self.traverse(follow_symlinks=follow_symlinks)
 
-    def ls_dirs(self,bint follow_symlinks=False) -> Generator[str, None, None]:
+    def ls_dirs(self,bint follow_symlinks=False) -> Generator[str, None, None]: # type: ignore
         """Return a list of paths for all directories in self."""
         for item in self.ls():
-            if item.is_dir(follow_symlinks=follow_symlinks):
+            if item.is_dir(follow_symlinks=follow_symlinks): # type: ignore
                 yield item.path
-    def ls_files(self,bint follow_symlinks=False) -> Generator[str, None, None]:
+    def ls_files(self,bint follow_symlinks=False) -> Generator[str, None, None]: # type: ignore
         """Return a list of paths for all files in self."""
         for item in self.ls():
-            if item.is_file(follow_symlinks=follow_symlinks):
+            if item.is_file(follow_symlinks=follow_symlinks): # type: ignore
                 yield item.path
 
-    def traverse(self, root=None, bint follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
+    def traverse(self, root=None, bint follow_symlinks=False) -> Generator[os.DirEntry, None, None]: # type: ignore
         """Recursively traverse a directory tree starting from the given path.
 
         Yields
@@ -310,9 +311,9 @@ cdef class Dir(File):
         with os.scandir(path) as entries:
             for entry in entries:
                 try:
-                    if entry.is_file(follow_symlinks=follow_symlinks):
+                    if entry.is_file(follow_symlinks=follow_symlinks): # type: ignore
                         yield entry
-                    elif entry.is_dir(follow_symlinks=follow_symlinks):
+                    elif entry.is_dir(follow_symlinks=follow_symlinks): # type: ignore
                         yield from self.traverse(root=entry.path, follow_symlinks=follow_symlinks)
                         yield entry
                 except PermissionError:
@@ -394,7 +395,7 @@ cdef class Dir(File):
         )
     @exectimer
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"# type: ignore
 
 
 
@@ -422,12 +423,12 @@ cdef File _obj(str path):
                 print(f"{e!r}")
             except AttributeError:
                 class_name = 'File'
-                return File(path)
+                return File(path) # type: ignore
     try:
-        FileClass = File(path)
+        FileClass = File(path) # type: ignore
     except FileNotFoundError as e:
-        return None
-    return File(path)
+        return None # type: ignore
+    return File(path) # type: ignore
 
 
 def obj(file_path: str):
@@ -452,7 +453,7 @@ cdef class FileMeta(type):
         elif path.is_dir():
             return Dir(filepath, *args, **kwargs)
         else:
-            return File(filepath, *args, **kwargs)
+            return File(filepath, *args, **kwargs) # type: ignore
 
 class F(metaclass=FileMeta):
     pass
