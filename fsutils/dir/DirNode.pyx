@@ -133,7 +133,7 @@ class Dir(File):
         """A list of Log instances found in the directory."""
         return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
     @exectimer
-    def describe(self, bint include_size=False) -> dict[str, int]:  # type: ignore
+    def describe(self, bint print_result=False) -> dict[str, int]:  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
         cdef str ext, _
@@ -160,28 +160,28 @@ class Dir(File):
         if not sorted_stat:
             return {}
 
-        max_key_length = max([len(k) for k in sorted_stat]) + 1
-        total = sum([v for v in sorted_stat.values()])
-        num_total = len([int(i) for i in list(str(total))]) + 5
-        color = ''
-        # bar_width = 100  # Width of the bar chart
-        for key, value in filter(lambda x: file_types[x[0]] / total > 0.01, sorted_stat.items()):
-            percentage = (int(value) / total) * 100
-            if percentage < 1:
-                continue
-            elif percentage < 5:
-                color = gray
-            elif 5 < percentage < 20:
-                color = ""
-            elif 20 <= percentage < 50:
-                color = green
-            else:
-                color = red
-            bars = f'█' *  int((value / total) * 50)
-            print(f"{key: <{8}} {bars:<50} {value:<{num_total-1}} {color}{percentage:.2f}%\033[0m")
-        print(
-            f"{'total': <{8}} {' ':<50} {total:<{num_total-1}}"
-        )
+        if print_result:
+            total = sum([v for v in sorted_stat.values()])
+            num_total = len([int(i) for i in list(str(total))]) + 5
+            color = ''
+            # bar_width = 100  # Width of the bar chart
+            for key, value in filter(lambda x: file_types[x[0]] / total > 0.01, sorted_stat.items()):
+                percentage = (int(value) / total) * 100
+                if percentage < 1:
+                    continue
+                elif percentage < 5:
+                    color = gray
+                elif 5 < percentage < 20:
+                    color = ""
+                elif 20 <= percentage < 50:
+                    color = green
+                else:
+                    color = red
+                bars = f'█' *  int((value / total) * 50)
+                print(f"{key: <{8}} {bars:<50} {value:<{num_total-1}} {color}{percentage:.2f}%\033[0m")
+            print(
+                f"{'total': <{8}} {' ':<50} {total:<{num_total-1}}"
+            )
         return sorted_stat
 
 
@@ -207,7 +207,7 @@ class Dir(File):
         return format_bytes(self.size)
 
     @exectimer
-    def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]:
+    def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]: # type: ignore
         """Return a list of duplicate files in the directory.
 
         Uses pre-calculated hash values to find duplicates.
@@ -276,23 +276,23 @@ class Dir(File):
         return common_files, unique_files
 
 
-    def ls(self, bint follow_symlinks=False, bint recursive=True) -> Generator[os.DirEntry, None, None]:
+    def ls(self, bint follow_symlinks=False, bint recursive=True) -> Generator[os.DirEntry, None, None]: # type: ignore
         if not recursive:
             yield from os.scandir(self.path)
         yield from self.traverse(follow_symlinks=follow_symlinks)
 
-    def ls_dirs(self,bint follow_symlinks=False) -> Generator[str, None, None]:
+    def ls_dirs(self,bint follow_symlinks=False) -> Generator[str, None, None]: # type: ignore
         """Return a list of paths for all directories in self."""
         for item in self.ls():
-            if item.is_dir(follow_symlinks=follow_symlinks):
+            if item.is_dir(follow_symlinks=follow_symlinks): # type: ignore
                 yield item.path
-    def ls_files(self,bint follow_symlinks=False) -> Generator[str, None, None]:
+    def ls_files(self,bint follow_symlinks=False) -> Generator[str, None, None]: # type: ignore
         """Return a list of paths for all files in self."""
         for item in self.ls():
-            if item.is_file(follow_symlinks=follow_symlinks):
+            if item.is_file(follow_symlinks=follow_symlinks): # type: ignore
                 yield item.path
 
-    def traverse(self, root=None, bint follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
+    def traverse(self, root=None, bint follow_symlinks=False) -> Generator[os.DirEntry, None, None]: # type: ignore
         """Recursively traverse a directory tree starting from the given path.
 
         Yields
@@ -303,9 +303,9 @@ class Dir(File):
         with os.scandir(path) as entries:
             for entry in entries:
                 try:
-                    if entry.is_file(follow_symlinks=follow_symlinks):
+                    if entry.is_file(follow_symlinks=follow_symlinks): # type: ignore
                         yield entry
-                    elif entry.is_dir(follow_symlinks=follow_symlinks):
+                    elif entry.is_dir(follow_symlinks=follow_symlinks): # type: ignore
                         yield from self.traverse(root=entry.path, follow_symlinks=follow_symlinks)
                         yield entry
                 except PermissionError:
@@ -330,7 +330,7 @@ class Dir(File):
         raise KeyError(f"File '{key}' not found")
 
 
-    def __format__(self, format_spec: str, /) -> LiteralString | str:
+    def __format__(self, format_spec: str, /) -> str:
         pool = Pool()
         if format_spec == "videos":
             print(Video.fmtheader())

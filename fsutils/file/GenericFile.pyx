@@ -20,8 +20,6 @@ from libc.stdlib cimport free, malloc, realloc
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
 ctypedef tuple[datetime, datetime, datetime] DatetimeTuple
-
-
 cdef St = namedtuple('St',['atime', 'mtime', 'ctime'])
 
 cdef extern from "stdio.h":
