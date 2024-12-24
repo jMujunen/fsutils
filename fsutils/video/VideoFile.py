@@ -12,7 +12,7 @@ import cv2
 
 from fsutils.file import File
 from fsutils.img import Img
-from fsutils.tools import format_bytes, format_timedelta, frametimes
+from fsutils.utils.tools import format_bytes, format_timedelta, frametimes
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
 from fsutils.video.FFProbe import FFProbe, FFStream
 
