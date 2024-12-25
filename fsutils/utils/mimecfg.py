@@ -1,6 +1,6 @@
 FILE_TYPES = {
-    "img": [".jpg", ".jpeg", ".png", ".gif", ".nef", ".webp"],
-    "config": [
+    "img": (".jpg", ".jpeg", ".png", ".gif", ".nef", ".webp", ".heic"),
+    "config": (
         ".ini",
         ".xml",
         ".json",
@@ -22,12 +22,12 @@ FILE_TYPES = {
         "plasmarc",
         "kglobalshortcutsrc",
         "kwinrulesrc",
-    ],
-    "img_other": [".heatmap", ".ico", ".svg", ".heic"],
-    "metadata": [".lrprev", ".xml", ".aae", ".exif", ".iptc", ".tiff", ".xmp", ".pp3"],
-    "doc": [".pdf", ".doc", ".docx", ".odt", ".pptx"],
-    "video": [".mp4", ".avi", ".mkv", ".wmv", ".webm", ".m4v", ".flv", ".mpg", ".mov"],
-    "audio": [
+    ),
+    "img_other": (".heatmap", ".ico", ".svg", ".heic"),
+    "metadata": (".lrprev", ".xml", ".aae", ".exif", ".iptc", ".tiff", ".xmp", ".pp3"),
+    "doc": (".pdf", ".doc", ".docx", ".odt", ".pptx"),
+    "video": (".mp4", ".avi", ".mkv", ".wmv", ".webm", ".m4v", ".flv", ".mpg", ".mov"),
+    "audio": (
         ".3ga",
         ".aac",
         ".ac3",
@@ -55,8 +55,8 @@ FILE_TYPES = {
         ".wav",
         ".wma",
         ".wv",
-    ],
-    "zip": [
+    ),
+    "zip": (
         ".zip",
         ".rar",
         ".tar",
@@ -67,11 +67,11 @@ FILE_TYPES = {
         ".tar.gz",
         ".tgz",
         ".zipx",
-    ],
-    "raw": [".cr2", ".raf", ".dng", ".raf"],
-    "log": [".csv", ".json", ".log"],
-    "txt": [".txt", ".md", ".out", ".note"],
-    "script": [
+    ),
+    "raw": (".cr2", ".raf", ".dng", ".raf"),
+    "log": (".csv", ".json", ".log"),
+    "txt": (".txt", ".md", ".out", ".note"),
+    "script": (
         ".py",
         ".bat",
         ".sh",
@@ -87,8 +87,8 @@ FILE_TYPES = {
         ".scss",
         ".ps1",
         ".qml",
-    ],
-    "binary": [
+    ),
+    "binary": (
         ".dat",
         ".db",
         ".dbf",
@@ -102,8 +102,8 @@ FILE_TYPES = {
         ".mca",
         ".package",
         ".class",
-    ],
-    "trash": [
+    ),
+    "trash": (
         ".directoryStoreFile",
         ".indexArrays",
         ".indexBigDates",
@@ -174,8 +174,8 @@ FILE_TYPES = {
         ".metadata",
         ".pickle",
         ".so",
-    ],
-    "ignored": [],
-    "dupes": [],  # For duplicate files
+    ),
+    "ignored": (),
+    "dupes": (),  # For duplicate files
 }
-IGNORED_DIRS = ["site-packages", ".Trash-info", ".git", "venv", ".venv", ".cache"]
+IGNORED_DIRS = ("site-packages", ".Trash-info", ".git", "venv", ".venv", ".cache")

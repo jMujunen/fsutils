@@ -312,6 +312,7 @@ class Dir(File):
                     continue
     def videos(self) -> Generator[Video, None, None]:
         """Return a generator of Video objects for all video files."""
+        cdef tuple[str] valid_exts = FILE_TYPES.get('video', ())
         for file in self.ls_files():
             if file.endswith((".mp4", ".avi", ".mkv")):
                 yield Video(file)
