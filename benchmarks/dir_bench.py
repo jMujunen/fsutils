@@ -10,27 +10,30 @@ from decorators import exectimer
 
 
 class Benchmark:
-    def __init__(self, dirObj: Dir) -> None:
+    def __init__(self, dirpath: str) -> None:
         """Initialize the benchmark object with a given directory path."""
-        self.dir = dirObj
+        self.dirpath = dirpath
         self.results = []
 
     def _methods(self, suppress_errors=True):
+        dirObj = Dir(self.dirpath)
         methods = []
         kwargs = {}
-        for name in dir(self.dir):
+        for name in dir(dirObj):
             # Ignore private and built-in attributes
             if not name.startswith("!"):
                 try:
-                    val = getattr(self.dir, name)
+                    val = getattr(dirObj, name)
                     # If the attribute has a __call__ method, it's probably callable
-                    if callable(val) or isinstance(val, property):
-                        methods.append((name, getattr(self.dir, name)()))
+                    if callable(val):
+                        methods.append((name, getattr(dirObj, name)()))
+                    elif isinstance(val, property):
+                        methods.append((name, getattr(dirObj, name)))
                 except Exception as e:
                     # Ignore any errors when calling the attribute
                     if suppress_errors:
                         continue
-                    print(f"Error calling {self.dir.__class__.__name__}.{name}: {e}")
+                    print(f"Error calling {dirObj.__class__.__name__}.{name}: {e}")
         return methods
 
     def execute(
@@ -47,23 +50,27 @@ class Benchmark:
 
     def _benchmark_method(self, method_name: str, **kwargs) -> None:
         """Benchmark the specified method of DirNode.Dir."""
+        dirObj = Dir(self.dirpath)
         with ExecutionTimer(print_on_exit=False) as timer:
             try:
-                getattr(self.dir, method_name)(**kwargs)  # Call the method on the Dir object
+                getattr(dirObj, method_name)(**kwargs)  # Call the method on the Dir object
+            except TypeError:
+                getattr(dirObj, method_name)
             except Exception as e:
-                print(f"Error calling {self.dir.__class__.__name__}.{method_name}: {e}")
+                print(f"Error calling {dirObj.__class__.__name__}.{method_name}: {e}")
         self.results.append((method_name, timer))
 
     def _benchmark_generator(self, generator_name: str) -> None:
         """Benchmark the specified generator of DirNode.Dir."""
+        dirObj = Dir(self.dirpath)
         with ExecutionTimer(print_on_exit=False) as timer:
-            list(getattr(self.dir, generator_name)())  # Call the generator on the Dir object
+            list(getattr(dirObj, generator_name)())  # Call the generator on the Dir object
         self.results.append((generator_name, timer))
 
     def print_results(self) -> None:
         """Print the benchmarking results in a formatted table."""
         console = Console()
-        table = Table(title=self.dir.path)
+        table = Table(title=self.dirpath)
 
         # Add columns to the table
         table.add_column("Method", style="cyan")
@@ -80,24 +87,21 @@ class Benchmark:
 if __name__ == "__main__":
     methods = {
         "__repr__": {},
-        "file_objects": {},
-        "videos_": {},
-        "images_": {},
         "describe": {"print_result": False},
         "serialize": {"progress_bar": False},
         "duplicates": {},
+        "size_human": {},
     }
-    generators = {"__iter__": {}, "traverse": {}, "videos": {}, "objects": {}}
+    generators = {
+        "__iter__": {},
+        "traverse": {},
+    }
 
-    dirs = [
-        Dir(i) for i in {"/mnt/ssd/Media/", "/home/joona/Code", "/home/joona/Pictures/RuneLite/"}
-    ]
+    dirs = {"/mnt/ssd/Media/", "/home/joona/Code"}
     with ExecutionTimer(print_on_exit=False) as total:
         for d in dirs:
             benchmark = Benchmark(d)
-            print(d.path)
-            # result = benchmark._methods(suppress_errors=True)
+            print(d)
             result = benchmark.execute(methods, generators)
             print("-" * 100)
-
-    print(f"Total time: {total!s}")
+    print(f"Total: {total!s}")

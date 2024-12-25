@@ -79,21 +79,7 @@ class Dir(File):
             del self.encoding
         except PermissionError as e:
             print(f"Permission denied: {e!r}")
-    def file_objects(
-        self,
-    ) -> list[File | Log | Img | Video | Git]:
-        """Return a list of objects contained in the directory.
 
-        This property iterates over all items in the directory
-        and filters out those that are instances of File,  Log,
-        Img, Video, or Git, excluding directories.
-
-        Returns
-        -------
-            List[File,  Log, Img, Video, Git]: A list of file objects.
-
-        """
-        return list(filter(lambda x: not isinstance(x, Dir), self.__iter__()))
 
     @property
     def content(self) -> list[str]:
@@ -102,14 +88,6 @@ class Dir(File):
             return os.listdir(self.path)
         except NotADirectoryError:
             return []
-
-    @exectimer
-    def objects(self) -> Generator:
-        """Return a list of fsutils objects inside self."""
-        try:
-            yield from self.__iter__()
-        except AttributeError:
-            yield from self._objects
 
 
     def is_empty(self) -> bool:
@@ -121,17 +99,6 @@ class Dir(File):
             return True
         return False
 
-    def images_(self) -> list[Img]:
-        """A list of ImageObject instances found in the directory."""
-        return list(filter(lambda x: isinstance(x, Img), self.__iter__()))  # type: ignore
-
-    def videos_(self) -> list[Video]:
-        """A list of VideoObject instances found in the directory."""
-        return list(filter(lambda x: isinstance(x, Video), self.__iter__()))  # type: ignore
-
-    def logs(self) -> list[Log]:
-        """A list of Log instances found in the directory."""
-        return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
     @exectimer
     def describe(self, bint print_result=False) -> dict[str, int]:  # type: ignore
         """Print a formatted table of each file extention and their count."""
@@ -243,7 +210,7 @@ class Dir(File):
 
         for result in pool.execute(
             worker,
-            self.file_objects(),
+            self,
             progress_bar=progress_bar,
         ):
             if result:
@@ -388,7 +355,6 @@ class Dir(File):
             ),
         )
     @exectimer
-
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})".format(
             **vars(self),
