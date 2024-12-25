@@ -9,10 +9,9 @@ from datetime import datetime
 import json
 from typing import Any, Type, Union
 import chardet
-from fsutils.utils import FILE_TYPES
-from fsutils.tools import format_bytes
+from fsutils.utils.mimecfg import FILE_TYPES
+from fsutils.utils.tools import format_bytes
 from collections import namedtuple
-from pathlib import Path
 from libc.stdlib cimport free, malloc, realloc
 
 

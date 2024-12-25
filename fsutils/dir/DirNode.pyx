@@ -11,14 +11,13 @@ from pathlib import Path
 
 from ThreadPoolHelper import Pool
 
-from fsutils.git import Git
 from fsutils.img import Img
 from fsutils.log import Log
-from fsutils.utils import FILE_TYPES, IGNORED_DIRS
+from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.video import Video
-from fsutils.tools  import format_bytes
+from fsutils.utils.tools  import format_bytes
 from fsutils.file.GenericFile cimport File
-from fsutils.utils.decorators import exectimer, exectimer_wargs
+from fsutils.utils.decorators import exectimer
 
 
 
