@@ -9,34 +9,49 @@ from pathlib import Path
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
 
 
-class FFProbe:
-    """FFProbe wraps the ffprobe command and pulls the data into an object form::
-    metadata = FFProbe("multimedia-file.mov").
-    """
-
-    def __init__(self, filepath: str) -> None:
-        """Initialize the FFProbe object.
-
-        Parameters
-        ------------
-            - `path_to_video (str)` : Path to video file.
-        """
-        self.streams = []
-        cmd = "ffprobe -print_format json -show_streams {path} -v quiet"
-        data = json.loads(subprocess.getoutput(cmd.format(path=filepath))).get("streams", [])
-
-        if not data:
-            raise FFProbeError(f"No streams found in file {filepath}")
-
-        for stream in data:
-            self.streams.append(FFStream(stream))
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(streams={self.streams})"
-
-
 class FFStream:
     """An object representation of an individual stream in a multimedia file."""
+
+    index: int
+    codec_name: str
+    codec_long_name: str
+    codec_tag_string: str
+    codec_tag: str
+    width: int
+    height: int
+    coded_with: int
+    coded_height: int
+    closed_captions: int
+    has_b_frames: int
+    pix_fmt: str
+    level: int
+    chrroma_location: str
+    field_order: str
+    profile: str
+    refs: int
+    is_avc: str
+    nal_length_size: str
+    id: str
+    sample_aspect_ratio: str
+    display_aspect_ratio: str
+    r_frame_rate: str
+    avg_frame_rate: str
+    time_base: str
+    start_pts: int
+    start_time: str
+    duration_ts: int
+    duration: str
+    bit_rate: str
+    bits_per_raw_sample: str
+    nb_frames: int
+    extradata_size: int
+    disposition: dict[str, int]
+    channel_layout: str
+    channels: int
+    sample_rate: int
+    sample_fmt: str
+    nb_samples: int
+    tags: dict[str, str]
 
     def __init__(self, index: dict) -> None:
         """Initialize the FFStream object."""
@@ -48,11 +63,12 @@ class FFStream:
                     map(int, self.__dict__.get("avg_frame_rate", "").split("/")),
                 )
             )
-
         except ValueError:
             self.__dict__["framerate"] = None
         except ZeroDivisionError:
             self.__dict__["framerate"] = 0
+            for k, v in self.__dict__.items():
+                setattr(self, k, v)
 
     def __repr__(self) -> str:
         if self.is_video():
@@ -88,6 +104,7 @@ class FFStream:
         """Is the stream labelled as a attachment stream."""
         return self.__dict__.get("codec_type", None) == "attachment"
 
+    @property
     def frame_size(self) -> tuple[int, int] | None:
         """Return the pixel frame size as an integer tuple (width,height) if the stream is a video stream.
         Return None if it is not a video stream.
@@ -107,12 +124,14 @@ class FFStream:
 
         return size
 
+    @property
     def pixel_format(self) -> str | None:
         """Return a string representing the pixel format of the video stream. e.g. yuv420p.
         Return none is it is not a video stream.
         """
         return self.__dict__.get("pix_fmt", None)
 
+    @property
     def frames(self) -> int:
         """Return the length of a video stream in frames. Return 0 if not a video stream."""
         if self.is_video() or self.is_audio():
@@ -129,6 +148,7 @@ class FFStream:
 
         return frame_count
 
+    @property
     def duration_seconds(self) -> float:
         """Return the runtime duration of the video stream as a floating point number of seconds.
         Return 0.0 if not a video stream.
@@ -143,29 +163,22 @@ class FFStream:
 
         return duration
 
+    @property
     def language(self) -> str | None:
         """Return language tag of stream. e.g. eng."""
         return self.__dict__.get("TAG:language", None)
 
+    @property
     def codec(self) -> str | None:
         """Return a string representation of the stream codec."""
         return self.__dict__.get("codec_name", None)
 
+    @property
     def codec_description(self) -> str:
         """Return a long representation of the stream codec."""
         return self.__dict__.get("codec_long_name", None)
 
-    def codec_tag(self) -> str | None:
-        """Return a short representative tag of the stream codec."""
-        return self.__dict__.get("codec_tag_string", None)
-
-    def bit_rate(self) -> int | None:
-        """Return bit_rate as an integer in bps."""
-        try:
-            return int(self.__dict__.get("bit_rate", ""))
-        except ValueError:
-            raise FFProbeError("None integer bit_rate") from ValueError
-
+    @property
     def frame_rate(self) -> int:
         """Return the frames per second as an integer."""
         try:
@@ -176,6 +189,35 @@ class FFStream:
             except Exception:
                 return 0
 
+    @property
     def aspect_ratio(self) -> str | None:
         """Return the stream's display aspect ratio."""
         return self.__dict__.get("display_aspect_ratio", None)
+
+
+class FFProbe:
+    """FFProbe wraps the ffprobe command and pulls the data into an object form::
+    metadata = FFProbe("multimedia-file.mov").
+    """
+
+    streams: list[FFStream]
+
+    def __init__(self, filepath: str) -> None:
+        """Initialize the FFProbe object.
+
+        Parameters
+        ------------
+            - `path_to_video (str)` : Path to video file.
+        """
+        self.streams = []
+        cmd = 'ffprobe -print_format json -show_streams "{path}" -v quiet'
+        data = json.loads(subprocess.getoutput(cmd.format(path=filepath))).get("streams", [])
+
+        if not data:
+            raise FFProbeError(f"No streams found in file {filepath}")
+
+        for stream in data:
+            self.streams.append(FFStream(stream))
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(streams={self.streams})"

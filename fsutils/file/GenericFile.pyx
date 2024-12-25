@@ -7,32 +7,20 @@ import re
 from collections.abc import Iterator
 from datetime import datetime
 import json
-from pathlib import Path
-from typing import Any, Type
+from typing import Any, Type, Union
 import chardet
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.utils.tools import format_bytes
 from collections import namedtuple
-
 from libc.stdlib cimport free, malloc, realloc
 
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
-ctypedef tuple[datetime, datetime, datetime] DatetimeTuple
 cdef St = namedtuple('St',['atime', 'mtime', 'ctime'])
 
-cdef extern from "stdio.h":
-    ctypedef ssize_t ssize_ts
-    ctypedef size_t size_t
-    ctypedef int FILE
 
-    cdef FILE* fopen(const char* filename, const char* mode)
-    ssize_t fread(void* ptr, size_t size, size_t nmemb, FILE* stream)
-    int fclose(FILE* stream)
-
-
-class File(Path):
+cdef class File:
     """This is the base class for all of the following objects.
 
     It represents a generic file and defines the common methods that are used by all of them.
@@ -47,7 +35,6 @@ class File(Path):
     Properties:
     ----------
         - `size` : The size of the file in bytes.
-        - `is_executable` : Check if the object has an executable flag
         - `is_image` : Check if item is an image
         - `is_video` : Check if item is a video
         - `is_gitobject` : Check if item is a git object
@@ -63,10 +50,7 @@ class File(Path):
         - `__str__()` : Return a string representation of the object
 
     """
-
-    def __new__(cls, *args, **kwargs):
-        return super().__new__(cls, *args, **kwargs)
-    def __init__(self, path: str | Path, encoding="utf-8", *args, **kwargs) -> None:
+    def __init__(self, str path, str encoding="utf-8"): #-> None:
         """Construct the File object.
 
         Paramaters:
@@ -75,27 +59,34 @@ class File(Path):
             - `encoding (str)` : Encoding type of the file (default is utf-8)
         """
         try:
-            if isinstance(path, str):
-                path = Path(path)
             self.path = os.path.abspath(os.path.expanduser(str(path)))
             self.encoding = encoding
             if not os.path.exists(path):
                 raise FileNotFoundError(f"File '{path}' does not exist")
-            super().__init__(self.path, *args, **kwargs) # type: ignore
         except PermissionError as e:
             print(f"Permission denied to access file {self.name}: {e!r}")
 
-    def head(self, n: int = 5) -> list[str]:
+
+    cpdef list[str] head(self, unsigned short int n = 5): # -> list[str]:
         """Return the first n lines of the file."""
         if self.content is not None and len(self.content) > n:
             return self.content[:n]
         return self.content
 
-    def tail(self, n: int = 5) -> list[str]:
+    cpdef list[str] tail(self,  unsigned short int n = 5):# -> list[str]:
         """Return the last n lines of the file."""
         if self.content is not None:
             return self.content[-n:]
         return self.content
+
+    cdef inline stat(self):
+        """Call os.stat() on the file path."""
+        return os.stat(self.path)
+
+    @property
+    def name(self):
+        """Return the file name with extension."""
+        return os.path.basename(self.path)
 
     @property
     def parent(self):
@@ -103,85 +94,106 @@ class File(Path):
         return os.path.dirname(self.path)
 
     @property
-    def size_human(self) -> str:
+    def size_human(self):
         """Return the size of the file in human readable format."""
         return format_bytes(self.size)
 
     @property
-    def size(self) -> int:
+    def size(self):# -> int:
         """Return the size of the file in bytes."""
-        return int(self.stat().st_size)
+        return int(self.stat().st_size) # type: ignore
 
     @property
-    def prefix(self) -> str:
+    def prefix(self):
         """Return the file name without extension."""
         return self.stem
 
-    def is_binary(self) -> bool:
+    @property
+    def stem(self):
+        """Return the file name without extension."""
+        cdef str stem, _
+        stem, _ = os.path.splitext(self.name)
+        return stem
+    @stem.setter
+    def stem(self, value: str):
+        """Set the file name without extension."""
+        self._stem = value
+
+    @property
+    def suffix(self):
+        """Return the file extension."""
+        cdef str _, suffix
+        _, suffix = os.path.splitext(self.path)
+        return suffix
+    @suffix.setter
+    def  suffix(self, value: str):
+        """Set the file extension."""
+        self._suffix = value
+
+    cpdef bint is_binary(self):# -> bool:
         """Check for null bytes in the file contents, telling us its binary data."""
         cdef bytes chunk
         cdef unsigned int byte
         try:
             chunk = self._read_chunk(1024)
             if not chunk:
-                return False
+                return False# type: ignore
             for byte in chunk:
                 # Check for null bytes (0x00), which are common in binary files
                 if byte == 0:
-                    return True
+                    return True# type: ignore
         except Exception as e:
             print(f"Error calling `is_binary()` on file {self.name}: {e!r}")
-            return False
-        return False
+            return False# type: ignore
+        return False# type: ignore
 
     @property
     def content(self) -> list[str]:
-        """Helper for self.read()."""
+        """Return the contents of a file."""
         print(f"\033[33mWARNING\033[0m - Depreciated function <{self.__class__.__name__}.content>")
         return self.read_text().splitlines()
 
 
-    def is_gitobject(self) -> bool:
+    cpdef bint is_gitobject(self): # -> bool:
         """Check if the file is a git object."""
-        return GIT_OBJECT_REGEX.match(self.name) is not None
+        return GIT_OBJECT_REGEX.match(self.name) is not None # type:ignore
 
-    def is_image(self) -> bool:
+    cpdef bint is_image(self): # -> bool:
         """Check if the file is an image."""
-        return self.suffix.lower() in FILE_TYPES["img"]
+        return self.suffix.lower() in FILE_TYPES["img"] # type: ignore
 
-    def is_video(self) -> bool:
+    cpdef bint is_video(self):# -> bool:
         """Check if the file is a video."""
-        return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video"))
+        return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video")) # type: ignore
 
-    @property
-    def mtime(self) -> datetime:
+    cpdef  mtime(self):
         """Return the last modification time of the file."""
         return datetime.fromtimestamp(self.stat().st_mtime)
 
-    @property
-    def ctime(self) -> datetime:
+    cpdef ctime(self):# -> datetime:
         """Return the last metadata change of the file."""
         return datetime.fromtimestamp(self.stat().st_ctime)
 
-    @property
-    def atime(self) -> datetime:
+    cpdef  atime(self):# -> datetime:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
-    def times(self) -> DatetimeTuple:
+    cpdef DatetimeTuple times(self): #  type: ignore
         """Get the modification, access and creation times of a file."""
         a, m, c = self.stat()[-3:]
         self.st = St(datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c))
         return self.st
 
-
+    cpdef bint exists(self):# -> bool:
+        """Check if the file exists."""
+        return os.path.exists(self.path) # type: ignore
     def __iter__(self) -> Iterator[str|bytes]:
         """Iterate over the lines of a file."""
         if self.is_binary():
-            with self.open('rb') as f:
+            with open(self.path, 'rb') as f:
                 yield from f
         else:
-            with self.open('r', encoding=self.encoding) as f:
+            with open(self.path, 'r', encoding=self.encoding) as f:
                 yield from f
     def __len__(self) -> int:
         """Get the number of lines in a file."""
@@ -208,18 +220,16 @@ class File(Path):
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
 
         """
-        return all((other.exists, self.exists, hash(self) == hash(other)))
+        return all((other.exists(), self.exists(), hash(self) == hash(other)))
 
     def __bool__(self) -> bool:
         """Check if the file exists."""
-        return bool(super().exists)
+        return bool(self.exists())
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, encoding={self.encoding}, size={self.size_human})".format(
-            **vars(self)
-        )
+        return f"{self.__class__.__name__}(name={self.name}, encoding={self.encoding}, size={self.size_human}"
 
-    def detect_encoding(self) -> str:
+    cpdef str detect_encoding(self):# -> str:
         """Detect encoding of the file."""
         cdef unsigned short int chunk_size = 2048
         cdef str encoding = chardet.detect(self._read_chunk(chunk_size))["encoding"] or self.encoding
@@ -228,7 +238,7 @@ class File(Path):
         return encoding
 
 
-    def md5_checksum(self, chunk_size=16384) -> str:
+    cdef str md5_checksum(self, unsigned int chunk_size=16384):
         """
         Calculate the MD5 checksum of the file from the specified chunk.
 
@@ -239,21 +249,26 @@ class File(Path):
         """
         return hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
 
+    cpdef str read_text(self):
+        """Read the contents of the file as a string."""
+        with open(self.path, 'r', encoding=self.encoding) as f:
+            return f.read()
 
-    def sha256(self, unsigned int chunk_size=16384) -> str:
+    cpdef str sha256(self, unsigned int chunk_size=16384):# -> str:
         """Return a reproducible sha256 hash of the file."""
         cdef str md5  = self.md5_checksum(chunk_size)
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
         return hashlib.sha256(serialized_object).hexdigest()
-    def read_json(self)-> dict|list:
+
+    cpdef object read_json(self):
         return json.loads(self.read_text())
 
-    def _read_chunk(self, unsigned int size=16384, str spec='c') -> bytes:
+    cdef bytes _read_chunk(self, unsigned int size=16384, str spec='c'):# -> bytes:
         """Read a chunk of the file and return it as bytes."""
         if spec == 'c':
             return c_read_chunk(self,  size)
         else:
-            with self.open('rb', encoding=self.encoding) as f:
+            with open(self.path, 'rb', encoding=self.encoding) as f:
                 return f.read(size)
 
     def __hash__(self) -> int:
@@ -261,7 +276,7 @@ class File(Path):
         return hash(self.sha256())
 
 
-cdef c_read_chunk(self, unsigned int size=16384):
+cdef bytes c_read_chunk(File self, unsigned int size=16384):
     """Read a chunk of data from the file."""
     cdef char* buffer
     cdef ssize_t bytes_read
@@ -292,5 +307,4 @@ cdef c_read_chunk(self, unsigned int size=16384):
     finally:
         # Free the allocated memory for the buffer
         free(buffer) # type: ignore
-
 

@@ -1,5 +1,5 @@
-FILE_TYPES = {
-    "img": (".jpg", ".jpeg", ".png", ".gif", ".nef", ".webp", ".heic"),
+FILE_TYPES: dict[str, tuple] = {
+    "img": (".jpg", ".jpeg", ".png", ".gif", ".nef", ".webp"),
     "config": (
         ".ini",
         ".xml",

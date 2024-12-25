@@ -1,7 +1,6 @@
 """Video: Represents a video file. Has methods to extract metadata like fps, aspect ratio etc."""
 
 import contextlib
-import json
 import os
 import subprocess
 import sys
@@ -14,9 +13,40 @@ from fsutils.file import File
 from fsutils.img import Img
 from fsutils.utils.tools import format_bytes, format_timedelta, frametimes
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
-from fsutils.video.FFProbe import FFProbe as PROBE
+from fsutils.video.FFProbe import FFProbe, FFStream
 
 cv2.setLogLevel(1)
+
+
+class VideoStream(FFProbe):
+    """Wrapper around FFProbe."""
+
+    def __init__(self, path: str | Path) -> None:
+        """Init probe."""
+        super().__init__(path)
+        for stream in self.streams:
+            if stream.is_video:
+                dictitems = stream.__dict__.copy()
+                self.__dict__.update(dictitems)
+                for k, v in dictitems.items():
+                    setattr(self, k, v)
+
+
+@dataclass
+class CompressOptions:
+    encoder: str = "hevc_nvenc"
+    crf: int = 20
+    qp: int = 24
+    rc: str = "constqp"
+    preset: str = "slow"
+    tune: str = "hq"
+    loglevel: str = "quiet"
+    output: str = field(default_factory=str)
+
+    @classmethod
+    def from_dict(cls, options: dict[str, Any]) -> "CompressOptions":
+        """Create an instance of CompressOptions from a dictionary."""
+        return cls(**options)
 
 
 class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
@@ -54,40 +84,27 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
         """
         super().__init__(path, *args, **kwargs)
-        self._metadata = {}
+        self._metadata = None
 
     @property
-    def metadata(self) -> dict:
-        if not self._metadata:
-            ffprobe_cmd = [
-                "ffprobe",
-                "-v",
-                "quiet",
-                "-print_format",
-                "json",
-                "-show_format",
-                self.path,
-            ]
-            try:
-                result = subprocess.run(ffprobe_cmd, check=True, capture_output=True, text=True)
-                ffprobe_output = result.stdout
-                if ffprobe_output is None:
-                    return {}
-                self._metadata = json.loads(ffprobe_output).get("format")
-            except subprocess.CalledProcessError:
-                print(f"Failed to run ffprobe on {self.path}.", file=sys.stderr)
-                self._metadata = {}
+    def metadata(self) -> FFStream:
+        """Extract the metadata of the video."""
+        if self._metadata is None:
+            probe = FFProbe(self.path)
+            for stream in probe.streams:
+                if stream.is_video():
+                    self._metadata = stream
+                    break
+            else:
+                raise ValueError(f"No video stream found in {self.name}")
+
         return self._metadata
-
-    @property
-    def tags(self) -> dict:
-        return self.metadata.get("tags", {}) if self.metadata else {}
 
     @property
     def bitrate(self) -> int:
         """Extract the bitrate/s with ffprobe."""
         try:
-            return round(int(self.metadata.get("bit_rate", -1)))
+            return round(int(self.metadata.bit_rate))
         except ZeroDivisionError:
             if self.is_corrupt:
                 print(f"\033[31m{self.name} is corrupt!\033[0m")
@@ -102,13 +119,13 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
     @property
     def duration(self) -> int:
-        return round(float(self.metadata.get("duration", 0)))
+        return round(float(self.metadata.duration))
 
     @property
     def capture_date(self) -> datetime:
         """Return the capture date of the file."""
         capture_date = str(
-            self.tags.get("creation_time") or datetime.fromtimestamp(self.stat().st_mtime)
+            self.metadata.tags.get("creation_time") or datetime.fromtimestamp(self.stat().st_mtime)
         ).split(".")[0]
         return datetime.fromisoformat(capture_date)
 
@@ -148,12 +165,12 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
     def num_frames(self) -> int:
         """Return the number of frames in the video."""
         num_frames = 0
-        if hasattr(self, "nb_frames"):
-            num_frames = self.nb_frames
+        if hasattr(self.metadata, "nb_frames"):
+            num_frames = self.metadata.nb_frames
         else:
             try:
                 num_frames = round(cv2.VideoCapture(self.path).get(cv2.CAP_PROP_FRAME_COUNT))
-                self.nb_frames = num_frames
+                self.metadata.nb_frames = num_frames
             except Exception as e:
                 print(f"Error getting num_frames with cv2: {e!r}")
         return num_frames
@@ -162,7 +179,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         """Render the video."""
         if os.environ.get("TERM") == "xterm-kitty":
             try:
-                subprocess.call(["mpv", self.path])
+                subprocess.call(["mpv", "--profile=term", self.path])
             except Exception as e:
                 print(f"Error: {e}")
         else:
@@ -188,6 +205,9 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         FILTERS = f"fps={_fps},scale={scale}:-1:flags=lanczos"
 
         output_path = Path(kwargs.get("output", f"{self.parent}/{self.prefix}{'.gif'}"))
+        if not str(output_path).endswith(".gif"):
+            output_path = output_path.with_suffix(".gif")
+
         if output_path.exists():
             if input("Overwrite existing file? (y/n): ").lower() in {"Y", "y", "yes"}:
                 output_path.unlink()
@@ -242,14 +262,6 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             "ffmpeg",
             "-i",
             f"{self.path}",
-            "-pix_fmt",
-            "rgb24",
-            "-gifflags",
-            "+transdiff",
-            "-dither",
-            "sierra2_4a",
-            "-colors",
-            "256",
             "-vf",
             f"fps={fps},scale={scale!s}:-1:flags=lanczos",
             "-v",
@@ -258,20 +270,6 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             "quiet",
             f"{output_path}",
         ])
-        print(*[
-            "ffmpeg",
-            "-i",
-            f"{self.path}",
-            "-vf",
-            f"fps={fps},scale={scale!s}:-1:flags=lanczos",
-            f"{output_path}",
-            "-v",
-            "error",
-            "-loglevel",
-            "quiet",
-            "-y",
-        ])
-        # Other options: "-pix_fmt","rgb24" |
         return Img(output_path)
 
     def extract_frames(self, fps=1, **kwargs: Any) -> list[Img]:
@@ -344,14 +342,14 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         end = template.format(*divmod(end_, 60))
 
         output_path = Path(output).resolve()
-        result = subprocess.check_call(
+        subprocess.check_call(
             f"ffmpeg -ss {start} -to {end} -i {self!s} -codec copy -v quiet -y {output_path}",
             shell=True,
         )
         return Video(output_path)
 
     def compress(self, **kwargs: Any) -> "Video":
-        """Compress video using x265 codec with crf 18.
+        """Transcode video.
 
         Keyword Arguments:
         ----------------
@@ -371,63 +369,52 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
         Examples
         --------
         ```python
-        # ffmpeg -hwaccel cuda -i <input> -c:v hevc_nvenc -preset slow \
-           -crf 18 -c:a copy -v quiet -y <output>
+        # ffmpeg -i <input> -c:v hevc_nvenc -crf 18 -c:a copy -v quiet -y <output>
         vid.compress(output="~/Videos/compressed_video.mp4", codec="hevc_nvenc")
         ```
         """
-        output = kwargs.get("output") or f"{self.parent}/_{self.prefix}.mp4"
-        output_path = Path(output).resolve()
-        fps = self.fps if self.fps < 200 else 30
-        for keyword, value in kwargs.items():
-            if "-r" in kwargs or "fps" in keyword:
-                fps = value
-        print(fps)
+        try:
+            output = kwargs.pop("output")
+        except KeyError:
+            output = f"{self.parent}/_{self.prefix}.mp4"
+
+        options = CompressOptions(**kwargs, output=os.path.expanduser(output))
 
         ffmpeg_cmd = [
             "ffmpeg",
-            # "-hwaccel",
-            # "cuda",
             "-i",
             self.path,
             "-c:v",
-            kwargs.get("codec", "hevc_nvenc"),
+            options.encoder,
             "-crf",
-            kwargs.get("crf", "20"),
+            str(options.crf),
             "-qp",
-            kwargs.get("qp", "24"),
+            str(options.qp),
             "-rc",
-            "constqp",
-            "-preset",
-            kwargs.get("preset", "medium"),
-            "-tune",
-            kwargs.get("tune", "hq"),
+            options.rc,
             "-c:a",
             "copy",
             "-v",
-            kwargs.get("loglevel", "quiet"),
+            options.loglevel,
             "-y",
             "-stats",
-            str(output_path),
+            options.output,
         ]
         print(subprocess.check_output(ffmpeg_cmd))
-        return Video(output_path)
-
-    def ffprobe(self) -> dict:
-        """Return the output of ffprobe."""
-        probe = PROBE(self.path)
-        if probe.video is not None:
-            for k, v in probe.video.items():
-                if k != "video":
-                    with contextlib.suppress(AttributeError | KeyError):
-                        setattr(self, k, v)
-        return probe.video.items()
+        return Video(options.output)
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human})".format(
             **vars(self)
         )
+
+    def sha256(self) -> str:
+        return super().sha256()
+
+    def hash(self) -> int:
+        """Return the hash of the file."""
+        return super().__hash__()
 
     def __format__(self, format_spec: str, /) -> str:
         """Return the object in tabular format."""
