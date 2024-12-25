@@ -14,6 +14,7 @@ from fsutils.img import Img
 from fsutils.utils.tools import format_bytes, format_timedelta, frametimes
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
 from fsutils.video.FFProbe import FFProbe, FFStream
+from dataclasses import dataclass, field
 
 cv2.setLogLevel(1)
 
