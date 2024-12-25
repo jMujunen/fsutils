@@ -35,9 +35,6 @@ class Img(File):  # noqa - FIXME: Too many methods
         - `grayscale(output)`     : Convert the image to grayscale and save it to the specified output path.
     """
 
-    _tags: list
-    _exif: Image.Exif
-
     def __init__(self, path: str | Path) -> None:
         """Initialize an Img object.
 
@@ -46,8 +43,6 @@ class Img(File):  # noqa - FIXME: Too many methods
             - `path (str)` : The absolute path to the file.
         """
         super().__init__(path)
-        self._exif = Image.Exif()
-        self._tags = []
 
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash:
         """Calculate the hash value of the image.
@@ -82,32 +77,30 @@ class Img(File):  # noqa - FIXME: Too many methods
             width, height = img.size
         return width, height
 
-    def exif(self) -> Image.Exif:
-        """Extract the EXIF data from the image."""
-        with Image.open(self.path) as img:
-            self._exif = img.getexif()
-            return self._exif
-
     @property
-    def tags(self) -> Generator[tuple[str,]] | None:
-        """Extract metadata from image files."""
-        for tag_id in self.exif():
+    def tags(self) -> list[tuple[str, Any]]:
+        """Return a list of all tags in the EXIF data."""
+        _tags = []
+        with Image.open(self.path) as img:
+            exif = img.getexif()
+        for tag_id in exif:
             try:
                 tags = TAGS.get(tag_id, tag_id)
-                data = self.exif().get(tag_id)
+                data = exif.get(tag_id)
                 if isinstance(data, bytes):
                     data = data.decode()
                 if tags == "XMLPacket":
                     continue  # Skip 'XMLPacket'
                 tag = (tags, data)
-                if tag not in self._tags:
-                    self._tags.append(tag)
-                yield tag  # type: ignore
+                if tag not in _tags:
+                    _tags.append(tag)
+                _tags.append(tag)
             except UnicodeDecodeError:
                 continue
             except Exception as e:
                 print(f"Error extracting tag {tag_id}: {e!r}")
                 continue
+        return _tags
 
     @property
     def capture_date(self) -> datetime:
