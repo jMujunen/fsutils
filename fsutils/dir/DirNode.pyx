@@ -79,23 +79,6 @@ cdef class Dir(File):
         self._db = pickle.loads(Path(self._pkl_path).read_bytes()) if Path(Path(self._pkl_path)).exists() else {}
         self._objects = []
 
-    cpdef list[File] file_objects(self):
-        """Return a list of objects contained in the directory.
-
-        This property iterates over all items in the directory
-        and filters out those that are instances of File,  Log,
-        Img, Video, or Git, excluding directories.
-
-        Returns
-        -------
-            List[File,  Log, Img, Video, Git]: A list of file objects.
-
-        """
-        cdef str i
-        cdef list[File] _objects = []
-        for i in self.ls_files():
-            _objects.append(obj(i))
-        return _objects
     @property
     def dirs(self) -> list[str]:
         """Return a list of all directories in the directory."""
@@ -111,15 +94,8 @@ cdef class Dir(File):
             return os.listdir(self.path)
         except NotADirectoryError:
             return []
-    @exectimer
-    def objects(self) -> Generator:
-        """Return a list of fsutils objects inside self."""
-        try:
-            yield from self.__iter__()
-        except AttributeError:
-            yield from self._objects
 
-    @exectimer
+
     def is_empty(self) -> bool:
         """Check if the directory is empty."""
         try:
@@ -128,20 +104,35 @@ cdef class Dir(File):
         except StopIteration:
             return True
         return False
-    @exectimer
-    def images_(self) -> list[Img]:
-        """A list of ImageObject instances found in the directory."""
-        return list(filter(lambda x: isinstance(x, Img), self.__iter__()))  # type: ignore
-    @exectimer
-    def videos_(self) -> list[Video]:
-        """A list of VideoObject instances found in the directory."""
-        return list(filter(lambda x: isinstance(x, Video), self.__iter__()))  # type: ignore
-    @exectimer
-    def logs(self) -> list[Log]:
-        """A list of Log instances found in the directory."""
-        return list(filter(lambda x: isinstance(x, Log), self.__iter__()))  # type: ignore
-    @exectimer
-    def describe(self, print_result=True) -> dict[str, int]:  # type: ignore
+
+    def videos(self) -> Generator[Video, None, None]:
+        """Return a generator of Video objects for all video files."""
+        cdef tuple[str] valid_exts = FILE_TYPES['video']
+        cdef str file
+        for file in self.ls_files():
+            if file.lower().endswith(valid_exts):
+                yield Video(file)
+    def images(self) -> Generator[Img, None, None]:
+        """Return a generator of Img objects for all image files."""
+        cdef tuple[str] valid_exts = FILE_TYPES['img']
+        cdef str file
+        for file in self.ls_files():
+            if file.lower().endswith(valid_exts):
+                yield Img(file)
+    def non_media(self) -> Generator[File, None, None]:
+        """Return a generator of all files that are not media."""
+        cdef tuple[str] valid_exts = (*FILE_TYPES['video'],*FILE_TYPES['img'])
+        cdef str file
+        for file in self.ls_files():
+            if not file.lower().endswith(valid_exts):
+                yield File(file) # type: ignore
+
+    cdef inline unsigned int stat_filter(self, dictitem):
+        cdef unicode key
+        cdef unsigned int value
+        key, value = dictitem
+        return value
+    cpdef dict[str,int] describe(self, bint print_result=True):  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
         cdef str ext, _
@@ -163,7 +154,7 @@ cdef class Dir(File):
             file_types[ext] += 1
 
 
-        sorted_stat = dict(sorted(file_types.items(), key=lambda x: x[1]))
+        sorted_stat = dict(sorted(file_types.items(), key=self.stat_filter))
         # Print the sorted table
         if not sorted_stat:
             return {}
@@ -172,7 +163,7 @@ cdef class Dir(File):
             total = sum([v for v in sorted_stat.values()])
             num_total = len([int(i) for i in list(str(total))]) + 5
             color = ''
-            for key, value in filter(lambda x: file_types[x[0]] / total > 0.01, sorted_stat.items()):
+            for key, value in sorted_stat.items():
                 percentage = (int(value) / total) * 100
                 if percentage < 1:
                     continue
@@ -250,8 +241,8 @@ cdef class Dir(File):
 
         for result in pool.execute(
             worker,
-            self.file_objects(),
-            progress_bar=progress_bar,
+            self,
+            progress_bar=progress_bar
         ):
             if result:
                 sha, path = result
@@ -317,16 +308,7 @@ cdef class Dir(File):
                         yield entry
                 except PermissionError:
                     continue
-    def videos(self) -> Generator[Video, None, None]:
-        """Return a generator of Video objects for all video files."""
-        for file in self.ls_files():
-            if file.endswith((".mp4", ".avi", ".mkv")):
-                yield Video(file)
-    def images(self) -> Generator[Img, None, None]:
-        """Return a generator of Img objects for all image files."""
-        for file in self.ls_files():
-            if file.endswith((".jpg", ".jpeg", ".png", ".gif")):
-                yield Img(file)
+
 
     def __getitem__(self, str key) -> Generator[File, None, None]:
         """Get a file by name."""
@@ -367,22 +349,17 @@ cdef class Dir(File):
         """Yield a sequence of File instances for each item in self."""
         cdef unicode root, directory
         cdef list[str] _, files
-        if self._objects:
-            yield from self._objects
-        else:
-            for root, _, files in os.walk(self.path):
-                # Yield directories first to avoid unnecessary checks inside the loop
-                for directory in _:
-                    cls_instance = Dir(os.path.join(root, directory))
+        for root, _, files in os.walk(self.path):
+            # Yield directories first to avoid unnecessary checks inside the loop
+            for directory in _:
+                cls_instance = Dir(os.path.join(root, directory))
+                yield cls_instance
+            for file in files:
+                try:
+                    cls_instance = _obj(os.path.join(root, file))
                     yield cls_instance
-                    self._objects.append(cls_instance)
-                for file in files:
-                    try:
-                        cls_instance = _obj(os.path.join(root, file))
-                        yield cls_instance
-                        self._objects.append(cls_instance)
-                    except FileNotFoundError as e:
-                        print(f"DirNode.Dir.__iter__(): {e!r}")
+                except FileNotFoundError as e:
+                    print(f"DirNode.Dir.__iter__(): {e!r}")
 
     def __eq__(self, other: "Dir", /) -> bool:
         """Compare the contents of two Dir objects."""
@@ -401,7 +378,7 @@ cdef class Dir(File):
 cdef File _obj(str path):
     """Return a File object for the given path."""
     cdef unicode ext, file_type
-    cdef list[str] extensions
+    cdef tuple[str] extensions
     cdef str class_name
     cdef object FileClass
 
@@ -438,21 +415,3 @@ cdef tuple[str, str] worker(item):
     """Worker function to process items in parallel."""
     return item.sha256(), item.path
 
-cdef class FileMeta(type):
-    def __call__(cls, filepath, *args, **kwargs):
-        # Determine file extension and create the appropriate instance
-        path = Path(filepath)
-        ext = path.suffix.lower()
-        if ext in FILE_TYPES['video']:
-            return Video(filepath, *args, **kwargs)
-        elif ext in FILE_TYPES['img']:
-            return Img(filepath, *args, **kwargs)
-        elif ext in FILE_TYPES['log']:
-            return Log(filepath, *args, **kwargs)
-        elif path.is_dir():
-            return Dir(filepath, *args, **kwargs)
-        else:
-            return File(filepath, *args, **kwargs) # type: ignore
-
-class F(metaclass=FileMeta):
-    pass

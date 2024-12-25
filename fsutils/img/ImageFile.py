@@ -327,8 +327,8 @@ class Img(File):  # noqa - FIXME: Too many methods
     def __eq__(self, other: "Img", /) -> bool:
         return super().__eq__(other)
 
-    def sha256(self) -> str:
-        return super().sha256()
+    def sha256(self, *args, **kwargs) -> str:
+        return super().sha256(*args, **kwargs)
 
     def __hash__(self) -> int:
         return super().__hash__()
@@ -357,6 +357,4 @@ class Img(File):  # noqa - FIXME: Too many methods
         return f"\033[1m{header}\033[0m\n{linebreak}"  # type: ignore
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, dimensions={self.dimensions})".format(
-            **vars(self)
-        )
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, dimensions={self.dimensions()})"
