@@ -35,11 +35,12 @@ class VideoStream(FFProbe):
 
 @dataclass
 class CompressOptions:
+    hwaccel: str = "cuda"
     encoder: str = "hevc_nvenc"
     crf: int = 20
     qp: int = 24
     rc: str = "constqp"
-    preset: str = "slow"
+    preset: str = "fast"
     tune: str = "hq"
     loglevel: str = "quiet"
     output: str = field(default_factory=str)
@@ -50,7 +51,7 @@ class CompressOptions:
         return cls(**options)
 
 
-class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
+class Video(File):  # noqa: PLR0904
     """A class representing information about a video.
 
     | Method | Description |
@@ -103,7 +104,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
     @property
     def bitrate(self) -> int:
-        """Extract the bitrate/s with ffprobe."""
+        """Extract the bitrate/s with metadata."""
         try:
             return round(int(self.metadata.bit_rate))
         except ZeroDivisionError:
@@ -125,20 +126,18 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
     @property
     def capture_date(self) -> datetime:
         """Return the capture date of the file."""
-        capture_date = str(
-            self.metadata.tags.get("creation_time") or datetime.fromtimestamp(self.stat().st_mtime)
-        ).split(".")[0]
+        capture_date = str(self.metadata.tags.get("creation_time") or self.mtime)
         return datetime.fromisoformat(capture_date)
 
     @property
     def codec(self) -> str | None:
         """Codec eg `H264` | `H265`."""
-        return self.ffprobe.codec()
+        return self.metadata.codec
 
     @property
     def dimensions(self) -> tuple[int, int] | None:
         """Return width and height of the video `(1920x1080)`."""
-        return self.ffprobe.frame_size()
+        return self.metadata.frame_size
 
     @property
     def is_corrupt(self) -> bool:
@@ -393,6 +392,8 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             str(options.qp),
             "-rc",
             options.rc,
+            "-preset",
+            options.preset,
             "-c:a",
             "copy",
             "-v",
@@ -401,6 +402,9 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             "-stats",
             options.output,
         ]
+        # print the ffmpeg command with filled in vars
+        print(" ".join(ffmpeg_cmd))
+
         print(subprocess.check_output(ffmpeg_cmd))
         return Video(options.output)
 
@@ -419,6 +423,7 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
 
     def __format__(self, format_spec: str, /) -> str:
         """Return the object in tabular format."""
+        template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {!s:<10}"
         name = self.name
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
@@ -427,7 +432,16 @@ class Video(File):  # noqa (PLR0904) - Too many public methods (23 > 20)
             else:
                 name = ".".join([name.split(".")[0], name.split(".")[-1]])
             iterations += 1
-        return f"{name.strip():<25} | {self.num_frames:<10} | {self.bitrate_human:<10} | {self.size_human:<10} | {self.codec:<10} | {self.duration:<10} | {self.fps:<10} | {self.dimensions!s:<10}"
+        return template.format(
+            name.strip(),
+            self.num_frames,
+            self.bitrate_human,
+            self.size_human,
+            self.codec,
+            self.duration,
+            self.metadata.frame_rate,
+            self.dimensions,
+        )
 
     @staticmethod
     def fmtheader() -> str:

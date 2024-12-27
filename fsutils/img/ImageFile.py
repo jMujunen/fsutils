@@ -104,16 +104,10 @@ class Img(File):  # noqa - FIXME: Too many methods
     @property
     def capture_date(self) -> datetime:
         """Return the capture date of the image if it exists in the EXIF data."""
-        for tag_id in self.exif():
+        for idx, val in self.tags:
             try:
-                # Get the tag name, instead of human unreadable tag id
-                tag = TAGS.get(tag_id, tag_id)
-                data = self.exif().get(tag_id)
-                # Decode bytes
-                if isinstance(data, bytes):
-                    data = data.decode()
-                if str(tag).startswith("DateTime"):
-                    date, time = str(data).split(" ")
+                if idx.startswith("DateTime"):
+                    date, time = val.split(" ")
                     year, month, day = date.split(":")
                     hour, minute, second = time.split(":")
                     return datetime(
@@ -126,9 +120,7 @@ class Img(File):  # noqa - FIXME: Too many methods
                     )
             except:  # noqa
                 continue
-        self.__dict__.get("capture_date")
-        date_str = str(datetime.fromtimestamp(self.stat().st_mtime)).split(".")[0]
-        return datetime.fromisoformat(date_str)
+        return self.mtime
 
     def is_corrupt(self) -> bool:
         """Check if the image is corrupt."""
