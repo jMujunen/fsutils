@@ -11,14 +11,10 @@ from typing import Any, Type, Union
 import chardet
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.utils.tools import format_bytes
-from collections import namedtuple
 from libc.stdlib cimport free, malloc, realloc
 
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
-
-cdef St = namedtuple('St',['atime', 'mtime', 'ctime'])
-
 
 cdef class File:
     """This is the base class for all of the following objects.
@@ -165,28 +161,34 @@ cdef class File:
     cpdef bint is_video(self):# -> bool:
         """Check if the file is a video."""
         return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video")) # type: ignore
-
-    cpdef  mtime(self):
+    @property
+    def  mtime(self):
         """Return the last modification time of the file."""
         return datetime.fromtimestamp(self.stat().st_mtime)
-
-    cpdef ctime(self):# -> datetime:
+    @property
+    def ctime(self):# -> datetime:
         """Return the last metadata change of the file."""
         return datetime.fromtimestamp(self.stat().st_ctime)
-
-    cpdef  atime(self):# -> datetime:
+    @property
+    def atime(self):# -> datetime:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
+    @property
+    def parts(self) -> tuple[str]:
+        return tuple(self.path.split(os.sep))
+
     cpdef DatetimeTuple times(self): #  type: ignore
-        """Get the modification, access and creation times of a file."""
-        a, m, c = self.stat()[-3:]
-        self.st = St(datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c))
-        return self.st
+        """Return access, modification, and creation times of a file."""
+        cdef double a, m ,c
+        a, m, c = self.stat()[-3:] # type: ignore
+        return datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c) # type: ignore
 
     cpdef bint exists(self):# -> bool:
         """Check if the file exists."""
         return os.path.exists(self.path) # type: ignore
+
+
     def __iter__(self) -> Iterator[str|bytes]:
         """Iterate over the lines of a file."""
         if self.is_binary():
@@ -254,9 +256,9 @@ cdef class File:
         with open(self.path, 'r', encoding=self.encoding) as f:
             return f.read()
 
-    cpdef str sha256(self, unsigned int chunk_size=16384):# -> str:
+    cpdef str sha256(self):# -> str:
         """Return a reproducible sha256 hash of the file."""
-        cdef str md5  = self.md5_checksum(chunk_size)
+        cdef str md5  = self.md5_checksum()
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
         return hashlib.sha256(serialized_object).hexdigest()
 

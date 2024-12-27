@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     describe = subparsers.add_parser(
         "describe", help="Provide a quick overview of the directory contents"
     )
-    describe.add_argument("PATH", help="Target directory")
+    describe.add_argument("PATH", help="Target directory", nargs="?", default="./")
     describe.add_argument("--size", "-s", help="Include sum of the file sizes in the results")
     return parser.parse_args()
 

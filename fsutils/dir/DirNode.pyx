@@ -19,8 +19,6 @@ from fsutils.utils.tools  import format_bytes
 from fsutils.file.GenericFile cimport File
 from fsutils.utils.decorators import exectimer
 
-
-
 cdef class Dir(File):
     """A class representing information about a directory.
 
@@ -375,7 +373,7 @@ cdef class Dir(File):
 
 
 
-cdef File _obj(str path):
+cdef inline File _obj(str path):
     """Return a File object for the given path."""
     cdef unicode ext, file_type
     cdef tuple[str] extensions
@@ -411,7 +409,7 @@ def obj(file_path: str):
     """Return a File instance for the given file path."""
     return _obj(file_path)
 
-cdef tuple[str, str] worker(item):
+cdef inline tuple[str, str] worker(item):
     """Worker function to process items in parallel."""
     return item.sha256(), item.path
 

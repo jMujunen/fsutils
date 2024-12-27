@@ -2,12 +2,13 @@
 cimport cython
 import re
 from datetime import datetime
-from typing import Union
+from typing import NamedTuple
+
 
 
 GIT_OBJECT_REGEX: re.Pattern
 ctypedef tuple[datetime, datetime, datetime] DatetimeTuple
-# cdef NamedTuple St
+
 
 cdef extern from "stdio.h":
     ctypedef ssize_t ssize_ts
@@ -28,10 +29,6 @@ cdef class File:
     cpdef list[str] head(File, unsigned short int n = ?)
     cpdef list[str] tail(File, unsigned short int n = ?)
 
-    cpdef  mtime(self)# -> datetime: ...
-    cpdef  ctime(self)# -> datetime: ...
-
-    cpdef  atime(self)# -> datetime: ...
 
     cdef inline stat(File)
     cpdef bint is_binary(File)
@@ -44,7 +41,7 @@ cdef class File:
     cdef str md5_checksum(File, unsigned int chunk_size=?)
     cpdef str read_text(File)
     cpdef object read_json(File)
-    cpdef str sha256(File, unsigned int chunk_size=?)
+    cpdef str sha256(File)
     cdef bytes _read_chunk(File, unsigned int size=?, str spec=?)
 
 
