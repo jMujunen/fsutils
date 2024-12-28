@@ -138,7 +138,7 @@ class Video(File):  # noqa: PLR0904
                 int(minute),
                 int(second[:2]),
             )
-        except (KeyError, ValueError):
+        except (KeyError, ValueError, AttributeError):
             return self.mtime
 
     @property
