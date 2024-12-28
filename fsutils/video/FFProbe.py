@@ -4,8 +4,8 @@ import functools
 import json
 import operator
 import subprocess
+from dataclasses import dataclass
 from pathlib import Path
-
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
 
 
@@ -13,19 +13,20 @@ class FFStream:
     """An object representation of an individual stream in a multimedia file."""
 
     index: int
+    creation_time: str
     codec_name: str
     codec_long_name: str
     codec_tag_string: str
     codec_tag: str
     width: int
     height: int
-    coded_with: int
+    coded_width: int
     coded_height: int
     closed_captions: int
     has_b_frames: int
     pix_fmt: str
     level: int
-    chrroma_location: str
+    chroma_location: str
     field_order: str
     profile: str
     refs: int
@@ -71,22 +72,7 @@ class FFStream:
                 setattr(self, k, v)
 
     def __repr__(self) -> str:
-        if self.is_video():
-            template = "Stream[{codec_type}]({codec_name}, {framerate}, ({width}x{height}))"
-
-        elif self.is_audio():
-            template = (
-                "Stream[{codec_type}]({codec_name}, channels: {channels} ({channel_layout}), "
-                "{sample_rate}Hz)"
-            )
-
-        elif self.is_subtitle() or self.is_attachment():
-            template = "Stream: #{index} [{codec_type}] {codec_name}"
-
-        else:
-            template = ""
-
-        return template.format(**self.__dict__)
+        return f"{self.__class__.__name__}({',\n\t'.join(f'{k}={v!r}' for k, v in self.__dict__.items())}\n)"
 
     def is_audio(self) -> bool:
         """Is this stream labelled as an audio stream?."""
@@ -218,6 +204,3 @@ class FFProbe:
 
         for stream in data:
             self.streams.append(FFStream(stream))
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(streams={self.streams})"

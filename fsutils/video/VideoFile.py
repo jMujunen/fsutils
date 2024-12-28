@@ -126,8 +126,20 @@ class Video(File):  # noqa: PLR0904
     @property
     def capture_date(self) -> datetime:
         """Return the capture date of the file."""
-        capture_date = str(self.metadata.tags.get("creation_time") or self.mtime)
-        return datetime.fromisoformat(capture_date)
+        try:
+            date, time = self.metadata.tags.get("creation_time", "").split("T")
+            year, month, day = date.split("-")
+            hour, minute, second = time.split(".")[0].split(":")
+            return datetime(
+                int(year),
+                int(month),
+                int(day),
+                int(hour),
+                int(minute),
+                int(second[:2]),
+            )
+        except (KeyError, ValueError):
+            return self.mtime
 
     @property
     def codec(self) -> str | None:
@@ -153,13 +165,8 @@ class Video(File):  # noqa: PLR0904
     @property
     def fps(self) -> int:
         """Return the frames per second of the video."""
-        fps = 0
-        if hasattr(self, "framerate"):
-            return self.framerate
-        if hasattr(self, "avg_frame_rate"):
-            num, denum = map(int, self.avg_frame_rate.split("/"))
-            fps = round(num / denum)
-        return fps
+        enum, denum = map(int, self.metadata.avg_frame_rate.split("/"))
+        return round(enum / denum)
 
     @property
     def num_frames(self) -> int:
@@ -174,19 +181,6 @@ class Video(File):  # noqa: PLR0904
             except Exception as e:
                 print(f"Error getting num_frames with cv2: {e!r}")
         return num_frames
-
-    def render(self) -> None:
-        """Render the video."""
-        if os.environ.get("TERM") == "xterm-kitty":
-            try:
-                subprocess.call(["mpv", "--profile=term", self.path])
-            except Exception as e:
-                print(f"Error: {e}")
-        else:
-            try:
-                subprocess.call(["xdg-open", self.path])
-            except Exception as e:
-                print(f"Error: {e}")
 
     def make_hq_gif(self, scale=640, fps=24, **kwargs) -> Img | None:
         """Convert the video to a high-quality gif using FFMPEG.

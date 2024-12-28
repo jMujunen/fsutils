@@ -103,27 +103,19 @@ cdef class Dir(File):
             return True
         return False
 
-    def videos(self) -> Generator[Video, None, None]:
-        """Return a generator of Video objects for all video files."""
+    cpdef list videos(self):
         cdef tuple[str] valid_exts = FILE_TYPES['video']
-        cdef str file
-        for file in self.ls_files():
-            if file.lower().endswith(valid_exts):
-                yield Video(file)
-    def images(self) -> Generator[Img, None, None]:
-        """Return a generator of Img objects for all image files."""
+        return [Video(file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
+
+    cpdef list images(self):
         cdef tuple[str] valid_exts = FILE_TYPES['img']
-        cdef str file
-        for file in self.ls_files():
-            if file.lower().endswith(valid_exts):
-                yield Img(file)
-    def non_media(self) -> Generator[File, None, None]:
+        return [Img(file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
+
+    cpdef list[File] non_media(self):
         """Return a generator of all files that are not media."""
         cdef tuple[str] valid_exts = (*FILE_TYPES['video'],*FILE_TYPES['img'])
-        cdef str file
-        for file in self.ls_files():
-            if not file.lower().endswith(valid_exts):
-                yield File(file) # type: ignore
+        return [File(file) for file in self.ls_files() if not file.lower().endswith(valid_exts)] # type: ignore
+
 
     cdef inline unsigned int stat_filter(self, dictitem):
         cdef unicode key
@@ -157,7 +149,7 @@ cdef class Dir(File):
         if not sorted_stat:
             return {}
 
-        if print_result:
+        if print_result is True:
             total = sum([v for v in sorted_stat.values()])
             num_total = len([int(i) for i in list(str(total))]) + 5
             color = ''
