@@ -312,7 +312,7 @@ class Video(File):  # noqa: PLR0904
                 cv2.imwrite(
                     output_path,
                     frame,
-                )
+                )  # type: ignore
                 saved_frames.append(Img(output_path))
                 # drop the duration spot from the list, since this duration spot is already saved
                 with contextlib.suppress(IndexError):

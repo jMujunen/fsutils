@@ -1,5 +1,7 @@
 # fsutils todo
 
+- [ ] Add `compare` method to compare video metadata/ffprobe info
+
 - [ ] Implement cli to make use of the lib
   - [ ] img.ImageFile
   - [x] video.VideoFile
@@ -8,7 +10,6 @@
   - [ ] log.LogFile
 
 ## Bug fixes
-
 
 ---
 
