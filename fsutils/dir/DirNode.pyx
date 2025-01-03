@@ -38,8 +38,7 @@ cdef class Dir(File):
     Properties
     -----------
         - `files`       : Read only property returning a list of file names
-        - `objects`     : Read-only property yielding a sequence of DirectoryObject or FileObject instances
-        - `directories` : Read-only property yielding a list of absolute paths for subdirectories
+        - `dirs` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
 
@@ -70,7 +69,6 @@ cdef class Dir(File):
             print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path}")
 
         self._db = pickle.loads(Path(self._pkl_path).read_bytes()) if Path(Path(self._pkl_path)).exists() else {}
-        self._objects = []
 
     @property
     def dirs(self) -> list[str]:
@@ -115,6 +113,7 @@ cdef class Dir(File):
         cdef unsigned int value
         key, value = dictitem
         return value
+
     cpdef dict[str,int] describe(self, bint print_result=True):  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
@@ -169,7 +168,7 @@ cdef class Dir(File):
     @property
     def db(self):
         if not self._db:
-            self._db = self.load_database(replace=True) # type: ignore
+            self._db = self.load_database()
         else:
             return self._db
     @property
@@ -206,6 +205,8 @@ cdef class Dir(File):
         if Path(self._pkl_path).exists():
             return pickle.loads(Path(self._pkl_path).read_bytes())
         return {}
+
+
     cpdef dict[str, list[str]] serialize(self, bint replace=True, bint progress_bar=True):
         """Create an hash index of all files in self."""
         cdef tuple[str, str] result
@@ -315,8 +316,7 @@ cdef class Dir(File):
 
     def __contains__(self, File other) -> bool:
         """Is `File` in self?"""  # noqa
-        self._db = self.serialize(replace=True, progress_bar=False) # type: ignore
-        return hash(other) in self._db
+        return other.sha256() in self.db
 
     def __hash__(self) -> int:
         return hash((tuple(self.content), self.is_empty))

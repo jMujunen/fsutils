@@ -34,19 +34,19 @@ cdef class Dir(File):
         - `directories` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
-    cdef public list[File] _objects
     cdef public str _pkl_path
-    cdef public dict[str, list[str]] _db
     cdef public unsigned long int _size
+    cdef public dict[str, list[str]] _db
+
 
     cpdef list videos(self)
     cpdef list images(self)
 
     cpdef list[File] non_media(self)
     cdef inline unsigned int stat_filter(self, dictitem)
-    cpdef dict[str, int] describe(self, bint print_result = ?)
+    cpdef dict[str, int] describe(self, bint print_result=?)
 
-    cpdef dict[str, list[str]] serialize(self, bint replace = ?, bint progress_bar = ?)
+    cpdef dict[str, list[str]] serialize(self, bint replace=?, bint progress_bar=?)
 
 
 
