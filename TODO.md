@@ -1,6 +1,7 @@
 # fsutils todo
 
 - [ ] Add `compare` method to compare video metadata/ffprobe info
+- [ ] Add support for HEIC img format
 
 - [ ] Implement cli to make use of the lib
   - [ ] img.ImageFile

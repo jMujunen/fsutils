@@ -17,7 +17,6 @@ from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.video import Video
 from fsutils.utils.tools  import format_bytes
 from fsutils.file.GenericFile cimport File
-from fsutils.utils.decorators import exectimer
 
 cdef class Dir(File):
     """A class representing information about a directory.
@@ -43,10 +42,6 @@ cdef class Dir(File):
         - `directories` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
-    cdef public list[File] _objects
-    cdef public str _pkl_path
-    cdef public dict[str, list[str]] _db
-    cdef public unsigned long int _size
 
     def __init__(self, path: Optional[str] = None, bint mkdir=False) -> None: # type: ignore
         """Initialize a new instance of the Dir class.
@@ -93,7 +88,6 @@ cdef class Dir(File):
         except NotADirectoryError:
             return []
 
-
     def is_empty(self) -> bool:
         """Check if the directory is empty."""
         try:
@@ -115,7 +109,6 @@ cdef class Dir(File):
         """Return a generator of all files that are not media."""
         cdef tuple[str] valid_exts = (*FILE_TYPES['video'],*FILE_TYPES['img'])
         return [File(file) for file in self.ls_files() if not file.lower().endswith(valid_exts)] # type: ignore
-
 
     cdef inline unsigned int stat_filter(self, dictitem):
         cdef unicode key
@@ -194,7 +187,6 @@ cdef class Dir(File):
     def size_human(self) -> str:
         return format_bytes(self.size)
 
-    @exectimer
     def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]: # type: ignore
         """Return a list of duplicate files in the directory.
 
@@ -214,8 +206,7 @@ cdef class Dir(File):
         if Path(self._pkl_path).exists():
             return pickle.loads(Path(self._pkl_path).read_bytes())
         return {}
-    @exectimer
-    def serialize(self, bint replace=True, bint progress_bar=True) ->  dict[str, list[str]]:# type: ignore
+    cpdef dict[str, list[str]] serialize(self, bint replace=True, bint progress_bar=True):
         """Create an hash index of all files in self."""
         cdef tuple[str, str] result
         cdef str sha, path
@@ -242,7 +233,6 @@ cdef class Dir(File):
                     self._db[sha].append(path)
         Path(self._pkl_path).write_bytes(pickle.dumps(self._db))
         return self._db
-    @exectimer
     def compare(self, other: 'Dir') -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
         cdef set[str] common_files, unique_files
@@ -359,7 +349,6 @@ cdef class Dir(File):
                 hash(self) == hash(other),
             ),
         )
-    @exectimer
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"# type: ignore
 

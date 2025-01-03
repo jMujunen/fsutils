@@ -125,7 +125,7 @@ class Img(File):  # noqa - FIXME: Too many methods
     def is_corrupt(self) -> bool:
         """Check if the image is corrupt."""
         # If the file is a HEIC image, it cannot be verified
-        if self.suffix == ".heic":
+        if self.suffix.lower() == ".heic":
             return False  # Placeholder TODO
 
         try:
@@ -165,6 +165,17 @@ class Img(File):  # noqa - FIXME: Too many methods
         ).returncode
 
     def render(self, render_size=320, title=True) -> int:
+        """Render the image in a terminal window.
+
+        Parameters
+        -----------
+            - `render_size (int)` : The size of the window in which to render the image.
+            - `title (bool)` : Whether to display the title of the image in the terminal window.
+
+        Returns
+        -------
+            int: The return code of the subprocess call. 0 if successful, non-zero otherwise.
+        """
         try:
             if title:
                 title = f"{self.name}\t{self.capture_date!s}"
@@ -238,7 +249,7 @@ class Img(File):  # noqa - FIXME: Too many methods
         width: int | None = None,
         height: int | None = None,
         to_jpg=False,
-    ) -> "Img | None":
+    ) -> "Img":
         """Compresses an image.
 
         Paramaters:
@@ -270,33 +281,25 @@ class Img(File):  # noqa - FIXME: Too many methods
         filename_base = "_compressed" if not to_jpg else f"{self.name}_compressed.jpg"
         new_filename = Path.joinpath(tmp_dir, filename_base)
 
-        try:
-            with Image.open(self.path) as img:
-                # Resize the image according to given dimensions or ratio
-                if width and height:
-                    resized_img = img.resize((width, height))
-                elif 0 < new_size_ratio < 1.0:
-                    resized_img = img.resize((
-                        int(img.size[0] * new_size_ratio),
-                        int(img.size[1] * new_size_ratio),
-                    ))
-                else:
-                    raise ValueError("Invalid size parameters.")
+        with Image.open(self.path) as img:
+            # Resize the image according to given dimensions or ratio
+            if width and height:
+                resized_img = img.resize((width, height))
+            elif 0 < new_size_ratio < 1.0:
+                resized_img = img.resize((
+                    int(img.size[0] * new_size_ratio),
+                    int(img.size[1] * new_size_ratio),
+                ))
+            else:
+                raise ValueError("Invalid size parameters.")
 
-                # Convert to RGB if converting to JPG
-                if to_jpg:
-                    resized_img.convert("RGB")
+            # Convert to RGB if converting to JPG
+            if to_jpg:
+                resized_img.convert("RGB")
 
-                resized_img.save(new_filename, quality=quality, optimize=True)
+            resized_img.save(new_filename, quality=quality, optimize=True)
 
-            return self.__class__(new_filename)
-
-        except (OSError, PermissionError):
-            print("Permission Denied")
-            return None
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
+        return self.__class__(new_filename)
 
     def encode(self) -> str:
         """Base64 encode the image."""
@@ -337,8 +340,7 @@ class Img(File):  # noqa - FIXME: Too many methods
             else:
                 name = name.split(" ")[0]
             iterations += 1
-        return f"{name:<15} | {self.size_human:<10} | \
-            {self.dimensions!s:<15} | {self.capture_date!s:<25}"
+        return f"{name:<15} | {self.size_human:<10} | {self.dimensions!s:<15} | {self.capture_date!s:<25}"
 
     @staticmethod
     def fmtheader() -> str:
