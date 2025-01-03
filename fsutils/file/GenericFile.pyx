@@ -1,5 +1,6 @@
 """Base class and building block for all other classes defined in this library."""
 
+from cpython cimport bool
 import hashlib
 import os
 import pickle
@@ -30,18 +31,33 @@ cdef class File:
 
     Properties:
     ----------
+        - `path` : The absolute path to the file.
+        - `encoding` : The encoding of the file.
+
+
         - `size` : The size of the file in bytes.
-        - `is_image` : Check if item is an image
-        - `is_video` : Check if item is a video
-        - `is_gitobject` : Check if item is a git object
-        - `content` : The content of the file. Only holds a value if read() is called.
+        - `size_human` : The size of the file in a human readable format.
 
     Methods
     ----------
-        - `read()` : Return the contents of the file
+        - `read_text()` : Return the contents of the file as a string
+        - `read_json()` : Return the contents of the file as a json object
+
+        - `is_image()` : Check if item is an image
+        - `is_video()` : Check if item is a video
+        - `is_gitobject()` : Check if item is a git object
+        - `is_dir()` : Check if the file is a directory
+        - `exists()` : Check if the file exists
+
+        - `detect_encoding()` : Return the encoding of the file based on its content
+
+        - `times()` : Return a tuple with (atime, mtime, ctime) of the file.
+        - `mtime()` : Return the last modified time of the file
+        - `ctime()` : Return the creation time of the file
+        - `atime()` : Return the last access time of the file
+
         - `head(self, n=5)` : Return the first n lines of the file
         - `tail(self, n=5)` : Return the last n lines of the file
-        - `detect_encoding()` : Return the encoding of the file based on its content
         - `__eq__()` : Compare properties of FileObjects
         - `__str__()` : Return a string representation of the object
 
@@ -126,7 +142,7 @@ cdef class File:
         """Set the file extension."""
         self._suffix = value
 
-    cpdef bint is_binary(self):# -> bool:
+    cpdef bool is_binary(self):# -> bool:
         """Check for null bytes in the file contents, telling us its binary data."""
         cdef bytes chunk
         cdef unsigned int byte
@@ -150,15 +166,15 @@ cdef class File:
         return self.read_text().splitlines()
 
 
-    cpdef bint is_gitobject(self): # -> bool:
+    cpdef bool is_gitobject(self): # -> bool:
         """Check if the file is a git object."""
         return GIT_OBJECT_REGEX.match(self.name) is not None # type:ignore
 
-    cpdef bint is_image(self): # -> bool:
+    cpdef bool is_image(self): # -> bool:
         """Check if the file is an image."""
         return self.suffix.lower() in FILE_TYPES["img"] # type: ignore
 
-    cpdef bint is_video(self):# -> bool:
+    cpdef bool is_video(self):# -> bool:
         """Check if the file is a video."""
         return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video")) # type: ignore
     @property
@@ -184,7 +200,7 @@ cdef class File:
         a, m, c = self.stat()[-3:] # type: ignore
         return datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c) # type: ignore
 
-    cpdef bint exists(self):# -> bool:
+    cpdef bool exists(self):# -> bool:
         """Check if the file exists."""
         return os.path.exists(self.path) # type: ignore
 
@@ -212,7 +228,7 @@ cdef class File:
             item (str): The line to check for
 
         """
-        return any(item in line for line in self)
+        return any(item in line for line in self) # type: ignore
 
     def __eq__(self, other: "File", /) -> bool:
         """Compare two FileObjects.
@@ -222,11 +238,11 @@ cdef class File:
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
 
         """
-        return all((other.exists(), self.exists(), hash(self) == hash(other)))
+        return all((other.exists(), self.exists(), hash(self) == hash(other))) # type: ignore
 
     def __bool__(self) -> bool:
         """Check if the file exists."""
-        return bool(self.exists())
+        return self.exists()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, encoding={self.encoding}, size={self.size_human}"
@@ -240,7 +256,7 @@ cdef class File:
         return encoding
 
 
-    cdef str md5_checksum(self, unsigned int chunk_size=16384):
+    cdef inline bytes md5_checksum(self, unsigned int chunk_size=16384):
         """
         Calculate the MD5 checksum of the file from the specified chunk.
 
@@ -249,29 +265,26 @@ cdef class File:
             chunk_size : int, optional (default=16384)
 
         """
-        return hashlib.md5(self._read_chunk(chunk_size)).hexdigest()
+        return hashlib.md5(self._read_chunk(chunk_size)).hexdigest().encode('utf-8')
+
 
     cpdef str read_text(self):
         """Read the contents of the file as a string."""
         with open(self.path, 'r', encoding=self.encoding) as f:
             return f.read()
 
-    cpdef str sha256(self):# -> str:
+    cdef inline bytes sha256(self):# -> str:
         """Return a reproducible sha256 hash of the file."""
-        cdef str md5  = self.md5_checksum()
+        cdef bytes md5  = self.md5_checksum()
         cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
-        return hashlib.sha256(serialized_object).hexdigest()
+        return hashlib.sha256(serialized_object).hexdigest().encode('utf-8')
 
     cpdef object read_json(self):
         return json.loads(self.read_text())
 
-    cdef bytes _read_chunk(self, unsigned int size=16384, str spec='c'):# -> bytes:
+    cdef inline bytes _read_chunk(self, unsigned int size=16384):# -> bytes:
         """Read a chunk of the file and return it as bytes."""
-        if spec == 'c':
-            return c_read_chunk(self,  size)
-        else:
-            with open(self.path, 'rb', encoding=self.encoding) as f:
-                return f.read(size)
+        return c_read_chunk(self,  size)
 
     def __hash__(self) -> int:
         """Return the hash of the file."""

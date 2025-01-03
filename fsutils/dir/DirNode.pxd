@@ -7,7 +7,7 @@ from fsutils.img import Img
 from fsutils.video import Video
 from fsutils.file.GenericFile cimport File
 from fsutils.utils.decorators import exectimer
-
+from cpython cimport bool
 """Represents a directory. Contains methods to list objects inside this directory."""
 
 cdef class Dir(File):
@@ -38,16 +38,14 @@ cdef class Dir(File):
     cdef public unsigned long int _size
     cdef public dict[str, list[str]] _db
 
-
+    cpdef list[File] fileobjects(self)
     cpdef list videos(self)
     cpdef list images(self)
 
     cpdef list[File] non_media(self)
     cdef inline unsigned int stat_filter(self, dictitem)
-    cpdef dict[str, int] describe(self, bint print_result=?)
-
-    cpdef dict[str, list[str]] serialize(self, bint replace=?, bint progress_bar=?)
-
+    cpdef dict[str, int] describe(self, bool print_result=?)
+    cpdef dict[str, list[str]] serialize(self, replace=?, progress_bar=?)
 
 
 cdef inline File _obj(str path)

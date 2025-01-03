@@ -92,7 +92,6 @@ class Dir(File):
     def load_database(self) -> dict[str, list[str]]:
         """Deserialize the pickled database."""
 
-    @exectimer
     def serialize(self, replace: bool = False, progress_bar: bool = True) -> dict[str, list[str]]:
         """Create an hash index of all files in self."""
 
@@ -107,7 +106,8 @@ class Dir(File):
 
     def ls_files(self, follow_symlinks: bool = True) -> Generator[str, None, None]:
         """Return a list of paths for all files in self."""
-
+    def fileobjects(self) -> list[File]:
+        """Return a list of File instances for each item in self."""
     def traverse(
         self, root=..., follow_symlinks: bool = True
     ) -> Generator[os.DirEntry, None, None]:

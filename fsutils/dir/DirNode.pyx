@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Optional, Iterator, Generator
 import os
 from pathlib import Path
+from cpython cimport bool
+from cython cimport nogil
 
 from ThreadPoolHelper import Pool
 
@@ -17,7 +19,6 @@ from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.video import Video
 from fsutils.utils.tools  import format_bytes
 from fsutils.file.GenericFile cimport File
-
 cdef class Dir(File):
     """A class representing information about a directory.
 
@@ -42,7 +43,7 @@ cdef class Dir(File):
 
     """
 
-    def __init__(self, path: Optional[str] = None, bint mkdir=False) -> None: # type: ignore
+    def __init__(self, path: Optional[str] = None, bool mkdir=False) -> None: # type: ignore
         """Initialize a new instance of the Dir class.
 
         Parameters
@@ -90,10 +91,10 @@ cdef class Dir(File):
         """Check if the directory is empty."""
         try:
             if next(iter(self.ls_files())):
-                return False
+                return False # type: ignore
         except StopIteration:
-            return True
-        return False
+            return True # type: ignore
+        return False # type: ignore
 
     cpdef list videos(self):
         cdef tuple[str] valid_exts = FILE_TYPES['video']
@@ -108,13 +109,17 @@ cdef class Dir(File):
         cdef tuple[str] valid_exts = (*FILE_TYPES['video'],*FILE_TYPES['img'])
         return [File(file) for file in self.ls_files() if not file.lower().endswith(valid_exts)] # type: ignore
 
+    cpdef list fileobjects(self):
+        """Return a generator of all file objects."""
+        return [obj(file) for file in self.ls_files()] # type: ignore
+
     cdef inline unsigned int stat_filter(self, dictitem):
         cdef unicode key
         cdef unsigned int value
         key, value = dictitem
         return value
 
-    cpdef dict[str,int] describe(self, bint print_result=True):  # type: ignore
+    cpdef dict[str,int] describe(self, bool print_result=True):  # type: ignore
         """Print a formatted table of each file extention and their count."""
         cdef str key
         cdef str ext, _
@@ -165,12 +170,12 @@ cdef class Dir(File):
         return sorted_stat
 
 
-    @property
-    def db(self):
-        if not self._db:
-            self._db = self.load_database()
-        else:
-            return self._db
+    # @property
+    # def db(self):
+        # if not self._db:
+            # self._db = self.load_database()
+        # else:
+            # return self._db
     @property
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
@@ -186,7 +191,7 @@ cdef class Dir(File):
     def size_human(self) -> str:
         return format_bytes(self.size)
 
-    def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]: # type: ignore
+    def duplicates(self, unsigned short int num_keep=2, bool updatedb=False) -> list[list[str]]: # type: ignore
         """Return a list of duplicate files in the directory.
 
         Uses pre-calculated hash values to find duplicates.
@@ -207,33 +212,50 @@ cdef class Dir(File):
         return {}
 
 
-    cpdef dict[str, list[str]] serialize(self, bint replace=True, bint progress_bar=True):
-        """Create an hash index of all files in self."""
-        cdef tuple[str, str] result
-        cdef str sha, path
+    cpdef dict[str, list[str]] serialize(self, replace=True, progress_bar=True):
+        """Create an hash index of all files in self.
 
-        # self._pkl_path = self._pkl_path.lstrip('.')
+        Paramaters
+        ----------
+            - replace (bool): If True, re-calculate the hash values for all files
+            - progress_bar (bool): If True, show a progress bar while calculating hashes.
+
+        Returns
+        -------
+            - dict[str, list[str]]: A dictionary where the keys are hash values
+             and the values are lists of file paths.
+
+        """
+        cdef (char*, char*) result
+        cdef bytes _sha
+        cdef bytes _path
+        cdef str sha
+        cdef str path
+        cdef dict[str,list[str]] db = {}
+
+        self._pkl_path = self._pkl_path.lstrip('.')
+
         if Path(self._pkl_path).exists() and replace:
             Path(self._pkl_path).unlink()
-            self._db = {}
         elif Path(self._pkl_path).exists() and replace is False:
             return self.load_database()
 
         pool = Pool()
-
         for result in pool.execute(
             worker,
-            self,
-            progress_bar=progress_bar
+            self._files(),
+            progress_bar=True
         ):
-            if result:
-                sha, path = result
-                if sha not in self._db:
-                    self._db[sha] = [path]
-                else:
-                    self._db[sha].append(path)
-        Path(self._pkl_path).write_bytes(pickle.dumps(self._db))
-        return self._db
+            _sha, _path = result
+            sha = _sha.decode('utf-8')
+            path = _path.decode('utf-8')
+            if not sha in db:
+                db[sha] = [path]
+            else:
+                db[sha].append(path)
+        return db
+
+
     def compare(self, other: 'Dir') -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
         cdef set[str] common_files, unique_files
@@ -255,23 +277,24 @@ cdef class Dir(File):
         return common_files, unique_files
 
 
-    def ls(self, bint follow_symlinks=False, bint recursive=True) -> Generator[os.DirEntry, None, None]: # type: ignore
+    def ls(self, bool follow_symlinks=False, bool recursive=True) -> Generator[os.DirEntry, None, None]: # type: ignore
         if not recursive:
             yield from os.scandir(self.path)
         yield from self.traverse(follow_symlinks=follow_symlinks)
 
-    def ls_dirs(self,bint follow_symlinks=False) -> Generator[str, None, None]: # type: ignore
+    def ls_dirs(self,bool follow_symlinks=False) -> Generator[str, None, None]: # type: ignore
         """Return a list of paths for all directories in self."""
         for item in self.ls():
             if item.is_dir(follow_symlinks=follow_symlinks): # type: ignore
                 yield item.path
-    def ls_files(self,bint follow_symlinks=False) -> Generator[str, None, None]: # type: ignore
+
+    def ls_files(self,bool follow_symlinks=False) -> Generator[str, None, None]: # type: ignore
         """Return a list of paths for all files in self."""
         for item in self.ls():
             if item.is_file(follow_symlinks=follow_symlinks): # type: ignore
                 yield item.path
 
-    def traverse(self, root=None, bint follow_symlinks=False) -> Generator[os.DirEntry, None, None]: # type: ignore
+    def traverse(self, root=None, bool follow_symlinks=False) -> Generator[os.DirEntry, None, None]: # type: ignore
         """Recursively traverse a directory tree starting from the given path.
 
         Yields
@@ -314,9 +337,9 @@ cdef class Dir(File):
         else:
             raise ValueError("Invalid format specifier")
 
-    def __contains__(self, File other) -> bool:
-        """Is `File` in self?"""  # noqa
-        return other.sha256() in self.db
+    # def __contains__(self, File other) -> bool:
+        # """Is `File` in self?"""  # noqa
+        # return other.sha256() in self.db
 
     def __hash__(self) -> int:
         return hash((tuple(self.content), self.is_empty))
@@ -360,6 +383,7 @@ cdef inline File _obj(str path):
     cdef tuple[str] extensions
     cdef str class_name
     cdef object FileClass
+    cdef object module
 
     pathobj = Path(path)
     if pathobj.is_dir():
@@ -390,7 +414,8 @@ def obj(file_path: str):
     """Return a File instance for the given file path."""
     return _obj(file_path)
 
-cdef inline tuple[str, str] worker(item):
+cdef inline (char*, char*) worker(File item):
     """Worker function to process items in parallel."""
-    return item.sha256(), item.path
+    return item.sha256(), item.path.encode('utf-8') # type: ignore
+
 

@@ -1,9 +1,7 @@
 """Base class and building block for all other classes defined in this library."""
-cimport cython
 import re
 from datetime import datetime
-from typing import NamedTuple
-
+from cpython cimport bool
 
 
 GIT_OBJECT_REGEX: re.Pattern
@@ -29,21 +27,19 @@ cdef class File:
     cpdef list[str] head(File, unsigned short int n = ?)
     cpdef list[str] tail(File, unsigned short int n = ?)
 
-
     cdef inline stat(File)
-    cpdef bint is_binary(File)
-    cpdef bint is_gitobject(File)
-    cpdef bint is_image(File)
-    cpdef bint is_video(File)
+    cpdef bool is_binary(File)
+    cpdef bool is_gitobject(File)
+    cpdef bool is_image(File)
+    cpdef bool is_video(File)
     cpdef DatetimeTuple times(File)
-    cpdef bint exists(File)
+    cpdef bool exists(File)
     cpdef str detect_encoding(File)
-    cdef str md5_checksum(File, unsigned int chunk_size=?)
+    cdef inline bytes md5_checksum(File, unsigned int chunk_size=?)
     cpdef str read_text(File)
     cpdef object read_json(File)
-    cpdef str sha256(File)
-    cdef bytes _read_chunk(File, unsigned int size=?, str spec=?)
+    cdef inline bytes _read_chunk(File, unsigned int size=?)
 
-
+    cdef inline bytes sha256(File)
 cdef bytes c_read_chunk(File self, unsigned int size=?)
 
