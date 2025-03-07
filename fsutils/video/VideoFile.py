@@ -19,36 +19,28 @@ from dataclasses import dataclass, field
 cv2.setLogLevel(1)
 
 
-class VideoStream(FFProbe):
-    """Wrapper around FFProbe."""
-
-    def __init__(self, path: str | Path) -> None:
-        """Init probe."""
-        super().__init__(path)
-        for stream in self.streams:
-            if stream.is_video:
-                dictitems = stream.__dict__.copy()
-                self.__dict__.update(dictitems)
-                for k, v in dictitems.items():
-                    setattr(self, k, v)
-
-
 @dataclass
 class CompressOptions:
     hwaccel: str = "cuda"
     encoder: str = "hevc_nvenc"
-    crf: int = 20
-    qp: int = 24
+    crf: int = 26
+    qp: int = 28
     rc: str = "constqp"
     preset: str = "fast"
     tune: str = "hq"
     loglevel: str = "quiet"
-    output: str = field(default_factory=str)
+    stats: str = ""
+    output: str = field(default_factory=str, kw_only=True)
 
     @classmethod
     def from_dict(cls, options: dict[str, Any]) -> "CompressOptions":
         """Create an instance of CompressOptions from a dictionary."""
         return cls(**options)
+
+    def cmd(self, input_file: str) -> list[str]:
+        """Generate a command list for ffmpeg based on the options."""
+        template = "ffmpeg -hwaccel {hwaccel} -i {input_file} -c:v {encoder} -crf {crf} -qp {qp} -rc {rc} -preset {preset} -tune {tune} -loglevel {loglevel} -y {output} {stats}"
+        return template.format(input_file=input_file, **self.__dict__).split()
 
 
 class Video(File):  # noqa: PLR0904
@@ -352,8 +344,8 @@ class Video(File):  # noqa: PLR0904
         | Flag         | Default Parameters |
         | :-------     | ------------------:|
         | -c:v         | hevc_nvenc         |
-        | -crf         | 20                 |
-        | -qp          | 24                 |
+        | -crf         | 26                 |
+        | -qp          | 28                 |
         | -rc          | constqp            |
         | -preset      | slow               |
         | -tune        | hq                 |
@@ -374,32 +366,8 @@ class Video(File):  # noqa: PLR0904
 
         options = CompressOptions(**kwargs, output=os.path.expanduser(output))
 
-        ffmpeg_cmd = [
-            "ffmpeg",
-            "-i",
-            self.path,
-            "-c:v",
-            options.encoder,
-            "-crf",
-            str(options.crf),
-            "-qp",
-            str(options.qp),
-            "-rc",
-            options.rc,
-            "-preset",
-            options.preset,
-            "-c:a",
-            "copy",
-            "-v",
-            options.loglevel,
-            "-y",
-            "-stats",
-            options.output,
-        ]
-        # print the ffmpeg command with filled in vars
-        print(" ".join(ffmpeg_cmd))
-
-        print(subprocess.check_output(ffmpeg_cmd))
+        ffmpeg_cmd = options.cmd(self.path)
+        subprocess.check_output(ffmpeg_cmd)
         return Video(options.output)
 
     def __repr__(self) -> str:

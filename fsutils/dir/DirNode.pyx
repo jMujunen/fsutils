@@ -7,7 +7,6 @@ import subprocess
 from pathlib import Path
 from typing import Optional, Iterator, Generator
 import os
-from pathlib import Path
 from cpython cimport bool
 from cython cimport nogil
 
@@ -227,12 +226,10 @@ cdef class Dir(File):
 
         """
         cdef (char*, char*) result
-        cdef bytes _sha
-        cdef bytes _path
+        cdef bytes _sha, _path, serialized_object
         cdef str sha
         cdef str path
         cdef dict[str,list[str]] db = {}
-
         self._pkl_path = self._pkl_path.lstrip('.')
 
         if Path(self._pkl_path).exists() and replace:
@@ -243,7 +240,7 @@ cdef class Dir(File):
         pool = Pool()
         for result in pool.execute(
             worker,
-            self._files(),
+            self.fileobjects(),
             progress_bar=True
         ):
             _sha, _path = result
@@ -253,6 +250,11 @@ cdef class Dir(File):
                 db[sha] = [path]
             else:
                 db[sha].append(path)
+
+        serialized_object = pickle.dumps(db)
+        with open(self._pkl_path, 'wb') as f:
+            f.write(serialized_object)
+
         return db
 
 

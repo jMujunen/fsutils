@@ -58,10 +58,10 @@ class Dir(File):
     def is_empty(self) -> bool:
         """Check if the directory is empty."""
 
-    def videos(self) -> Generator[Video, None, None]:
+    def videos(self) -> list[Video]:
         """Return a generator of Video objects for all video files."""
 
-    def images(self) -> Generator[Img, None, None]:
+    def images(self) -> list[Img]:
         """Return a generator of Img objects for all image files."""
 
     def non_media(self) -> list[File]:

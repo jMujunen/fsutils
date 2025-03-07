@@ -40,6 +40,6 @@ cdef class File:
     cpdef object read_json(File)
     cdef inline bytes _read_chunk(File, unsigned int size=?)
 
-    cdef inline bytes sha256(File)
+    cpdef bytes sha256(File)
 cdef bytes c_read_chunk(File self, unsigned int size=?)
 
