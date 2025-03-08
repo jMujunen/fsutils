@@ -7,8 +7,8 @@ import subprocess
 from pathlib import Path
 from typing import Optional, Iterator, Generator
 import os
+
 from cpython cimport bool
-from cython cimport nogil
 
 from ThreadPoolHelper import Pool
 
@@ -258,19 +258,23 @@ cdef class Dir(File):
         return db
 
 
-    def compare(self, other: 'Dir') -> tuple[set[str], set[str]]:
+    cpdef tuple[set[str], set[str]] compare(self, Dir other):#  -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
-        cdef set[str] common_files, unique_files
+        cdef set[str] common_files, unique_files, self_db, other_db
         cdef unsigned int num_files = len(set(self.ls_files()))
         cdef str template = '{key:<10} {color}{value:<10}{reset}{percentage}'
         cdef str green, purple, blue, reset
+
         green = '\033[32m'
         blue = '\033[34m'
         reset = '\033[0m'
         purple = '\033[35m'
 
-        common_files = set(self._db.keys()) & set(other._db.keys())
-        unique_files = set(self._db.keys()) - set(other._db.keys())
+        self_db = set(self._db.keys())
+        other_db = set(other._db.keys())
+
+        common_files = self_db & other_db
+        unique_files = self_db - other_db
 
         print(template.format(key='Total: ',color=purple, reset=reset, value=num_files, percentage=""))
         print(template.format(key="Common: ", color=blue, reset=reset,value=len(common_files),percentage=f"{len(common_files)/num_files*100:.0f}%"))
@@ -350,6 +354,13 @@ cdef class Dir(File):
         """Return the number of items in the object."""
         return len(list(self.traverse()))
 
+    def __contains__(self, item: File | Img | Video | Log) -> bool:
+        sha = item.sha256()
+        if isinstance(sha, bytes):
+            sha = sha.decode()
+        return sha in self._db # type: ignore
+
+
     def __iter__(self) -> Iterator[File]:
         """Yield a sequence of File instances for each item in self."""
         cdef unicode root, directory
@@ -373,7 +384,8 @@ cdef class Dir(File):
                 isinstance(other, self.__class__),
                 hash(self) == hash(other),
             ),
-        )
+        ) # type: ignore
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"# type: ignore
 

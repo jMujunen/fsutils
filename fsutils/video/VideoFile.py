@@ -376,7 +376,7 @@ class Video(File):  # noqa: PLR0904
             **vars(self)
         )
 
-    def sha256(self) -> str:
+    def sha256(self) -> bytes:
         return super().sha256()
 
     def hash(self) -> int:

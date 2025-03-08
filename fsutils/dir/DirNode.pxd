@@ -41,7 +41,7 @@ cdef class Dir(File):
     cpdef list[File] fileobjects(self)
     cpdef list videos(self)
     cpdef list images(self)
-
+    cpdef tuple[set[str], set[str]] compare(self, Dir other)
     cpdef list[File] non_media(self)
     cdef inline unsigned int stat_filter(self, dictitem)
     cpdef dict[str, int] describe(self, bool print_result=?)
