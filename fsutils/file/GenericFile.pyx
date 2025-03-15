@@ -10,6 +10,7 @@ from datetime import datetime
 import json
 from typing import Any, Type, Union
 import chardet
+from pathlib import Path
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.utils.tools import format_bytes
 from libc.stdlib cimport free, malloc, realloc
@@ -62,7 +63,7 @@ cdef class File:
         - `__str__()` : Return a string representation of the object
 
     """
-    def __init__(self, str path, str encoding="utf-8"): #-> None:
+    def __init__(self,  path, str encoding="utf-8"): #-> None:
         """Construct the File object.
 
         Paramaters:
@@ -289,7 +290,9 @@ cdef class File:
     def __hash__(self) -> int:
         """Return the hash of the file."""
         return hash(self.sha256())
-
+    def __str__(self) -> str:
+        """Return a string representation of the file."""
+        return self.path
 
 cdef bytes c_read_chunk(File self, unsigned int size=16384):
     """Read a chunk of data from the file."""
