@@ -18,6 +18,7 @@ from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.video import Video
 from fsutils.utils.tools  import format_bytes
 from fsutils.file.GenericFile cimport File
+
 cdef class Dir(File):
     """A class representing information about a directory.
 
@@ -50,6 +51,8 @@ cdef class Dir(File):
             path (str) : The path to the directory.
 
         """
+        self._db = {}
+
         if not path:
             path = './'
 
@@ -68,7 +71,7 @@ cdef class Dir(File):
             depreciated_pkl.rename(self._pkl_path)
             print(f"Renamed \033[33m{depreciated_pkl.name}\033[0m -> {self._pkl_path}")
 
-        self._db = pickle.loads(Path(self._pkl_path).read_bytes()) if Path(Path(self._pkl_path)).exists() else {}
+
 
     @property
     def dirs(self) -> list[str]:
@@ -169,12 +172,11 @@ cdef class Dir(File):
         return sorted_stat
 
 
-    # @property
-    # def db(self):
-        # if not self._db:
-            # self._db = self.load_database()
-        # else:
-            # return self._db
+    @property
+    def db(self):
+        if not self._db:
+            self._db = self.load_database()
+        return self._db
     @property
     def size(self) -> int:
         """Return the total size of all files and directories in the current directory."""
@@ -206,9 +208,7 @@ cdef class Dir(File):
 
     def load_database(self) -> dict[str, list[str]]:
         """Deserialize the pickled database."""
-        if Path(self._pkl_path).exists():
-            return pickle.loads(Path(self._pkl_path).read_bytes())
-        return {}
+        return pickle.loads(Path(self._pkl_path).read_bytes()) if Path(self._pkl_path).exists() else {}
 
 
     cpdef dict[str, list[str]] serialize(self, replace=True, progress_bar=True):
@@ -235,7 +235,7 @@ cdef class Dir(File):
         if Path(self._pkl_path).exists() and replace:
             Path(self._pkl_path).unlink()
         elif Path(self._pkl_path).exists() and replace is False:
-            return self.load_database()
+            return self.db
 
         pool = Pool()
         for result in pool.execute(
@@ -270,8 +270,8 @@ cdef class Dir(File):
         reset = '\033[0m'
         purple = '\033[35m'
 
-        self_db = set(self._db.keys())
-        other_db = set(other._db.keys())
+        self_db = set(self.db.keys())
+        other_db = set(other.db.keys())
 
         common_files = self_db & other_db
         unique_files = self_db - other_db
@@ -320,12 +320,9 @@ cdef class Dir(File):
                     continue
 
 
-    def __getitem__(self, str key) -> Generator[File, None, None]:
+    def __getitem__(self, str key) -> list[File]:
         """Get a file by name."""
-        for item in self.ls():
-            if item.name == key:
-                yield _obj(item.path)
-        raise KeyError(f"File '{key}' not found")
+        return [_obj(item.path) for item in self.ls() if item.name == key]
 
 
     def __format__(self, str format_spec, /) -> str:
@@ -358,7 +355,7 @@ cdef class Dir(File):
         sha = item.sha256()
         if isinstance(sha, bytes):
             sha = sha.decode()
-        return sha in self._db # type: ignore
+        return sha in self.db # type: ignore
 
 
     def __iter__(self) -> Iterator[File]:
