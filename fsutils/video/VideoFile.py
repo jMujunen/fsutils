@@ -12,7 +12,6 @@ import cv2
 from fsutils.file import File
 from fsutils.img import Img
 from fsutils.utils.tools import format_bytes, format_timedelta, frametimes
-from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
 from fsutils.video.FFProbe import FFProbe, FFStream
 from dataclasses import dataclass, field
 
@@ -302,7 +301,7 @@ class Video(File):  # noqa: PLR0904
                 )
                 print(f"Writing frame {count} to {output_path}")
                 cv2.imwrite(
-                    output_path,
+                    str(output_path),
                     frame,
                 )  # type: ignore
                 saved_frames.append(Img(output_path))
@@ -369,6 +368,19 @@ class Video(File):  # noqa: PLR0904
         ffmpeg_cmd = options.cmd(self.path)
         subprocess.check_output(ffmpeg_cmd)
         return Video(options.output)
+
+    def render(self) -> None:
+        """Render the video."""
+        if os.environ.get("TERM") == "xterm-kitty":
+            try:
+                subprocess.call(["mpv", self.path])
+            except Exception as e:
+                print(f"Error: {e}")
+        else:
+            try:
+                subprocess.call(["xdg-open", self.path])
+            except Exception as e:
+                print(f"Error: {e}")
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
