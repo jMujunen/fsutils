@@ -10,10 +10,12 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
-
+import seaborn as sns
 from fsutils.file import File
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
+
+type PresetType = Hwinfo | Nvidia | Custom | Ping | Gpuz
 
 
 @dataclass
@@ -58,12 +60,13 @@ class Nvidia:
     """Presets."""
 
     SEP: str = r",\s+"
-    ENCODING = "utf-8"
+    ENCODING: str = "utf-8"
     MISC_COLS: tuple[str, ...] = ("GPU1 Voltage(Milli Volts)",)
     GPU_COLS: tuple[str, ...] = ("GPU1 Frequency(MHz)", "GPU1 Memory Frequency(MHz)")
     USAGE_COLS: tuple[str, ...] = ("CPU Utilization(%)", "GPU1 Utilization(%)")
     LATENCY_COLS: tuple[str, ...] = ("Render Latency(MSec)", "Average PC Latency(MSec)")
     FPS_COLS: tuple[str, ...] = ("FPS",)
+    TEMP_COLS: tuple[str, ...] = ("",)
     INDEX_COL: int = 0
 
 
@@ -72,10 +75,10 @@ class Custom:
     """Preset columns for plotting."""
 
     SEP: str = r",\s+"
-    ENCODING = "utf-8"
+    ENCODING: str = "utf-8"
     MISC_COLS: tuple[str, ...] = ("ping", "ram_usage", "gpu_core_usage")
     GPU_COLS: tuple[str, ...] = ("gpu_temp", "gpu_core_usage", "gpu_power")
-    TEMP_COLS: tuple[str, ...] = ("system_temp", "gpu_temp", "cpu_temp")
+    TEMP_COLS: tuple[str, ...] = ("sys_temp", "gpu_core_temp", "cpu_max_temp")
     CPU_COLS: tuple[str, ...] = ("cpu_max_clock", "cpu_avg_clock")
     VOLT_COLS: tuple[str, ...] = ("gpu_voltage", "cpu_voltage")
     INDEX_COL: int = 0
@@ -86,7 +89,7 @@ class Ping:
     """Preset columns for plotting."""
 
     SEP: str = ","
-    ENCODING = "utf-8"
+    ENCODING: str = "utf-8"
     # MISC_COLS: tuple[str, ...] = lambda x: f'p
     GPU_COLS: None = None
     TEMP_COLS: None = None
@@ -119,7 +122,7 @@ class Gpuz:
     INDEX_COL: int = 0
 
 
-class Presets(Enum):
+class Presets:
     GPUZ = Gpuz
     HWINFO = Hwinfo
     CUSTOM = Custom
@@ -134,14 +137,14 @@ class LogMetaData:
     path: str = field(default_factory=str, repr=False, init=True)
     encoding: str = field(default="iso-8859-1", repr=True, init=True, kw_only=True)
     df: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
-    preset: type = field(default=Presets.CUSTOM.value, repr=False, init=True, kw_only=True)
+    preset: type = field(default=Presets.CUSTOM, repr=False, init=True, kw_only=True)
 
     def __post_init__(self):
         self.pathlibpath = Path(self.path)
         if not self.pathlibpath.exists():
             raise FileNotFoundError("The file does not exist.")
         if self.pathlibpath.suffix.lower() not in {".csv", ".txt", ".log"}:
-            return
+            raise ValueError("The file is not a valid log file.")
         self.__dict__.update(self.preset().__dict__)
 
         with contextlib.suppress(Exception):
@@ -150,7 +153,7 @@ class LogMetaData:
                 sep=self.preset.SEP,
                 encoding=self.preset.ENCODING,
                 engine="python",
-                # index_col=self.preset.INDEX_COL,
+                index_col=self.preset.INDEX_COL,
             ).head(-5)
             for col in self.df.columns:
                 with contextlib.suppress(ValueError):
@@ -182,6 +185,8 @@ class Log(File, LogMetaData):
 
     def plot(self, columns: tuple[str, ...] = Custom.TEMP_COLS, smooth_factor=1) -> None:
         missing_columns = [col for col in columns if col not in self.df.columns]
+        columns_to_plot = columns
+
         if hasattr(self.preset, "_SANITIZER"):
             parsed_data: list[tuple] = [
                 (x, float(y))
@@ -193,23 +198,28 @@ class Log(File, LogMetaData):
             ]
             self.df = pd.DataFrame(parsed_data).set_index(0)
         # Create index from timestamp
-        # if re.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", str(self.df.index[0])):
-        self.df.index = self.df[self.df.columns[self.INDEX_COL]]  # type: ignore
-        # self.df.drop(self.df.columns[self.INDEX_COL])  # type: ignore
+        r"""if re.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", str(self.df.index[0])):
+        self.df.index = self.df[self.df.columns[self.INDEX_COL]]
+        self.df.drop(self.df.columns[self.INDEX_COL])"""
+
         self.df.index = pd.to_datetime(self.df.index)
         self.df.index = self.df.index.strftime("%H:%M")
+
+        missing_columns = set(columns) - set(columns_to_plot)
         # Plot the data even if some of the specified columns are missing from the file
         if missing_columns:
             print(
-                f"\033[33m[WARNING]\033[0m Columns \033[1;4m{", ".join(missing_columns)}\033[0m do not exist in the file."
+                f"\033[33m[WARNING]\033[0m Columns \033[1;4m{', '.join(missing_columns)}\033[0m do not exist in the file."
             )
-            columns = [col for col in columns if col in self.df.columns] or self.df.columns  # type: ignore
-        print(columns)
+            columns_to_plot = [col for col in columns if col in self.df.columns] or self.df.columns
+
         # Smooth the line for easier reading of large datasets
         smooth_data = {}
+        smooth_df: pd.DataFrame = pd.DataFrame()
+
         if smooth_factor == 1:
             smooth_factor = int(self.df.shape[0] / 100) or 1
-            for column in columns:
+            for column in columns_to_plot:
                 try:
                     smooth_data[column] = np.convolve(
                         self.df[column], np.ones(smooth_factor) / smooth_factor, mode="valid"
@@ -218,7 +228,7 @@ class Log(File, LogMetaData):
                         smooth_data, index=self.df.index[: -(smooth_factor - 1)]
                     )
                 except ValueError as e:
-                    print(f"\033[31m[ERROR]\033[0m Could not smooth data for column {column}")
+                    print(f"\033[31m[ERROR]\033[0m Could not smooth data for column {column}: {e}")
                     smooth_df = self.df
 
         fig, ax = plt.subplots(
@@ -237,6 +247,7 @@ class Log(File, LogMetaData):
         # X-axis settings
         plt.xlabel("")
         ax.set_xlim(left=0, right=len(smooth_df))
+
         print(len(smooth_df.columns))
         if len(self.df.columns) == 1:
             smooth_df.plot(
@@ -257,9 +268,32 @@ class Log(File, LogMetaData):
         plt.xticks(rotation=45, fontsize=12, color="#d3c6aa")
         plt.show()
 
-    def wrangle(self):
+    def wrangle(self) -> None:
         """Sanitize the log file."""
-        header = self.head
+        self.df = self.df.select_dtypes(include="number")
+
+    def correlation(self) -> None:
+        """Calculate the correlation between columns in the log file."""
+        correlation_matrix = self.df.corr(method="pearson")
+        plt.figure(
+            figsize=(16, 10),
+            dpi=80,
+            tight_layout=True,
+        )
+        sns.heatmap(
+            correlation_matrix,
+            annot=True,
+            fmt=".2f",
+            cmap="coolwarm",
+            center=0,
+            cbar=True,
+            xticklabels=True,
+            yticklabels=True,
+            linecolor="#364146",
+            linewidths=0.5,
+        )
+        plt.title("Correlation Matrix Heatmap")
+        plt.show()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, shape={self.df.shape}, SEP=r'{self.SEP}', size_human={self.size_human})"  # type: ignore
@@ -269,13 +303,21 @@ class Log(File, LogMetaData):
         return super().__hash__()
         # return hash((type(self), self.md5_checksum()))
 
-    def compare(self, other: pd.DataFrame) -> pd.DataFrame:
+    def compare(self, other: "Log") -> pd.DataFrame:
         """Compare two log files."""
-        max_rows = min(self.df, other)
-        print(max_rows)
-        df = self.df.head(max_rows)
-        other_df = other.head(max_rows)
-        print(other_df.index)
-        print(df.index)
+        rows = min(len(self.df), len(other))
+
+        df = self.df.head(rows)
+        df.index = range(len(df))
+
+        other_df = other.df.head(rows)
+        other_df.index = range(len(other_df))
 
         return df.compare(other_df)
+
+
+if __name__ == "__main__":
+    logfile = "/tmp/hwinfo.csv"
+
+    log = Log(logfile, preset=Log.presets.CUSTOM)
+    log.plot()
