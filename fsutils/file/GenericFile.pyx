@@ -1,6 +1,7 @@
 """Base class and building block for all other classes defined in this library."""
 
 from cpython cimport bool
+cimport cython
 import hashlib
 import os
 import pickle
@@ -63,7 +64,12 @@ cdef class File:
         - `__str__()` : Return a string representation of the object
 
     """
-    def __init__(self,  path, str encoding="utf-8"): #-> None:
+    def __cinit__(self, str path, str encoding="utf-8", *args, **kwargs): #-> None:
+        """Construct the File object."""
+        self.path = path
+        self.encoding = encoding
+
+    def __init__(self, str path, str encoding="utf-8", *args, **kwargs): #-> None:
         """Construct the File object.
 
         Paramaters:
@@ -74,7 +80,7 @@ cdef class File:
         try:
             self.path = os.path.abspath(os.path.expanduser(str(path)))
             self.encoding = encoding
-            if not os.path.exists(path):
+            if not os.path.exists(self.path):
                 raise FileNotFoundError(f"File '{path}' does not exist")
         except PermissionError as e:
             print(f"Permission denied to access file {self.name}: {e!r}")

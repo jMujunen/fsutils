@@ -43,7 +43,7 @@ class Img(File):  # noqa - FIXME: Too many methods
         ----------
             - `path (str)` : The absolute path to the file.
         """
-        super().__init__(path)
+        super().__init__(str(path))
 
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash:
         """Calculate the hash value of the image.
@@ -71,10 +71,11 @@ class Img(File):  # noqa - FIXME: Too many methods
                     raise ValueError("Invalid specification for hash algorithm")
         return img_hash
 
-    def dimensions(self) -> NamedTuple:
+    @property
+    def dimensions(self) -> tuple[int, int]:
         """Extract the dimensions of the image as a tuple."""
         with Image.open(self.path) as img:
-            return Dims(*img.size)
+            return img.size
 
     @property
     def tags(self) -> list[tuple[str, Any]]:
@@ -146,7 +147,7 @@ class Img(File):  # noqa - FIXME: Too many methods
     @property
     def aspect_ratio(self) -> float:
         """Calculate and return the aspect ratio of an image."""
-        width, height = self.dimensions()
+        width, height = self.dimensions
         return round(width / height, 3)
 
     @staticmethod
@@ -351,4 +352,4 @@ class Img(File):  # noqa - FIXME: Too many methods
         return f"\033[1m{header}\033[0m\n{linebreak}"  # type: ignore
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, dimensions={self.dimensions()})"
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, dimensions={self.dimensions})"
