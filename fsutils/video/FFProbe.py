@@ -196,11 +196,14 @@ class FFProbe:
             - `path_to_video (str)` : Path to video file.
         """
         self.streams = []
-        cmd = 'ffprobe -print_format json -show_streams "{path}" -v quiet'
-        data = json.loads(subprocess.getoutput(cmd.format(path=filepath))).get("streams", [])
+        cmd = "ffprobe -v error -show_streams -show_format -output_format json file:'{filepath}'"  # noqa: RUF027
+        data = json.loads(subprocess.getoutput(cmd.format(filepath=filepath)))
+        streams = data.get("streams", [])
+        self.fmt = data.get("format", {})
 
-        if not data:
+        if not streams:
             raise FFProbeError(f"No streams found in file {filepath}")
 
-        for stream in data:
-            self.streams.append(FFStream(stream))
+        for stream in streams:
+            FFStream.__init__(self, stream)
+            # self.streams.append(FFStream(stream))

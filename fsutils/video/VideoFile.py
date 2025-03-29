@@ -27,7 +27,7 @@ class CompressOptions:
     rc: str = "constqp"
     preset: str = "fast"
     tune: str = "hq"
-    loglevel: str = "quiet"
+    loglevel: str = "error"
     stats: str = ""
     output: str = field(default_factory=str, kw_only=True)
 
@@ -42,7 +42,26 @@ class CompressOptions:
         return template.format(input_file=input_file, **self.__dict__).split()
 
 
-class Video(File):  # noqa: PLR0904
+@dataclass
+class FFMPEG_GIF_OPTIONS:
+    """FFMPEG_GIF_OPTIONS class."""
+
+    scale: int = 750
+    fps: int = 15
+    loglevel: str = "error"
+    loop: int = -1
+    output: str = field(default_factory=str, kw_only=True)
+
+    def cmd(self, input_file: str) -> list[str]:
+        """Generate a command list for ffmpeg based on the options."""
+
+        template = "ffmpeg -i {input} -vf fps={fps},scale={scale!s}:-1:flags=lanczos -v {loglevel} -loop {loop} -y -stats {output}"
+        return template.format(input_file=input_file, **self.__dict__).split()
+
+        return template.format(input_file=input_file, **self.__dict__).split()
+
+
+class Video(File, FFProbe):  # noqa: PLR0904
     """A class representing information about a video.
 
     | Method | Description |
@@ -68,6 +87,9 @@ class Video(File):  # noqa: PLR0904
         - `bitrate`
     """
 
+    _metadata: FFStream | None = None
+    _fmt: dict[str, Any] | None = None
+
     def __init__(self, path: str | Path, *args, **kwargs) -> None:
         """Initialize a new Video object.
 
@@ -76,8 +98,11 @@ class Video(File):  # noqa: PLR0904
             - `path (str)` : The absolute path to the video file.
 
         """
-        super().__init__(path, *args, **kwargs)
-        self._metadata = None
+        File.__init__(self, str(path), *args, **kwargs)
+        FFProbe.__init__(self, path)
+        # FFProbe.__init__(self, path)
+        # vid_stream = FFProbe(path).streams[0]
+        # FFStream.__init__(self, vid_stream.__dict__)
 
     @property
     def metadata(self) -> FFStream:
@@ -97,7 +122,7 @@ class Video(File):  # noqa: PLR0904
     def bitrate(self) -> int:
         """Extract the bitrate/s with metadata."""
         try:
-            return round(int(self.metadata.bit_rate))
+            return round(int(self.bit_rate))
         except ZeroDivisionError:
             if self.is_corrupt:
                 print(f"\033[31m{self.name} is corrupt!\033[0m")
@@ -111,14 +136,10 @@ class Video(File):  # noqa: PLR0904
         return None
 
     @property
-    def duration(self) -> int:
-        return round(float(self.metadata.duration))
-
-    @property
     def capture_date(self) -> datetime:
         """Return the capture date of the file."""
         try:
-            date, time = self.metadata.tags.get("creation_time", "").split("T")
+            date, time = self.tags.get("creation_time", "").split("T")
             year, month, day = date.split("-")
             hour, minute, second = time.split(".")[0].split(":")
             return datetime(
@@ -135,12 +156,12 @@ class Video(File):  # noqa: PLR0904
     @property
     def codec(self) -> str | None:
         """Codec eg `H264` | `H265`."""
-        return self.metadata.codec
+        return self.codec
 
     @property
     def dimensions(self) -> tuple[int, int] | None:
         """Return width and height of the video `(1920x1080)`."""
-        return self.metadata.frame_size
+        return self.frame_size
 
     @property
     def is_corrupt(self) -> bool:
@@ -156,19 +177,19 @@ class Video(File):  # noqa: PLR0904
     @property
     def fps(self) -> int:
         """Return the frames per second of the video."""
-        enum, denum = map(int, self.metadata.avg_frame_rate.split("/"))
+        enum, denum = map(int, self.avg_frame_rate.split("/"))
         return round(enum / denum)
 
     @property
     def num_frames(self) -> int:
         """Return the number of frames in the video."""
         num_frames = 0
-        if hasattr(self.metadata, "nb_frames"):
-            num_frames = self.metadata.nb_frames
+        if hasattr(self, "nb_frames"):
+            num_frames = self.nb_frames
         else:
             try:
                 num_frames = round(cv2.VideoCapture(self.path).get(cv2.CAP_PROP_FRAME_COUNT))
-                self.metadata.nb_frames = num_frames
+                self.nb_frames = num_frames
             except Exception as e:
                 print(f"Error getting num_frames with cv2: {e!r}")
         return num_frames
@@ -214,7 +235,7 @@ class Video(File):  # noqa: PLR0904
             print(f"\033[31mError:\033[0m{e!r}")
         return None
 
-    def make_gif(self, scale=640, fps=15, **kwargs: Any) -> Img:
+    def make_gif(self, scale=640, fps=15, loop=False, **kwargs: Any) -> Img:
         """Convert the video to a gif using FFMPEG.
 
         Parameters
@@ -235,6 +256,7 @@ class Video(File):  # noqa: PLR0904
         --------
             - `Img` : New `Img` object of the gif created from this video file.
         """
+
         output = kwargs.get("output", f"{self.parent}/{self.prefix}{'.gif'}")
         output_path = Path(output)
         if output_path.exists():
@@ -243,6 +265,7 @@ class Video(File):  # noqa: PLR0904
             else:
                 print("Not overwriting existing file")
                 return Img(output_path)
+
         subprocess.check_output([
             "ffmpeg",
             "-i",
@@ -251,8 +274,7 @@ class Video(File):  # noqa: PLR0904
             f"fps={fps},scale={scale!s}:-1:flags=lanczos",
             "-v",
             "error",
-            "-loglevel",
-            "quiet",
+            "-stats",
             f"{output_path}",
         ])
         return Img(output_path)
@@ -304,7 +326,7 @@ class Video(File):  # noqa: PLR0904
                     str(output_path),
                     frame,
                 )  # type: ignore
-                saved_frames.append(Img(output_path))
+                saved_frames.append(Img(str(output_path)))
                 # drop the duration spot from the list, since this duration spot is already saved
                 with contextlib.suppress(IndexError):
                     frametime_refs.pop(0)
@@ -331,7 +353,7 @@ class Video(File):  # noqa: PLR0904
             f"ffmpeg -ss {start} -to {end} -i {self!s} -codec copy -v quiet -y {output_path}",
             shell=True,
         )
-        return Video(output_path)
+        return Video(str(output_path))
 
     def compress(self, **kwargs: Any) -> "Video":
         """Transcode video.
@@ -346,9 +368,9 @@ class Video(File):  # noqa: PLR0904
         | -crf         | 26                 |
         | -qp          | 28                 |
         | -rc          | constqp            |
-        | -preset      | slow               |
+        | -preset      | fast               |
         | -tune        | hq                 |
-        | -v           | quiet              |
+        | -v           | error              |
         | --output     | ./origname.mp4     |
 
         Examples
@@ -366,7 +388,7 @@ class Video(File):  # noqa: PLR0904
         options = CompressOptions(**kwargs, output=os.path.expanduser(output))
 
         ffmpeg_cmd = options.cmd(self.path)
-        subprocess.check_output(ffmpeg_cmd)
+        print(subprocess.getoutput(" ".join(ffmpeg_cmd)))
         return Video(options.output)
 
     def render(self) -> None:
@@ -413,7 +435,7 @@ class Video(File):  # noqa: PLR0904
             self.size_human,
             self.codec,
             self.duration,
-            self.metadata.frame_rate,
+            self.frame_rate,
             self.dimensions,
         )
 
