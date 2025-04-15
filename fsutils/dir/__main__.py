@@ -3,10 +3,10 @@ import argparse
 from .DirNode import Dir
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="A collection of fsutils.dir utilities")
-    subparsers = parser.add_subparsers(help="commands", dest="action")
+    subparsers = parser.add_subparsers(title="Commands", help="commands", dest="action")
 
     serialize = subparsers.add_parser("serialize", help="Serialize directory")
     serialize.add_argument("PATH", help="Directory to serialize", default="./")
@@ -22,12 +22,31 @@ def parse_args() -> argparse.Namespace:
     )
     describe.add_argument("PATH", help="Target directory", nargs="?", default="./")
     describe.add_argument("--size", "-s", help="Include sum of the file sizes in the results")
-    return parser.parse_args()
+    return parser.parse_args(), parser
 
 
-def main(dir_path: str, action: str, *args, **kwargs) -> int:
+def serialize() -> int:
+    parser = argparse.ArgumentParser(
+        description="Serialize directory, mapping filepaths to their hash values"
+    )
+    parser.add_argument("PATH", help="Directory to serialize", default="./")
+    args = parser.parse_args()
+    path = Dir(args.PATH)
+    path.serialize(replace=True)
+    return 0
+
+
+def main() -> int | str:
+    args, parser = parse_args()
+    try:
+        filepath = args.PATH
+        action = args.action
+    except AttributeError:
+        parser.print_help()
+        return -1
+
     """Execute the given action."""
-    path = Dir(dir_path)
+    path = Dir(filepath)
     match action:
         case "serialize":
             db = path.serialize(replace=True)
@@ -42,5 +61,4 @@ def main(dir_path: str, action: str, *args, **kwargs) -> int:
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    main(args.PATH, args.action)
+    main()

@@ -1,6 +1,6 @@
 """Base class and building block for all other classes defined in this library."""
 
-from cpython cimport bool
+import cython
 cimport cython
 import hashlib
 import os
@@ -9,9 +9,8 @@ import re
 from collections.abc import Iterator
 from datetime import datetime
 import json
-from typing import Any, Type, Union
+from typing import Any
 import chardet
-from pathlib import Path
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.utils.tools import format_bytes
 from libc.stdlib cimport free, malloc, realloc
@@ -98,43 +97,43 @@ cdef class File:
             return self.content[-n:]
         return self.content
 
-    cdef inline stat(self):
+    def stat (self) -> os.stat_result:
         """Call os.stat() on the file path."""
         return os.stat(self.path)
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Return the file name with extension."""
         return os.path.basename(self.path)
 
     @property
-    def parent(self):
+    def parent(self) -> str:
         """Return the parent directory path of the file."""
         return os.path.dirname(self.path)
 
     @property
-    def size_human(self):
+    def size_human(self) -> str:
         """Return the size of the file in human readable format."""
         return format_bytes(self.size)
 
     @property
-    def size(self):# -> int:
+    def size(self) -> int:
         """Return the size of the file in bytes."""
         return int(self.stat().st_size) # type: ignore
 
     @property
-    def prefix(self):
+    def prefix(self) -> str:
         """Return the file name without extension."""
         return self.stem
 
     @property
-    def stem(self):
+    def stem(self) -> str:
         """Return the file name without extension."""
         cdef str stem, _
         stem, _ = os.path.splitext(self.name)
         return stem
     @stem.setter
-    def stem(self, value: str):
+    def stem(self, str value) -> None:
         """Set the file name without extension."""
         self._stem = value
 
@@ -145,11 +144,11 @@ cdef class File:
         _, suffix = os.path.splitext(self.path)
         return suffix
     @suffix.setter
-    def  suffix(self, value: str):
+    def  suffix(self, str value) -> None:
         """Set the file extension."""
         self._suffix = value
 
-    cpdef bool is_binary(self):# -> bool:
+    def is_binary(self) -> bool:
         """Check for null bytes in the file contents, telling us its binary data."""
         cdef bytes chunk
         cdef unsigned int byte
@@ -173,15 +172,15 @@ cdef class File:
         return self.read_text().splitlines()
 
 
-    cpdef bool is_gitobject(self): # -> bool:
+    def  is_gitobject(self) -> bool:
         """Check if the file is a git object."""
         return GIT_OBJECT_REGEX.match(self.name) is not None # type:ignore
 
-    cpdef bool is_image(self): # -> bool:
+    def  is_image(self) -> bool:
         """Check if the file is an image."""
         return self.suffix.lower() in FILE_TYPES["img"] # type: ignore
 
-    cpdef bool is_video(self):# -> bool:
+    def  is_video(self) -> bool:
         """Check if the file is a video."""
         return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video")) # type: ignore
     @property
@@ -189,11 +188,11 @@ cdef class File:
         """Return the last modification time of the file."""
         return datetime.fromtimestamp(self.stat().st_mtime)
     @property
-    def ctime(self):# -> datetime:
+    def ctime(self) -> datetime:
         """Return the last metadata change of the file."""
         return datetime.fromtimestamp(self.stat().st_ctime)
     @property
-    def atime(self):# -> datetime:
+    def atime(self)  -> datetime:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
@@ -201,16 +200,13 @@ cdef class File:
     def parts(self) -> tuple[str]:
         return tuple(self.path.split(os.sep))
 
-    cpdef DatetimeTuple times(self): #  type: ignore
+    def times(self) -> tuple[datetime, datetime, datetime]:
         """Return access, modification, and creation times of a file."""
-        cdef double a, m ,c
-        a, m, c = self.stat()[-3:] # type: ignore
-        return datetime.fromtimestamp(m), datetime.fromtimestamp(a), datetime.fromtimestamp(c) # type: ignore
+        return tuple(map(datetime.fromtimestamp, self.stat()[-3:]))
 
-    cpdef bool exists(self):# -> bool:
+    def exists(self) -> bool:
         """Check if the file exists."""
         return os.path.exists(self.path) # type: ignore
-
 
     def __iter__(self) -> Iterator[str|bytes]:
         """Iterate over the lines of a file."""
@@ -237,7 +233,7 @@ cdef class File:
         """
         return any(item in line for line in self) # type: ignore
 
-    def __eq__(self, other: "File", /) -> bool:
+    def __eq__(self, File other, /) -> bool:
         """Compare two FileObjects.
 
         Paramaters
@@ -254,7 +250,7 @@ cdef class File:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, encoding={self.encoding}, size={self.size_human}"
 
-    cpdef str detect_encoding(self):# -> str:
+    cpdef str detect_encoding(self):
         """Detect encoding of the file."""
         cdef unsigned short int chunk_size = 2048
         cdef str encoding = chardet.detect(self._read_chunk(chunk_size))["encoding"] or self.encoding
@@ -273,7 +269,6 @@ cdef class File:
 
         """
         return hashlib.md5(self._read_chunk(chunk_size)).hexdigest().encode('utf-8')
-
 
     cpdef str read_text(self):
         """Read the contents of the file as a string."""
@@ -299,6 +294,7 @@ cdef class File:
     def __str__(self) -> str:
         """Return a string representation of the file."""
         return self.path
+
 
 cdef bytes c_read_chunk(File self, unsigned int size=16384):
     """Read a chunk of data from the file."""
@@ -331,4 +327,5 @@ cdef bytes c_read_chunk(File self, unsigned int size=16384):
     finally:
         # Free the allocated memory for the buffer
         free(buffer) # type: ignore
+
 

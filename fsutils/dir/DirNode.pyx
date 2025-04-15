@@ -11,19 +11,15 @@ from pathlib import Path
 from typing import Optional, Iterator, Generator
 import os
 cimport cython
-
+from collections import defaultdict
 
 from cython cimport nogil
 from ThreadPoolHelper import Pool
 from fsutils.img import Img
-from fsutils.log import Log
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.video import Video
 from fsutils.utils.tools  import format_bytes
 from fsutils.file.GenericFile cimport File
-
-
-
 
 
 cdef class Dir(File):
@@ -54,7 +50,6 @@ cdef class Dir(File):
         self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")) # type: ignore
         self._db = {}
 
-
     def __init__(self, path: Optional[str] = None) -> None:
         """Initialize a new instance of the Dir class.
 
@@ -63,7 +58,6 @@ cdef class Dir(File):
             path (str) : The path to the directory.
 
         """
-        self._db = {}
 
         if not path:
             path = './'
@@ -170,12 +164,12 @@ cdef class Dir(File):
 
 
     @property
-    def db(self) -> dict[str, list[str]]:
+    def db(self) -> dict[str, set[str]]:
         if not self._db:
             self._db = self.load_database()
         return self._db
     @db.setter
-    def db(self, value: dict[str, list[str]]):
+    def db(self, value: dict[str, set[str]]):# -> dict[str, set[str]]:
         self._db = value
     @property
     def size(self) -> int:
@@ -185,7 +179,11 @@ cdef class Dir(File):
                 return self._size
         awk = "awk '{ print $1 }'"
         cmd = f'du -bsx "{self.path}" | {awk}'
-        self._size = int(subprocess.getoutput(cmd).strip())
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        if result.stdout.strip():
+            self._size = int(result.stdout.strip())
+        else:
+            self._size = 0
         return self._size
 
     @property
@@ -202,17 +200,17 @@ cdef class Dir(File):
             - num_keep (int): The number of copies of each file to keep.
             - updatedb (bint): If True, re-calculate the hash values for all files
         """
-        cdef dict[str, list[str]] hashes
+        cdef dict[str, set[str]] hashes
         hashes = self.serialize(replace=updatedb) # type: ignore
-        return [value for value in hashes.values() if len(value) > num_keep]
+        return [list(value) for value in hashes.values() if len(value) > num_keep]
 
-    def load_database(self) -> dict[str, list[str]]:
+    def load_database(self) -> dict[str, set[str]]:
         """Deserialize the pickled database."""
         return pickle.loads(Path(self._pkl_path).read_bytes()) if Path(self._pkl_path).exists() else {}
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef dict[str, list[str]] serialize(self, bint replace=True, bint progress_bar=True):
+    cpdef dict[str, set[str]] serialize(self, bint replace=True, bint progress_bar=True):
         """Create an hash index of all files in self.
 
         Paramaters
@@ -226,12 +224,16 @@ cdef class Dir(File):
              and the values are lists of file paths.
 
         """
-        cdef (char*, char*) result
-        cdef bytes _sha, _path, serialized_object
+        cdef tuple[str, str] result
+
+        cdef bytes serialized_object
+
         cdef str sha
         cdef str path
-        cdef dict[str,list[str]] db = {}
+
         self._pkl_path = self._pkl_path.lstrip('.')
+
+        cdef _ = defaultdict(set)
 
         if Path(self._pkl_path).exists() and replace:
             Path(self._pkl_path).unlink()
@@ -241,22 +243,18 @@ cdef class Dir(File):
         pool = Pool()
         for result in pool.execute(
             worker,
-            self.fileobjects(),
+            self.files,
             progress_bar=True
         ):
-            _sha, _path = result
-            sha = _sha.decode('utf-8')
-            path = _path.decode('utf-8')
-            if not sha in db:
-                db[sha] = [path]
-            else:
-                db[sha].append(path)
-        self.db = db
-        serialized_object = pickle.dumps(db)
+            sha, path = result
+            _[sha].add(path)
+
+        self.db = dict(_)
+        serialized_object = pickle.dumps(self.db)
         with open(self._pkl_path, 'wb') as f:
             f.write(serialized_object)
 
-        return db
+        return self.db
 
 
     cpdef tuple[set[str], set[str]] compare(self, Dir other):#  -> tuple[set[str], set[str]]:
@@ -354,7 +352,7 @@ cdef class Dir(File):
         """Return the number of items in the object."""
         return len(list(self.traverse()))
 
-    def __contains__(self, item: File | Img | Video | Log) -> bint:
+    def __contains__(self, item: File) -> bint:
         sha = item.sha256()
         if isinstance(sha, bytes):
             sha = sha.decode()
@@ -428,9 +426,11 @@ cpdef File obj(str file_path):
     """Return a File instance for the given file path."""
     return _obj(file_path)
 
-cdef inline (char*, char*) worker(File item):
+
+cdef inline tuple[str, str] worker(str filepath):
     """Worker function to process items in parallel."""
-    return item.sha256(), item.path.encode('utf-8') # type: ignore
+    cdef File item = File.__new__(File, filepath)
+    return item.sha256().decode('utf-8'), item.path
 
 cdef int stat_result(item):
     return item[1]

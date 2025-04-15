@@ -25,9 +25,9 @@ cdef class Dir(File):
         - `directories` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
-    cdef public str _pkl_path
-    cdef public unsigned long int _size
-    cdef public dict[str, list[str]] _db
+    cdef str _pkl_path
+    cdef unsigned long int _size
+    cdef dict[str, set[str]] _db
 
     cpdef list[File] fileobjects(self)
     cpdef list videos(self)
@@ -35,10 +35,10 @@ cdef class Dir(File):
     cpdef tuple[set[str], set[str]] compare(self, Dir other)
     cpdef list[File] non_media(self)
     cpdef dict[str, int] describe(self, bint print_result=?)
-    cpdef dict[str, list[str]] serialize(self, bint replace=?, bint progress_bar=?)
+    cpdef dict[str, set[str]] serialize(self, bint replace=?, bint progress_bar=?)
 
 cdef inline File _obj(str path)
 
 cpdef File obj(str file_path)
-cdef inline (char*, char*) worker(File item)
+cdef inline tuple[str, str] worker(str filepath)
 

@@ -1,11 +1,8 @@
 """Base class and building block for all other classes defined in this library."""
 import re
-from datetime import datetime
-from cpython cimport bool
-
+cimport cython
 
 GIT_OBJECT_REGEX: re.Pattern
-ctypedef tuple[datetime, datetime, datetime] DatetimeTuple
 
 
 cdef extern from "stdio.h":
@@ -19,21 +16,13 @@ cdef extern from "stdio.h":
 
 
 cdef class File:
-    cdef public str _suffix
-    cdef public str _stem
+    cdef str _suffix
+    cdef str _stem
     cdef public str path
     cdef public str encoding
-    # def  __init__(self, path: str | None, encoding: str ='utf-8') -> None: ...
     cpdef list[str] head(File, unsigned short int n = ?)
     cpdef list[str] tail(File, unsigned short int n = ?)
 
-    cdef inline stat(File)
-    cpdef bool is_binary(File)
-    cpdef bool is_gitobject(File)
-    cpdef bool is_image(File)
-    cpdef bool is_video(File)
-    cpdef DatetimeTuple times(File)
-    cpdef bool exists(File)
     cpdef str detect_encoding(File)
     cdef inline bytes md5_checksum(File, unsigned int chunk_size=?)
     cpdef str read_text(File)

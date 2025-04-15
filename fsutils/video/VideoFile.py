@@ -82,7 +82,6 @@ class Video(File, FFProbe):  # noqa: PLR0904
         - `is_corrupt`
         - `duration`
         - `size`
-        - `codec`
         - `dimensions`
         - `bitrate`
     """
@@ -99,7 +98,8 @@ class Video(File, FFProbe):  # noqa: PLR0904
 
         """
         File.__init__(self, str(path), *args, **kwargs)
-        FFProbe.__init__(self, path)
+        for k, v in FFProbe(path).streams[0].__dict__.items():
+            setattr(self, k, v)
         # FFProbe.__init__(self, path)
         # vid_stream = FFProbe(path).streams[0]
         # FFStream.__init__(self, vid_stream.__dict__)
@@ -120,20 +120,15 @@ class Video(File, FFProbe):  # noqa: PLR0904
 
     @property
     def bitrate(self) -> int:
-        """Extract the bitrate/s with metadata."""
-        try:
-            return round(int(self.bit_rate))
-        except ZeroDivisionError:
-            if self.is_corrupt:
-                print(f"\033[31m{self.name} is corrupt!\033[0m")
-            return 0
+        return int(self.bit_rate)
 
     @property
-    def bitrate_human(self) -> str | None:
+    def bitrate_human(self) -> str:
         """Return the bitrate in a human readable format."""
-        if self.bitrate is not None and self.bitrate > 0:
+        try:
             return format_bytes(self.bitrate)
-        return None
+        except Exception:
+            return ""
 
     @property
     def capture_date(self) -> datetime:
@@ -156,14 +151,13 @@ class Video(File, FFProbe):  # noqa: PLR0904
     @property
     def codec(self) -> str | None:
         """Codec eg `H264` | `H265`."""
-        return self.codec
+        return self.__dict__.get("codec_name", None)
 
     @property
     def dimensions(self) -> tuple[int, int] | None:
         """Return width and height of the video `(1920x1080)`."""
-        return self.frame_size
+        return self.width, self.height
 
-    @property
     def is_corrupt(self) -> bool:
         """Check if the video is corrupt."""
         try:
@@ -192,7 +186,7 @@ class Video(File, FFProbe):  # noqa: PLR0904
                 self.nb_frames = num_frames
             except Exception as e:
                 print(f"Error getting num_frames with cv2: {e!r}")
-        return num_frames
+        return int(num_frames)
 
     def make_hq_gif(self, scale=640, fps=24, **kwargs) -> Img | None:
         """Convert the video to a high-quality gif using FFMPEG.
@@ -435,7 +429,7 @@ class Video(File, FFProbe):  # noqa: PLR0904
             self.size_human,
             self.codec,
             self.duration,
-            self.frame_rate,
+            self.framerate,
             self.dimensions,
         )
 

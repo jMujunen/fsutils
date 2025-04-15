@@ -9,6 +9,7 @@ from pathlib import Path
 from fsutils.utils.Exceptions import CorruptMediaError, FFProbeError
 
 
+@dataclass
 class FFStream:
     """An object representation of an individual stream in a multimedia file."""
 
@@ -56,7 +57,9 @@ class FFStream:
 
     def __init__(self, index: dict) -> None:
         """Initialize the FFStream object."""
-        self.__dict__.update(index)
+        # Update the metadata dictionary with the index dictionary
+        for k, v in index.items():
+            setattr(self, k, v)
         try:
             self.__dict__["framerate"] = round(
                 functools.reduce(
@@ -68,8 +71,6 @@ class FFStream:
             self.__dict__["framerate"] = None
         except ZeroDivisionError:
             self.__dict__["framerate"] = 0
-            for k, v in self.__dict__.items():
-                setattr(self, k, v)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({',\n\t'.join(f'{k}={v!r}' for k, v in self.__dict__.items())}\n)"
@@ -195,15 +196,13 @@ class FFProbe:
         ------------
             - `path_to_video (str)` : Path to video file.
         """
-        self.streams = []
         cmd = "ffprobe -v error -show_streams -show_format -output_format json file:'{filepath}'"  # noqa: RUF027
-        data = json.loads(subprocess.getoutput(cmd.format(filepath=filepath)))
+        data = json.loads(subprocess.getoutput(cmd.format(filepath=str(filepath))))
         streams = data.get("streams", [])
         self.fmt = data.get("format", {})
-
         if not streams:
             raise FFProbeError(f"No streams found in file {filepath}")
+        self.streams = [FFStream(stream) for stream in streams]
 
-        for stream in streams:
-            FFStream.__init__(self, stream)
-            # self.streams.append(FFStream(stream))
+        # for stream in streams:
+        # FFStream.__init__(self, stream)
