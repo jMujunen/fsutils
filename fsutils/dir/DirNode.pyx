@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Optional, Iterator, Generator
 import os
 cimport cython
-from collections import defaultdict
+
+from libc.stdlib cimport malloc, free
+from libc.stdint cimport uint8_t
 
 from cython cimport nogil
 from ThreadPoolHelper import Pool
@@ -207,54 +209,52 @@ cdef class Dir(File):
     def load_database(self) -> dict[str, set[str]]:
         """Deserialize the pickled database."""
         return pickle.loads(Path(self._pkl_path).read_bytes()) if Path(self._pkl_path).exists() else {}
-
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef dict[str, set[str]] serialize(self, bint replace=True, bint progress_bar=True):
+    def serialize(self, bint replace=True) ->  dict[str, set[str]]:
         """Create an hash index of all files in self.
 
         Paramaters
         ----------
             - replace (bint): If True, re-calculate the hash values for all files
-            - progress_bar (bint): If True, show a progress bar while calculating hashes.
 
         Returns
         -------
-            - dict[str, list[str]]: A dictionary where the keys are hash values
-             and the values are lists of file paths.
+            - dict[str, set[str]]: A dictionary where the keys are hash values
+                and the values are lists of file paths.
 
         """
-        cdef tuple[str, str] result
+        cdef bytes _path = self.path.encode('utf-8')
+        cdef char* path = <char*>_path
+        cdef HashMap *_map
+        cdef char* _filepath
+        cdef uint8_t _sha[32]
 
-        cdef bytes serialized_object
-
-        cdef str sha
-        cdef str path
+        mapping = defaultdict(set)
 
         self._pkl_path = self._pkl_path.lstrip('.')
-
-        cdef _ = defaultdict(set)
-
         if Path(self._pkl_path).exists() and replace:
             Path(self._pkl_path).unlink()
         elif Path(self._pkl_path).exists() and replace is False:
             return self.db
 
-        pool = Pool()
-        for result in pool.execute(
-            worker,
-            self.files,
-            progress_bar=True
-        ):
-            sha, path = result
-            _[sha].add(path)
+        with nogil:
+            _map = hashDirectory(path)
+        if _map is not NULL:
+            for i in range(_map.size):
+                _filepath = _map.entries[i].filepath
+                _sha = _map.entries[i].sha.hash
+                sha = ''.join([format(_sha[i], '02x') for i in range(0,32)])
+                mapping[sha].add(_filepath.decode('utf-8'))
+            free(_map.entries)
+            free(_map)
 
-        self.db = dict(_)
+        self.db = dict(mapping)
         serialized_object = pickle.dumps(self.db)
         with open(self._pkl_path, 'wb') as f:
             f.write(serialized_object)
-
         return self.db
+
 
 
     cpdef tuple[set[str], set[str]] compare(self, Dir other):#  -> tuple[set[str], set[str]]:
@@ -388,7 +388,6 @@ cdef class Dir(File):
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"# type: ignore
 
 
-
 cdef inline File _obj(str path):
     """Return a File object for the given path."""
     cdef unicode ext, file_type
@@ -426,11 +425,6 @@ cpdef File obj(str file_path):
     """Return a File instance for the given file path."""
     return _obj(file_path)
 
-
-cdef inline tuple[str, str] worker(str filepath):
-    """Worker function to process items in parallel."""
-    cdef File item = File.__new__(File, filepath)
-    return item.sha256().decode('utf-8'), item.path
 
 cdef int stat_result(item):
     return item[1]

@@ -2,17 +2,24 @@ from Cython.Build import cythonize
 from setuptools import setup
 from setuptools.extension import Extension
 
+openssl_include = "/usr/include/openssl"
+openssl_lib = "/usr/lib"
+
 ext_modules = [
     Extension(
         "fsutils.dir.DirNode",
         ["fsutils/dir/DirNode.pyx"],
-        libraries=["m"],
-        extra_compile_args=["-ffast-math", "-O3", "-Wall", "-Wextra"],
+        include_dirs=[openssl_include],
+        libraries=["ssl", "crypto"],
+        library_dirs=[openssl_lib],
+        extra_compile_args=["-DCYTHON_FAST_GIL", "-ffast-math", "-O3", "-Wall", "-Wextra"],
     ),
     Extension(
         "fsutils.file.GenericFile",
         ["fsutils/file/GenericFile.pyx"],
-        libraries=["m"],
+        include_dirs=[openssl_include],
+        libraries=["ssl", "crypto"],
+        library_dirs=[openssl_lib],
         extra_compile_args=["-ffast-math", "-O3", "-Wall", "-Wextra"],
     ),
 ]

@@ -196,7 +196,7 @@ class FFProbe:
         ------------
             - `path_to_video (str)` : Path to video file.
         """
-        cmd = "ffprobe -v error -show_streams -show_format -output_format json file:'{filepath}'"  # noqa: RUF027
+        cmd = 'ffprobe -v error -show_streams -show_format -output_format json file:"{filepath}"'  # noqa: RUF027
         data = json.loads(subprocess.getoutput(cmd.format(filepath=str(filepath))))
         streams = data.get("streams", [])
         self.fmt = data.get("format", {})

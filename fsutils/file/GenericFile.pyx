@@ -1,19 +1,15 @@
 """Base class and building block for all other classes defined in this library."""
 
-import cython
 cimport cython
-import hashlib
 import os
-import pickle
 import re
 from collections.abc import Iterator
 from datetime import datetime
 import json
 from typing import Any
-import chardet
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.utils.tools import format_bytes
-from libc.stdlib cimport free, malloc, realloc
+# from fsutils.utils.csha  cimport sha256 as _sha256
 
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
@@ -184,7 +180,7 @@ cdef class File:
         """Check if the file is a video."""
         return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video")) # type: ignore
     @property
-    def  mtime(self):
+    def mtime(self):
         """Return the last modification time of the file."""
         return datetime.fromtimestamp(self.stat().st_mtime)
     @property
@@ -250,43 +246,36 @@ cdef class File:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, encoding={self.encoding}, size={self.size_human}"
 
-    cpdef str detect_encoding(self):
-        """Detect encoding of the file."""
-        cdef unsigned short int chunk_size = 2048
-        cdef str encoding = chardet.detect(self._read_chunk(chunk_size))["encoding"] or self.encoding
-        if encoding == 'ascii':
-            encoding = 'utf-8'
-        return encoding
+    def _read_chunk(self, chunk_size: int = 16384) -> bytes:
+        """Read a chunk of the file.
 
-
-    cdef inline bytes md5_checksum(self, unsigned int chunk_size=16384):
+        Args:
+        -----
+           chunk_size (int): The size of the chunk to read. Defaults to 16384 bytes.
+        Returns:
+        --------
+           bytes: The chunk of data read from the file.
         """
-        Calculate the MD5 checksum of the file from the specified chunk.
-
-        Parameters
-        ----------
-            chunk_size : int, optional (default=16384)
-
-        """
-        return hashlib.md5(self._read_chunk(chunk_size)).hexdigest().encode('utf-8')
+        with open(self.path, 'rb') as f:
+            return f.read(chunk_size)
 
     cpdef str read_text(self):
         """Read the contents of the file as a string."""
         with open(self.path, 'r', encoding=self.encoding) as f:
             return f.read()
 
-    cpdef bytes sha256(self):# -> str:
-        """Return a reproducible sha256 hash of the file."""
-        cdef bytes md5  = self.md5_checksum()
-        cdef bytes serialized_object = pickle.dumps({"md5": md5, "size": self.size})
-        return hashlib.sha256(serialized_object).hexdigest().encode('utf-8')
+    def sha256(self) -> str:
+        cdef bytes _path = self.path.encode('utf-8')
+        cdef char* path = <char*>_path
+        cdef sha256_hash_t *hash = <sha256_hash_t *>returnHash(path)
+        if hash != NULL:
+            return ''.join(format(hash.hash[x], '02x') for x in range(0,32))
+        else:
+            raise ValueError("Failed to compute SHA256 hash for file: {}".format(self.path))
+
 
     cpdef object read_json(self):
         return json.loads(self.read_text())
-
-    cdef inline bytes _read_chunk(self, unsigned int size=16384):# -> bytes:
-        """Read a chunk of the file and return it as bytes."""
-        return c_read_chunk(self,  size)
 
     def __hash__(self) -> int:
         """Return the hash of the file."""
@@ -294,38 +283,5 @@ cdef class File:
     def __str__(self) -> str:
         """Return a string representation of the file."""
         return self.path
-
-
-cdef bytes c_read_chunk(File self, unsigned int size=16384):
-    """Read a chunk of data from the file."""
-    cdef char* buffer
-    cdef ssize_t bytes_read
-    cdef FILE* fptr
-
-    # Allocate memory for the buffer
-    buffer = <char*>malloc(size * sizeof(char)) # type: ignore
-    if not buffer:
-        raise MemoryError("Failed to allocate memory for buffer")
-
-    try:
-        # Open the file in binary read mode
-        fptr = fopen(self.path.encode('utf-8'), 'rb'.encode('utf-8'))# type: ignore
-        if not fptr:
-            raise IOError(f"Failed to open file: {self.path}")
-
-        try:
-            # Read data into the buffer
-            bytes_read = fread(buffer, 1, size, fptr)# type: ignore
-            if bytes_read < 0:# type: ignore
-                raise IOError("Error reading from file")
-
-            # Convert the buffer to a Python bytes object and return it
-            return bytes(buffer[:bytes_read]) # type: ignore
-        finally:
-            # Close the file
-            fclose(fptr)
-    finally:
-        # Free the allocated memory for the buffer
-        free(buffer) # type: ignore
 
 

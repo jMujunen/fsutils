@@ -1,5 +1,20 @@
-from fsutils.file.GenericFile cimport File
 """Represents a directory. Contains methods to list objects inside this directory."""
+
+from fsutils.file.GenericFile cimport File
+from libc.stdint cimport uint8_t
+
+cdef extern from "hash.c":
+    ctypedef struct sha256_hash_t:
+        uint8_t hash[32]
+
+    struct HashMapEntry:
+        char *filepath
+        sha256_hash_t *sha
+    struct HashMap:
+        HashMapEntry *entries
+        int size
+    HashMap *hashDirectory(const char *directory) noexcept nogil
+
 
 cdef class Dir(File):
     """A class representing information about a directory.
@@ -25,7 +40,7 @@ cdef class Dir(File):
         - `directories` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
-    cdef str _pkl_path
+    cdef public str _pkl_path
     cdef unsigned long int _size
     cdef dict[str, set[str]] _db
 
@@ -35,10 +50,9 @@ cdef class Dir(File):
     cpdef tuple[set[str], set[str]] compare(self, Dir other)
     cpdef list[File] non_media(self)
     cpdef dict[str, int] describe(self, bint print_result=?)
-    cpdef dict[str, set[str]] serialize(self, bint replace=?, bint progress_bar=?)
 
 cdef inline File _obj(str path)
 
 cpdef File obj(str file_path)
-cdef inline tuple[str, str] worker(str filepath)
+
 
