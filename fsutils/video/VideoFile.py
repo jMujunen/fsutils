@@ -58,8 +58,6 @@ class FFMPEG_GIF_OPTIONS:
         template = "ffmpeg -i {input} -vf fps={fps},scale={scale!s}:-1:flags=lanczos -v {loglevel} -loop {loop} -y -stats {output}"
         return template.format(input_file=input_file, **self.__dict__).split()
 
-        return template.format(input_file=input_file, **self.__dict__).split()
-
 
 class Video(File, FFProbe):  # noqa: PLR0904
     """A class representing information about a video.
