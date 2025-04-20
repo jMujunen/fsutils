@@ -269,7 +269,7 @@ cdef class File:
         cdef char* path = <char*>_path
         cdef sha256_hash_t *hash = <sha256_hash_t *>returnHash(path)
         if hash != NULL:
-            return ''.join(format(hash.hash[x], '02x') for x in range(0,32))
+            return ''.join(format(hash._hash[x], '02x') for x in range(0,32))
         else:
             raise ValueError("Failed to compute SHA256 hash for file: {}".format(self.path))
 

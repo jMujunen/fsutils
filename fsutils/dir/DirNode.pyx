@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Optional, Iterator, Generator
 import os
 cimport cython
-
+import fnmatch
 from libc.stdlib cimport malloc, free
 from libc.stdint cimport uint8_t
 
@@ -49,7 +49,7 @@ cdef class Dir(File):
     """
     def __cinit__(self, str path):
         self.path = path
-        self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl")) # type: ignore
+        self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
         self._db = {}
 
     def __init__(self, path: Optional[str] = None) -> None:
@@ -93,28 +93,31 @@ cdef class Dir(File):
             return True
         return False
 
-    cpdef list[Video] videos(self):
+    def videos(self) -> list[Video]:
         cdef tuple[str] valid_exts = FILE_TYPES['video']
         return [Video.__new__(Video, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
-    cpdef list[Img] images(self):
+
+    def _videos(self) -> list[Video]:
+        cdef tuple[str] valid_exts = FILE_TYPES['video']
+        return [Video.__new__(Video, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
+
+    def images(self) -> list[Img]:
         cdef tuple[str] valid_exts = FILE_TYPES['img']
         return [Img.__new__(Img, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
-    cpdef list[File] non_media(self):
+
+    def non_media(self) -> list[File]:
         """Return a generator of all files that are not media."""
         cdef tuple[str] valid_exts = (*FILE_TYPES['video'],*FILE_TYPES['img'])
         return [File.__new__(File, file) for file in self.ls_files() if not file.lower().endswith(valid_exts)] # type: ignore
 
-    cpdef list[File] fileobjects(self):
-        """Return a list of all file objects."""
-        return [obj(file) for file in self.ls_files()] # type: ignore
-    def fileobjects_(self) -> list[File]:
+    def fileobjects(self) -> list[File]:
         """Return a list of all file objects."""
         return [obj(file) for file in self.ls_files()] # type: ignore
 
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef dict[str,int] describe(self, bint print_result=True):  # type: ignore
+    def describe(self, bint print_result=True) -> dict[str, int]:
         """Print a formatted table of each file extention and their count."""
         cdef str key
         cdef str ext, _
@@ -243,7 +246,7 @@ cdef class Dir(File):
         if _map is not NULL:
             for i in range(_map.size):
                 _filepath = _map.entries[i].filepath
-                _sha = _map.entries[i].sha.hash
+                _sha = _map.entries[i].sha._hash
                 sha = ''.join([format(_sha[i], '02x') for i in range(0,32)])
                 mapping[sha].add(_filepath.decode('utf-8'))
             free(_map.entries)
@@ -257,7 +260,7 @@ cdef class Dir(File):
 
 
 
-    cpdef tuple[set[str], set[str]] compare(self, Dir other):#  -> tuple[set[str], set[str]]:
+    def compare(self, Dir other) -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
         cdef set[str] common_files, unique_files, self_db, other_db
         cdef unsigned int num_files = len(set(self.ls_files()))
@@ -317,9 +320,13 @@ cdef class Dir(File):
                         yield entry
                 except PermissionError:
                     continue
-    def filter_(self, str ext) -> list[File]:
+    def filter(self, str ext) -> list[File]:
         """Filter files by extension."""
-        return list(filter(lambda x: x.name.endswith(ext), self.traverse()))
+        return [obj(item.path) for item in filter(lambda x: x.name.endswith(ext), self.traverse())]
+
+    def glob(self, str pattern) -> list[File]:
+        """Filter files by glob pattern."""
+        return [obj(item.path) for item in filter(lambda x: fnmatch.fnmatch(x.name, pattern), self.traverse())]
 
     def __getitem__(self, str key) -> list[File]:
         """Get a file by name."""
@@ -341,12 +348,8 @@ cdef class Dir(File):
         else:
             raise ValueError("Invalid format specifier")
 
-    # def __contains__(self, File other) -> bint:
-        # """Is `File` in self?"""  # noqa
-        # return other.sha256() in self.db
-
     def __hash__(self) -> int:
-        return hash((tuple(self.content), self.is_empty))
+        return hash((tuple(self.content), self.is_empty()))
 
     def __len__(self) -> int:
         """Return the number of items in the object."""

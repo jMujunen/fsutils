@@ -5,7 +5,7 @@ from libc.stdint cimport uint8_t
 
 cdef extern from "hash.c":
     ctypedef struct sha256_hash_t:
-        uint8_t hash[32]
+        uint8_t _hash[32]
 
     struct HashMapEntry:
         char *filepath
@@ -43,13 +43,6 @@ cdef class Dir(File):
     cdef public str _pkl_path
     cdef unsigned long int _size
     cdef dict[str, set[str]] _db
-
-    cpdef list[File] fileobjects(self)
-    cpdef list videos(self)
-    cpdef list images(self)
-    cpdef tuple[set[str], set[str]] compare(self, Dir other)
-    cpdef list[File] non_media(self)
-    cpdef dict[str, int] describe(self, bint print_result=?)
 
 cdef inline File _obj(str path)
 
