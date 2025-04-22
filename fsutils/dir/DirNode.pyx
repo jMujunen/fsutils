@@ -178,7 +178,7 @@ cdef class Dir(File):
         self._db = value
     @property
     def size(self) -> int:
-        """Return the total size of all files and directories in the current directory."""
+        """Size of all files and directories in the current directory."""
         if hasattr(self, "_size"):
             if self._size:
                 return self._size
@@ -193,6 +193,7 @@ cdef class Dir(File):
 
     @property
     def size_human(self) -> str:
+        """Size of directory in human-readable format."""
         return format_bytes(self.size)
 
     def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]: # type: ignore

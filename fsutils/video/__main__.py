@@ -30,7 +30,7 @@ from .VideoFile import Video
 video_types = tuple(FILE_TYPES["video"])
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args() -> tuple[argparse.Namespace, argparse.ArgumentParser]:
     parser = argparse.ArgumentParser("Video related operations")
     subparsers = parser.add_subparsers(help="Actions", dest="action")
     makegif = subparsers.add_parser("makegif", help="Create GIF from video")
@@ -101,30 +101,47 @@ def parse_args() -> argparse.Namespace:
         nargs=argparse.REMAINDER,
         help="Additional arguments to pass to ffmpeg",
     )
-    return parser.parse_args()
+    return parser.parse_args(), parser
 
 
-def main(videos: list[Video], action: str, **kwargs) -> Any:
+def main() -> Any:
+    args, parser = parse_args()
+    try:
+        action = args.action
+        PATH = args.PATH
+    except AttributeError:
+        parser.print_help()
+        return 1
+    kwargs = {}
+    with contextlib.suppress(AttributeError):
+        kwargs = parse_kwargs(*args.kwargs)
+    videos = [Video(vid) for vid in PATH if vid.endswith(video_types)]
+    print(kwargs)
+
     match action:
         case "makegif":
             if "quality" in kwargs:
                 for vid in videos:
                     vid.make_hq_gif(**kwargs)
-                return
+                return 0
 
             for vid in videos:
                 vid.make_gif(**kwargs)
+            return 0
         case "info":
             print(Video.fmtheader())
             print("\n".join(sorted(Pool().execute(format, videos, progress_bar=False))))
+            return 0
         case "compress":
             for vid in videos:
                 try:
                     vid.compress(**kwargs)
                 except Exception as e:
                     print(f"{e!r}")
+            return 0
         case _:
             print("\033[31mError:\033[0m ", action, "is not a known action")
+            return 1
 
 
 def parse_kwargs(*args) -> dict:
@@ -140,11 +157,5 @@ def parse_kwargs(*args) -> dict:
 
 
 if __name__ == "__main__":
+    main()
     args = parse_args()
-    print("VIDEOS: ", args.PATH)
-    kwargs = {}
-    with contextlib.suppress(AttributeError):
-        kwargs = parse_kwargs(*args.kwargs)
-    videos = [Video(vid) for vid in args.PATH if vid.endswith(video_types)]
-    print(kwargs)
-    main(videos=videos, action=args.action, **kwargs)

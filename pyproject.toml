@@ -9,16 +9,20 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "chardet>=5.2.0",
+    "cython>=3.0.12",
     "imagehash>=4.3.2",
     "matplotlib>=3.10.1",
     "opencv-python>=4.11.0.86",
     "pandas>=2.2.3",
     "pillow>=11.2.1",
+    "seaborn>=0.13.2",
+    "setuptools>=79.0.0",
 ]
 
 [project.scripts]
 fsutils-dir = "fsutils.dir.__main__:main"
 fsutils-dir-serialize = "fsutils.dir.__main__:serialize"
+fsutils-video = "fsutils.video.__main__:main"
 
 
 

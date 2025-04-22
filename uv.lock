@@ -57,6 +57,23 @@ wheels = [
 ]
 
 [[package]]
+name = "cython"
+version = "3.0.12"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/5a/25/886e197c97a4b8e254173002cdc141441e878ff29aaa7d9ba560cd6e4866/cython-3.0.12.tar.gz", hash = "sha256:b988bb297ce76c671e28c97d017b95411010f7c77fa6623dd0bb47eed1aee1bc", size = 2757617 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/67/ad/550ddcb8b5a5d9949fe6606595cce36984c1d42309f1e04af98f5933a7ea/Cython-3.0.12-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:4ee6f1ea1bead8e6cbc4e64571505b5d8dbdb3b58e679d31f3a84160cebf1a1a", size = 3393574 },
+    { url = "https://files.pythonhosted.org/packages/34/de/ade0a80bea17197662e23d39d3d3fbf89e9e99e6ad91fd95ab87120edb3a/Cython-3.0.12-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:57aefa6d3341109e46ec1a13e3a763aaa2cbeb14e82af2485b318194be1d9170", size = 3367198 },
+    { url = "https://files.pythonhosted.org/packages/a8/30/7f48207ea13dab46604db0dd388e807d53513ba6ad1c34462892072f8f8c/Cython-3.0.12-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:879ae9023958d63c0675015369384642d0afb9c9d1f3473df9186c42f7a9d265", size = 3535849 },
+    { url = "https://files.pythonhosted.org/packages/81/ab/f61c79fa14bd433a7dfd1548c5e00d9bd18b557c2f836aaece4fb1b22f34/Cython-3.0.12-cp313-cp313-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:36fcd584dae547de6f095500a380f4a0cce72b7a7e409e9ff03cb9beed6ac7a1", size = 3559079 },
+    { url = "https://files.pythonhosted.org/packages/d0/d1/1dbf17061229ccd35d5c0eed659fab60c2e50d2eadfa2a5729e753b6f4d0/Cython-3.0.12-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:62b79dcc0de49efe9e84b9d0e2ae0a6fc9b14691a65565da727aa2e2e63c6a28", size = 3436649 },
+    { url = "https://files.pythonhosted.org/packages/2d/d4/9ce42fff6de5550f870cdde9a1482d69ea66a1249a88fa0d0df9adebfb1a/Cython-3.0.12-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:4aa255781b093a8401109d8f2104bbb2e52de7639d5896aefafddc85c30e0894", size = 3644025 },
+    { url = "https://files.pythonhosted.org/packages/e3/89/b0c847f9df92af3ef11281b6811c000bd6f8ce0db02e4374397f8d67f829/Cython-3.0.12-cp313-cp313-win32.whl", hash = "sha256:77d48f2d4bab9fe1236eb753d18f03e8b2619af5b6f05d51df0532a92dfb38ab", size = 2604911 },
+    { url = "https://files.pythonhosted.org/packages/a6/5f/bbfaf2b5f7bf78854ecbc82f8473a3892ae5580e0c5bd0d4a82580b39ed3/Cython-3.0.12-cp313-cp313-win_amd64.whl", hash = "sha256:86c304b20bd57c727c7357e90d5ba1a2b6f1c45492de2373814d7745ef2e63b4", size = 2786786 },
+    { url = "https://files.pythonhosted.org/packages/27/6b/7c87867d255cbce8167ed99fc65635e9395d2af0f0c915428f5b17ec412d/Cython-3.0.12-py2.py3-none-any.whl", hash = "sha256:0038c9bae46c459669390e53a1ec115f8096b2e4647ae007ff1bf4e6dee92806", size = 1171640 },
+]
+
+[[package]]
 name = "fonttools"
 version = "4.57.0"
 source = { registry = "https://pypi.org/simple" }
@@ -79,21 +96,27 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "chardet" },
+    { name = "cython" },
     { name = "imagehash" },
     { name = "matplotlib" },
     { name = "opencv-python" },
     { name = "pandas" },
     { name = "pillow" },
+    { name = "seaborn" },
+    { name = "setuptools" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "chardet", specifier = ">=5.2.0" },
+    { name = "cython", specifier = ">=3.0.12" },
     { name = "imagehash", specifier = ">=4.3.2" },
     { name = "matplotlib", specifier = ">=3.10.1" },
     { name = "opencv-python", specifier = ">=4.11.0.86" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pillow", specifier = ">=11.2.1" },
+    { name = "seaborn", specifier = ">=0.13.2" },
+    { name = "setuptools", specifier = ">=79.0.0" },
 ]
 
 [[package]]
@@ -370,6 +393,29 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/03/f3/e699e19cabe96bbac5189c04aaa970718f0105cff03d458dc5e2b6bd1e8c/scipy-1.15.2-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:bae43364d600fdc3ac327db99659dcb79e6e7ecd279a75fe1266669d9a652828", size = 36545159 },
     { url = "https://files.pythonhosted.org/packages/af/f5/ab3838e56fe5cc22383d6fcf2336e48c8fe33e944b9037fbf6cbdf5a11f8/scipy-1.15.2-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:f031846580d9acccd0044efd1a90e6f4df3a6e12b4b6bd694a7bc03a89892b28", size = 39136566 },
     { url = "https://files.pythonhosted.org/packages/0a/c8/b3f566db71461cabd4b2d5b39bcc24a7e1c119535c8361f81426be39bb47/scipy-1.15.2-cp313-cp313t-win_amd64.whl", hash = "sha256:fe8a9eb875d430d81755472c5ba75e84acc980e4a8f6204d402849234d3017db", size = 40477705 },
+]
+
+[[package]]
+name = "seaborn"
+version = "0.13.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pandas" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/86/59/a451d7420a77ab0b98f7affa3a1d78a313d2f7281a57afb1a34bae8ab412/seaborn-0.13.2.tar.gz", hash = "sha256:93e60a40988f4d65e9f4885df477e2fdaff6b73a9ded434c1ab356dd57eefff7", size = 1457696 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/83/11/00d3c3dfc25ad54e731d91449895a79e4bf2384dc3ac01809010ba88f6d5/seaborn-0.13.2-py3-none-any.whl", hash = "sha256:636f8336facf092165e27924f223d3c62ca560b1f2bb5dff7ab7fad265361987", size = 294914 },
+]
+
+[[package]]
+name = "setuptools"
+version = "79.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7d/19/fecb7e2825616270f34512b3394cdcf6f45a79b5b6d94fdbd86a509e67b5/setuptools-79.0.0.tar.gz", hash = "sha256:9828422e7541213b0aacb6e10bbf9dd8febeaa45a48570e09b6d100e063fc9f9", size = 1367685 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cc/ea/d53f2f8897c46a36df085964d07761ea4c2d1f2cf92019693b6742b7aabb/setuptools-79.0.0-py3-none-any.whl", hash = "sha256:b9ab3a104bedb292323f53797b00864e10e434a3ab3906813a7169e4745b912a", size = 1256065 },
 ]
 
 [[package]]
