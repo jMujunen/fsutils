@@ -2,14 +2,13 @@
 
 cimport cython
 import os
-import re
-from collections.abc import Iterator
-from datetime import datetime
+from typing import Iterator, Any
 import json
-from typing import Any
+import re
+from datetime import datetime
+from pathlib import Path
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.utils.tools import format_bytes
-# from fsutils.utils.csha  cimport sha256 as _sha256
 
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
@@ -81,19 +80,21 @@ cdef class File:
             print(f"Permission denied to access file {self.name}: {e!r}")
 
 
-    cpdef list[str] head(self, unsigned short int n = 5): # -> list[str]:
+    def head(self, unsigned int n = 5) -> list[str]:
         """Return the first n lines of the file."""
-        if self.content is not None and len(self.content) > n:
-            return self.content[:n]
-        return self.content
-
-    cpdef list[str] tail(self,  unsigned short int n = 5):# -> list[str]:
+        content = (line for line in self.read_text().splitlines())
+        head = []
+        for _ in range(n):
+            try:
+                head.append(next(content))
+            except StopIteration:
+                break
+        return head
+    def tail(self, int n = 5) -> list[str]:
         """Return the last n lines of the file."""
-        if self.content is not None:
-            return self.content[-n:]
-        return self.content
+        return self.read_text().splitlines()[-n:]
 
-    def stat (self) -> os.stat_result:
+    def stat(self) -> os.stat_result:
         """Call os.stat() on the file path."""
         return os.stat(self.path)
 
@@ -115,23 +116,13 @@ cdef class File:
     @property
     def size(self) -> int:
         """Return the size of the file in bytes."""
-        return int(self.stat().st_size) # type: ignore
+        return int(self.stat().st_size)
 
     @property
     def prefix(self) -> str:
         """Return the file name without extension."""
-        return self.stem
-
-    @property
-    def stem(self) -> str:
-        """Return the file name without extension."""
-        cdef str stem, _
         stem, _ = os.path.splitext(self.name)
         return stem
-    @stem.setter
-    def stem(self, str value) -> None:
-        """Set the file name without extension."""
-        self._stem = value
 
     @property
     def suffix(self):
@@ -151,36 +142,29 @@ cdef class File:
         try:
             chunk = self._read_chunk(1024)
             if not chunk:
-                return False# type: ignore
+                return False
             for byte in chunk:
                 # Check for null bytes (0x00), which are common in binary files
                 if byte == 0:
-                    return True# type: ignore
+                    return True
         except Exception as e:
             print(f"Error calling `is_binary()` on file {self.name}: {e!r}")
-            return False# type: ignore
-        return False# type: ignore
+            return False
+        return False
 
-    @property
-    def content(self) -> list[str]:
-        """Return the contents of a file."""
-        print(f"\033[33mWARNING\033[0m - Depreciated function <{self.__class__.__name__}.content>")
-        return self.read_text().splitlines()
-
-
-    def  is_gitobject(self) -> bool:
+    def is_gitobject(self) -> bool:
         """Check if the file is a git object."""
-        return GIT_OBJECT_REGEX.match(self.name) is not None # type:ignore
+        return GIT_OBJECT_REGEX.match(self.name) is not None
 
-    def  is_image(self) -> bool:
+    def is_image(self) -> bool:
         """Check if the file is an image."""
-        return self.suffix.lower() in FILE_TYPES["img"] # type: ignore
+        return self.suffix.lower() in FILE_TYPES["img"]
 
-    def  is_video(self) -> bool:
+    def is_video(self) -> bool:
         """Check if the file is a video."""
-        return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video")) # type: ignore
+        return all((self.suffix.lower() in FILE_TYPES["video"], self.__class__.__name__ == "Video"))
     @property
-    def mtime(self):
+    def mtime(self) -> datetime:
         """Return the last modification time of the file."""
         return datetime.fromtimestamp(self.stat().st_mtime)
     @property
@@ -192,13 +176,12 @@ cdef class File:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
-    @property
-    def parts(self) -> tuple[str]:
-        return tuple(self.path.split(os.sep))
-
     def times(self) -> tuple[datetime, datetime, datetime]:
         """Return access, modification, and creation times of a file."""
         return tuple(map(datetime.fromtimestamp, self.stat()[-3:]))
+    @property
+    def parts(self) -> tuple[str, ...]:
+        return Path(self.path).parts
 
     def exists(self) -> bool:
         """Check if the file exists."""
@@ -259,7 +242,7 @@ cdef class File:
         with open(self.path, 'rb') as f:
             return f.read(chunk_size)
 
-    cpdef str read_text(self):
+    def read_text(self) -> str:
         """Read the contents of the file as a string."""
         with open(self.path, 'r', encoding=self.encoding) as f:
             return f.read()
@@ -274,7 +257,7 @@ cdef class File:
             raise ValueError("Failed to compute SHA256 hash for file: {}".format(self.path))
 
 
-    cpdef object read_json(self):
+    def read_json(self) -> dict:
         return json.loads(self.read_text())
 
     def __hash__(self) -> int:

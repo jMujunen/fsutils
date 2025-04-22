@@ -89,14 +89,6 @@ class File:
         """Return the file name without extension."""
 
     @property
-    def stem(self) -> str:
-        """Return the file name without extension."""
-
-    @stem.setter
-    def stem(self, value: str) -> None:
-        """Set the file name without extension."""
-
-    @property
     def suffix(self) -> str:
         """Return the file extension."""
 
@@ -106,10 +98,6 @@ class File:
 
     def is_binary(self) -> bool:
         """Check for null bytes in the file contents, telling us its binary data."""
-
-    @property
-    def content(self) -> list[str]:
-        """Return the contents of a file."""
 
     def is_gitobject(self) -> bool:
         """Check if the file is a git object."""
@@ -133,7 +121,7 @@ class File:
         """Return the last access time of the file."""
 
     @property
-    def parts(self) -> tuple[str]: ...
+    def parts(self) -> tuple[str, ...]: ...
     def times(self) -> tuple[datetime, datetime, datetime]:
         """Return access, modification, and creation times of a file."""
 

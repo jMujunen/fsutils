@@ -27,6 +27,9 @@ class Dir(File):
         - `dirs` : Read-only property yielding a list of absolute paths for subdirectories
 
     """
+
+    path: str
+
     def __init__(self, path: str | None = ...) -> None:
         """Initialize a new instance of the Dir class.
 

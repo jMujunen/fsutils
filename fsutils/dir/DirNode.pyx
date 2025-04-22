@@ -67,7 +67,6 @@ cdef class Dir(File):
         super().__init__(path)
         self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
 
-
     @property
     def dirs(self) -> list[str]:
         """Return a list of all directories in the directory."""

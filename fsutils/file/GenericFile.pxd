@@ -16,8 +16,5 @@ cdef class File:
     cdef str _stem
     cdef public str path
     cdef public str encoding
-    cpdef list[str] head(File, unsigned short int n = ?)
-    cpdef list[str] tail(File, unsigned short int n = ?)
-    cpdef str read_text(File)
-    cpdef object read_json(File)
+
 
