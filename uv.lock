@@ -102,6 +102,7 @@ dependencies = [
     { name = "opencv-python" },
     { name = "pandas" },
     { name = "pillow" },
+    { name = "rawpy" },
     { name = "seaborn" },
     { name = "setuptools" },
 ]
@@ -115,6 +116,7 @@ requires-dist = [
     { name = "opencv-python", specifier = ">=4.11.0.86" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pillow", specifier = ">=11.2.1" },
+    { name = "rawpy", specifier = ">=0.24.0" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "setuptools", specifier = ">=79.0.0" },
 ]
@@ -364,6 +366,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/d5/62/f05dd191232ae94e0b48509bb0ee65c9d45abf5e8f3612b09fd309b41384/pywavelets-1.8.0-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:06786201a91b5e74540f4f3c115c49a29190de2eb424823abbd3a1fd75ea3e28", size = 4472192 },
     { url = "https://files.pythonhosted.org/packages/20/6a/257c95ad1e0fd395cbccd4ffec0d01cc9b51a3bb91e67d8fa10ffebc9c72/pywavelets-1.8.0-cp313-cp313t-win32.whl", hash = "sha256:f2877fb7b58c94211257dcf364b204d6ed259146fc87d5a90bf9d93c97af6226", size = 4183968 },
     { url = "https://files.pythonhosted.org/packages/6c/58/7179fd6f87153f2e339171e8cfe9bf901398a89045eefd7a3911bb9b47ad/pywavelets-1.8.0-cp313-cp313t-win_amd64.whl", hash = "sha256:ec5d723c3335ff8aa630fd4b14097077f12cc02893c91cafd60dd7b1730e780f", size = 4265431 },
+]
+
+[[package]]
+name = "rawpy"
+version = "0.24.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/51/e6e59a74fb968e93afe969eb46f766379fb59dfffcbca6f68e0288495312/rawpy-0.24.0-cp313-cp313-macosx_10_9_x86_64.whl", hash = "sha256:8689b12779f9ac7b59a744dc12390214b971a70cc121b25c9207f7367889e21d", size = 1118371 },
+    { url = "https://files.pythonhosted.org/packages/56/36/0f4d5b41ae10f9399d5f166fe82b748fd7873d0dda5131ac8eb91723042a/rawpy-0.24.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:b26cae58c2effbec506eeaf36e0ec0fd7bc0f40bebb2754686897ea6389a9f47", size = 1014606 },
+    { url = "https://files.pythonhosted.org/packages/32/6f/6ee2a24c354f6ebcb24ec65e9b4dd952ea0e84178a172186d8e7f5444913/rawpy-0.24.0-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c7cd218d0c5f7ff00dacfdea36756a5f1d76f3d36815e168a18a86059ff45b94", size = 1920051 },
+    { url = "https://files.pythonhosted.org/packages/1b/05/c406fcac78b22eb3eb8134db400493f2293c917bb09df50acae762e40748/rawpy-0.24.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ee0ce86b2d49f6936943cf633dff6320e83a500dd8c69652ab6f0bcf6b3b45c3", size = 1940898 },
+    { url = "https://files.pythonhosted.org/packages/1c/1b/24809fe4787a6b6b17eb0f49569f1c9092fe8315105b2d5c19b2c5e5bc3f/rawpy-0.24.0-cp313-cp313-win_amd64.whl", hash = "sha256:691d6dc1dac2da3b9f7991b5eec6ff3e520c30e7820e33cb35828c35ff78eea4", size = 851158 },
 ]
 
 [[package]]

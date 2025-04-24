@@ -50,6 +50,10 @@ class File:
         - `__str__()` : Return a string representation of the object
 
     """
+
+    path: str
+    encoding: str
+
     def __init__(self, path: str, encoding: str = ..., *args, **kwargs) -> None:
         """Construct the File object.
 
