@@ -33,18 +33,29 @@ cdef class Dir(File):
 
     Methods
     -------
-        - `file_info (other)` :     # Check for `other` in self and return it as an object of `other`
-        - `getinfo()` :             # Returns a list of extentions and their count
-        - `__eq__ (other)` :        # Compare properties of two Dir objects
-        - `__contains__ (other)` :  # Check if `other` is present in self
-        - `__len__`:                # Return the number of objects in self
-        - `__iter__`  :             # Iterator which yields the appropriate File instance
-
+        - `describe()` :            # Returns a list of extentions and their count
+        - `compare(other)` :        # Compare properties of two Dir objects
+        - `duplicates(num_keep=2)`   # Returns a list of duplicate files in this directory
+        - `filter(ext)` :           # Returns a list of files that match the given extension
+        - `glob(pattern)` :         # Returns a list of files that match the given pattern
+        - `is_empty()` :            # Returns True if the directory is empty, False otherwise
+        - `load_database()` :       # Load indexed database
+        - `ls()` :                  # List the contents of the toplevel directory
+        - `ls_dirs()` :             # List the contents of the toplevel directory as directories
+        - `travers()` :             # Traverse the directory tree and yield all files
+        - `serialize()` :           # Serialize the directory index
+        - `non_media()` :           # Returns a list of non-media files in this directory
+        - `videos()` :              # Returns a list of video objects in this directory
+        - `images()` :              # Returns a list of image objects in this directory
+        - `fileobjects()` :         # Returns a list of files objects in this directory
 
     Properties
     -----------
         - `files`       : Read only property returning a list of file names
         - `dirs` : Read-only property yielding a list of absolute paths for subdirectories
+        - `content` : List the the contents of the toplevel directory
+        - `size`  : Read-only property returning the size of the directory in bytes.
+        - `size_human`  : Read-only property returning the size of the directory in human readable format.
 
     """
     def __cinit__(self, str path):
@@ -96,10 +107,6 @@ cdef class Dir(File):
         cdef tuple[str] valid_exts = FILE_TYPES['video']
         return [Video.__new__(Video, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
 
-    def _videos(self) -> list[Video]:
-        cdef tuple[str] valid_exts = FILE_TYPES['video']
-        return [Video.__new__(Video, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
-
     def images(self) -> list[Img]:
         cdef tuple[str] valid_exts = FILE_TYPES['img']
         return [Img.__new__(Img, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
@@ -112,7 +119,6 @@ cdef class Dir(File):
     def fileobjects(self) -> list[File]:
         """Return a list of all file objects."""
         return [obj(file) for file in self.ls_files()] # type: ignore
-
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
