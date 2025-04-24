@@ -3,25 +3,24 @@
 import base64
 import os
 import subprocess
-from collections.abc import Generator
 from collections import namedtuple
-from typing import NamedTuple
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Never
-import numpy as np
 import cv2
 import imagehash
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 from PIL.ExifTags import TAGS
 from fsutils.file import File
+import rawpy
+
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 
 Dims = namedtuple("Dims", ["width", "height"])
 
 
-class Img(File):  # noqa - FIXME: Too many methods
+class Img(File):
     """Represents an image.
 
     Methods
@@ -150,22 +149,7 @@ class Img(File):  # noqa - FIXME: Too many methods
         width, height = self.dimensions
         return round(width / height, 3)
 
-    @staticmethod
-    def show(path: str, render_size=320, title=True) -> int:
-        """`HACK`: Mirror of render()."""
-        if title:
-            title = f"{os.path.split(path)[-1]}"
-            pos = round(
-                (render_size / 10) - (render_size % 360 / 10)
-            )  # Vain attempt to center the title
-            print(f"\033[1m{title.center(pos)}\033[0m")
-        return subprocess.run(
-            f'kitten icat --use-window-size 100,100,320,100 "{path}"',
-            shell=True,
-            check=False,
-        ).returncode
-
-    def render(self, render_size=320, title=True) -> int:
+    def render(self, render_size=320, show_title=True) -> int:
         """Render the image in a terminal window.
 
         Parameters
@@ -178,7 +162,7 @@ class Img(File):  # noqa - FIXME: Too many methods
             int: The return code of the subprocess call. 0 if successful, non-zero otherwise.
         """
         try:
-            if title:
+            if show_title:
                 title = f"{self.name}\t{self.capture_date!s}"
                 pos = round(
                     (render_size / 10) - (render_size % 360 / 10)
@@ -194,14 +178,29 @@ class Img(File):  # noqa - FIXME: Too many methods
             print(f"An error occurred while rendering the image:\n{e!r}")
             return 1
 
-    def open(self) -> None:
-        """Open the image in the OS default image viewer."""
-        with Image.open(self.path) as f:
-            f.show()
+    def process_raw(self, output=None) -> "Img":
+        """Process the raw file using rawpy and save it as a JPEG.
 
-    def save(self, path: str) -> Never:
-        """Save the image to a specified location."""
-        raise NotImplementedError(self.__class__.__name__ + ".save() is not yet implemented.")
+        Parameters
+        ----------
+            output : str, optional
+                The path to save the processed JPEG file. If not provided, defaults to the current directory.
+
+        Returns
+        -------
+            Img : The processed image and an instance of this class
+
+        """
+        # Load presets if provided
+        preset_data = {"bright": 0.5, "use_camera_wb": False}
+        if self.suffix.lower().endswith(".nef"):
+            with rawpy.imread(self.path) as raw:
+                rgb = raw.postprocess(**preset_data)
+                image = Image.fromarray(rgb)
+                image.save(output)
+                return Img.__new__(Img, image)
+        else:
+            raise ValueError("Unsupported file format")
 
     def resize(self, width: int | None = None, height: int | None = None) -> "Img":
         """Resizes an image.
