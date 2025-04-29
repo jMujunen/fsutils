@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 import cv2
 
-from fsutils.file import File
+from fsutils.file import Base
 from fsutils.img import Img
 from fsutils.utils.tools import format_bytes, format_timedelta, frametimes
 from fsutils.video.FFProbe import FFProbe, FFStream
@@ -59,7 +59,7 @@ class FFMPEG_GIF_OPTIONS:
         return template.format(input_file=input_file, **self.__dict__).split()
 
 
-class Video(File, FFProbe):  # noqa: PLR0904
+class Video(Base, FFProbe):  # noqa: PLR0904
     """A class representing information about a video.
 
     | Method | Description |
@@ -95,7 +95,7 @@ class Video(File, FFProbe):  # noqa: PLR0904
             - `path (str)` : The absolute path to the video file.
 
         """
-        File.__init__(self, str(path), *args, **kwargs)
+        Base.__init__(self, str(path), *args, **kwargs)
         for k, v in FFProbe(path).streams[0].__dict__.items():
             setattr(self, k, v)
         # FFProbe.__init__(self, path)

@@ -10,17 +10,28 @@ ext_modules = [
         "fsutils.dir.DirNode",
         ["fsutils/dir/DirNode.pyx"],
         include_dirs=[openssl_include],
-        libraries=["ssl", "crypto"],
+        libraries=["ssl", "crypto", "pthread"],
         library_dirs=[openssl_lib],
-        extra_compile_args=["-DCYTHON_FAST_GIL", "-ffast-math", "-O3", "-Wall", "-Wextra"],
+        extra_compile_args=[
+            "-DCYTHON_FAST_GIL",
+            "-ffast-math",
+            "-O3",
+            "-Wall",
+            "-Wextra",
+        ],
     ),
     Extension(
         "fsutils.file.GenericFile",
         ["fsutils/file/GenericFile.pyx"],
         include_dirs=[openssl_include],
-        libraries=["ssl", "crypto"],
+        libraries=["ssl", "crypto", "pthread"],
         library_dirs=[openssl_lib],
-        extra_compile_args=["-ffast-math", "-O3", "-Wall", "-Wextra"],
+        extra_compile_args=[
+            "-ffast-math",
+            "-O3",
+            "-Wall",
+            "-Wextra",
+        ],
     ),
 ]
 

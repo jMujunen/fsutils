@@ -11,7 +11,7 @@ import cv2
 import imagehash
 from PIL import Image
 from PIL.ExifTags import TAGS
-from fsutils.file import File
+from fsutils.file import Base
 import rawpy
 
 
@@ -20,7 +20,7 @@ ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 Dims = namedtuple("Dims", ["width", "height"])
 
 
-class Img(File):
+class Img(Base):
     """Represents an image.
 
     Methods

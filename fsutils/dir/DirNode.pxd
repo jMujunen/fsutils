@@ -1,6 +1,6 @@
 """Represents a directory. Contains methods to list objects inside this directory."""
 
-from fsutils.file.GenericFile cimport File
+from fsutils.file.GenericFile cimport Base
 from libc.stdint cimport uint8_t
 
 cdef extern from "hash.c":
@@ -14,9 +14,10 @@ cdef extern from "hash.c":
         HashMapEntry *entries
         int size
     HashMap *hashDirectory(const char *directory) noexcept nogil
+    char** listFilesRecursively(const char *basePath, int *count)
 
 
-cdef class Dir(File):
+cdef class Dir(Base):
     """A class representing information about a directory.
 
     Attributes
@@ -44,8 +45,9 @@ cdef class Dir(File):
     cdef unsigned long int _size
     cdef dict[str, set[str]] _db
 
-cdef inline File _obj(str path)
 
-cpdef File obj(str file_path)
+cdef inline Base _obj(str path)
+
+cpdef Base obj(str file_path)
 
 

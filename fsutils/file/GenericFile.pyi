@@ -5,7 +5,7 @@ from typing import Any
 
 GIT_OBJECT_REGEX = ...
 
-class File:
+class Base:
     """This is the base class for all of the following objects.
 
     It represents a generic file and defines the common methods that are used by all of them.
@@ -55,7 +55,7 @@ class File:
     encoding: str
 
     def __init__(self, path: str, encoding: str = ..., *args, **kwargs) -> None:
-        """Construct the File object.
+        """Construct the Base object.
 
         Paramaters:
         ----------
@@ -147,7 +147,7 @@ class File:
 
         """
 
-    def __eq__(self, other: File, /) -> bool:
+    def __eq__(self, other: Base, /) -> bool:
         """Compare two FileObjects.
 
         Paramaters

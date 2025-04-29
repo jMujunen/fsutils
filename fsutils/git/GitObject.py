@@ -1,9 +1,9 @@
 """Represents a git object."""
 
-from fsutils.file import File
+from fsutils.file import Base
 
 
-class Git(File):
+class Git(Base):
     """Represents a git object."""
 
     def __init__(self, path: str) -> None:

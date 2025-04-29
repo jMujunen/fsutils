@@ -11,7 +11,7 @@ cdef extern from "hash.c":
     sha256_hash_t * returnHash(const char *filePath) noexcept nogil
 
 
-cdef class File:
+cdef class Base:
     cdef str _suffix
     cdef str _stem
     cdef public str path

@@ -1,10 +1,10 @@
-from fsutils.file.GenericFile import File
+from fsutils.file.GenericFile import Base
 from fsutils.img import Img
 from fsutils.video import Video
 import os
 from collections.abc import Generator, Iterator
 
-class Dir(File):
+class Dir(Base):
     """A class representing information about a directory.
 
     Attributes
@@ -56,10 +56,10 @@ class Dir(File):
 
     def videos(self) -> list[Video]: ...
     def images(self) -> list[Img]: ...
-    def non_media(self) -> list[File]:
+    def non_media(self) -> list[Base]:
         """Return a generator of all files that are not media."""
 
-    def fileobjects(self) -> list[File]:
+    def fileobjects(self) -> list[Base]:
         """Return a list of all file objects."""
 
     def describe(self, print_result: bool = ...) -> dict[str, int]:
@@ -87,7 +87,7 @@ class Dir(File):
             - updatedb (bint): If True, re-calculate the hash values for all files
         """
 
-    def load_database(self) -> dict[str, set[str]]:
+    def _load_database(self) -> dict[str, set[str]]:
         """Deserialize the pickled database."""
 
     def serialize(self, replace: bool = ...) -> dict[str, set[str]]:
@@ -122,13 +122,13 @@ class Dir(File):
             Generator[os.DirEntry]
         """
 
-    def filter(self, ext: str) -> list[File]:
+    def filter(self, ext: str) -> list[Base]:
         """Filter files by extension."""
 
-    def glob(self, pattern: str) -> list[File]:
+    def glob(self, pattern: str) -> list[Base]:
         """Filter files by a glob pattern."""
 
-    def __getitem__(self, key: str) -> list[File]:
+    def __getitem__(self, key: str, /) -> list[Base]:
         """Get a file by name."""
 
     def __format__(self, format_spec: str, /) -> str: ...
@@ -136,8 +136,8 @@ class Dir(File):
     def __len__(self) -> int:
         """Return the number of items in the object."""
 
-    def __contains__(self, item: File) -> bool: ...
-    def __iter__(self) -> Iterator[File]:
+    def __contains__(self, item: Base) -> bool: ...
+    def __iter__(self) -> Iterator[Base]:
         """Yield a sequence of File instances for each item in self."""
 
     def __eq__(self, other: Dir, /) -> bool:
@@ -145,5 +145,5 @@ class Dir(File):
 
     def __repr__(self) -> str: ...
 
-def obj(file_path: str) -> File:
+def obj(file_path: str) -> Base:
     """Return a File instance for the given file path."""

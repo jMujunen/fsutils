@@ -115,7 +115,7 @@ def main() -> Any:
     kwargs = {}
     with contextlib.suppress(AttributeError):
         kwargs = parse_kwargs(*args.kwargs)
-    videos = [Video(vid) for vid in PATH if vid.endswith(video_types)]
+    videos = [Video(vid) for vid in PATH if vid.lower().endswith(video_types)]
     print(kwargs)
 
     match action:

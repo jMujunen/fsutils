@@ -1,1 +1,1 @@
-from .DirNode import Dir, obj
+from .DirNode import Dir, File

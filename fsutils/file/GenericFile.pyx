@@ -13,7 +13,7 @@ from fsutils.utils.tools import format_bytes
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
-cdef class File:
+cdef class Base:
     """This is the base class for all of the following objects.
 
     It represents a generic file and defines the common methods that are used by all of them.
@@ -59,12 +59,12 @@ cdef class File:
 
     """
     def __cinit__(self, str path, str encoding="utf-8", *args, **kwargs): #-> None:
-        """Construct the File object."""
+        """Construct the Base object."""
         self.path = path
         self.encoding = encoding
 
     def __init__(self, str path, str encoding="utf-8", *args, **kwargs): #-> None:
-        """Construct the File object.
+        """Construct the Base object.
 
         Paramaters:
         ----------
@@ -212,7 +212,7 @@ cdef class File:
         """
         return any(item in line for line in self) # type: ignore
 
-    def __eq__(self, File other, /) -> bool:
+    def __eq__(self, Base other, /) -> bool:
         """Compare two FileObjects.
 
         Paramaters

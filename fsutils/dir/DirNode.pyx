@@ -21,10 +21,10 @@ from fsutils.img import Img
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.video import Video
 from fsutils.utils.tools  import format_bytes
-from fsutils.file.GenericFile cimport File
+from fsutils.file.GenericFile cimport Base
 
 
-cdef class Dir(File):
+cdef class Dir(Base):
     """A class representing information about a directory.
 
     Attributes
@@ -42,7 +42,7 @@ cdef class Dir(File):
         - `load_database()` :       # Load indexed database
         - `ls()` :                  # List the contents of the toplevel directory
         - `ls_dirs()` :             # List the contents of the toplevel directory as directories
-        - `travers()` :             # Traverse the directory tree and yield all files
+        - `traverse()` :             # Traverse the directory tree and yield all files
         - `serialize()` :           # Serialize the directory index
         - `non_media()` :           # Returns a list of non-media files in this directory
         - `videos()` :              # Returns a list of video objects in this directory
@@ -86,6 +86,7 @@ cdef class Dir(File):
     def files(self) -> list[str]:
         """Return a list of all files in the directory."""
         return list(self.ls_files())
+
     @property
     def content(self) -> list[str]:
         """List the the contents of the toplevel directory."""
@@ -111,12 +112,12 @@ cdef class Dir(File):
         cdef tuple[str] valid_exts = FILE_TYPES['img']
         return [Img.__new__(Img, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
 
-    def non_media(self) -> list[File]:
+    def non_media(self) -> list[Base]:
         """Return a generator of all files that are not media."""
         cdef tuple[str] valid_exts = (*FILE_TYPES['video'],*FILE_TYPES['img'])
-        return [File.__new__(File, file) for file in self.ls_files() if not file.lower().endswith(valid_exts)] # type: ignore
+        return [Base.__new__(Base, file) for file in self.ls_files() if not file.lower().endswith(valid_exts)] # type: ignore
 
-    def fileobjects(self) -> list[File]:
+    def fileobjects(self) -> list[Base]:
         """Return a list of all file objects."""
         return [obj(file) for file in self.ls_files()] # type: ignore
 
@@ -176,7 +177,7 @@ cdef class Dir(File):
     @property
     def db(self) -> dict[str, set[str]]:
         if not self._db:
-            self._db = self.load_database()
+            self._db = self._load_database()
         return self._db
     @db.setter
     def db(self, value: dict[str, set[str]]):# -> dict[str, set[str]]:
@@ -215,12 +216,12 @@ cdef class Dir(File):
         hashes = self.serialize(replace=updatedb) # type: ignore
         return [list(value) for value in hashes.values() if len(value) > num_keep]
 
-    def load_database(self) -> dict[str, set[str]]:
+    def _load_database(self) -> dict[str, set[str]]:
         """Deserialize the pickled database."""
         return pickle.loads(Path(self._pkl_path).read_bytes()) if Path(self._pkl_path).exists() else {}
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    def serialize(self, bint replace=True) ->  dict[str, set[str]]:
+    def serialize(self, **kwargs) ->  dict[str, set[str]]:
         """Create an hash index of all files in self.
 
         Paramaters
@@ -233,6 +234,10 @@ cdef class Dir(File):
                 and the values are lists of file paths.
 
         """
+        if len(self.files) == 0:
+            with open(self._pkl_path, 'wb') as f:
+                pickle.dump({}, f)
+            return {}
         cdef bytes _path = self.path.encode('utf-8')
         cdef char* path = <char*>_path
         cdef HashMap *_map
@@ -242,9 +247,9 @@ cdef class Dir(File):
         mapping = defaultdict(set)
 
         self._pkl_path = self._pkl_path.lstrip('.')
-        if Path(self._pkl_path).exists() and replace:
+        if Path(self._pkl_path).exists():
             Path(self._pkl_path).unlink()
-        elif Path(self._pkl_path).exists() and replace is False:
+        elif Path(self._pkl_path).exists() and kwargs.get('replace', True) is False:
             return self.db
 
         with nogil:
@@ -263,8 +268,6 @@ cdef class Dir(File):
         with open(self._pkl_path, 'wb') as f:
             f.write(serialized_object)
         return self.db
-
-
 
     def compare(self, Dir other) -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
@@ -326,15 +329,15 @@ cdef class Dir(File):
                         yield entry
                 except PermissionError:
                     continue
-    def filter(self, str ext) -> list[File]:
+    def filter(self, str ext) -> list[Base]:
         """Filter files by extension."""
         return [obj(item.path) for item in filter(lambda x: x.name.endswith(ext), self.traverse())]
 
-    def glob(self, str pattern) -> list[File]:
+    def glob(self, str pattern) -> list[Base]:
         """Filter files by glob pattern."""
         return [obj(item.path) for item in filter(lambda x: fnmatch.fnmatch(x.name, pattern), self.traverse())]
 
-    def __getitem__(self, str key) -> list[File]:
+    def __getitem__(self, str key, /) -> list[Base]:
         """Get a file by name."""
         return [_obj(item.path) for item in self.ls() if item.name == key]
 
@@ -361,15 +364,15 @@ cdef class Dir(File):
         """Return the number of items in the object."""
         return len(list(self.traverse()))
 
-    def __contains__(self, item: File) -> bint:
+    def __contains__(self, item: Base) -> bint:
         sha = item.sha256()
         if isinstance(sha, bytes):
             sha = sha.decode()
         return sha in self.db # type: ignore
 
 
-    def __iter__(self) -> Iterator[File]:
-        """Yield a sequence of File instances for each item in self."""
+    def __iter__(self) -> Iterator[Base]:
+        """Yield a sequence of Base instances for each item in self."""
         cdef unicode root, directory
         cdef list[str] _, files
         for root, _, files in os.walk(self.path):
@@ -396,9 +399,8 @@ cdef class Dir(File):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"# type: ignore
 
-
-cdef inline File _obj(str path):
-    """Return a File object for the given path."""
+cdef inline Base _obj(str path):
+    """Return a Base object for the given path."""
     cdef unicode ext, file_type
     cdef tuple[str] extensions
     cdef str class_name
@@ -421,17 +423,26 @@ cdef inline File _obj(str path):
             except FileNotFoundError as e:
                 print(f"{e!r}")
             except AttributeError:
-                class_name = 'File'
-                return File.__new__(File, path) # type: ignore
+                class_name = 'Base'
+                return Base.__new__(Base, path) # type: ignore
     try:
-        FileClass = File.__new__(File, path) # type: ignore
+        FileClass = Base.__new__(Base, path) # type: ignore
     except FileNotFoundError as e:
         return None # type: ignore
-    return File.__new__(File, path) # type: ignore
+    return Base.__new__(Base, path) # type: ignore
+
+class File:
+    def __new__(cls, filepath):
+        # Dynamically create the class name and instantiate it
+        return _obj(filepath)
 
 
-cpdef File obj(str file_path):
-    """Return a File instance for the given file path."""
+    @staticmethod
+    def from_hash(hash: str, db: dict[str, set[str]]) -> Base:
+        return [_obj(path) for path in db[hash]]
+
+cpdef Base obj(str file_path):
+    """Return a Base instance for the given file path."""
     return _obj(file_path)
 
 

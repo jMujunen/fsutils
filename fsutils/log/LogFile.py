@@ -1,4 +1,4 @@
-"""This module exposes the Log class as a parent of File."""
+"""This module exposes the Log class as a parent of Base."""
 
 import contextlib
 import pandas as pd
@@ -11,7 +11,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from fsutils.file import File
+from fsutils.file import Base
 
 DIGIT_REGEX = re.compile(r"(\d+(\.\d+)?)")
 
@@ -162,7 +162,7 @@ class LogMetaData:
             self.df.drop(columns=["Date"], inplace=True)
 
 
-class Log(File, LogMetaData):
+class Log(Base, LogMetaData):
     """A class to represent a log file."""
 
     presets: type = Presets

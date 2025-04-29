@@ -328,6 +328,8 @@ struct HashMap *hashDirectory(const char *directory) {
 
     return map;
 }
+
+
 void printProgressBar(int current, int total) {
     const int barWidth = 70;
     char bar[barWidth + 1];

@@ -1,1 +1,1 @@
-from .GenericFile import File
+from .GenericFile import Base
