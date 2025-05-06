@@ -8,14 +8,13 @@ import sys
 from collections import defaultdict
 import subprocess
 from pathlib import Path
-from typing import Optional, Iterator, Generator
+from typing import Iterator, Generator
 import os
 cimport cython
 import fnmatch
-from libc.stdlib cimport malloc, free
+from libc.stdlib cimport free
 from libc.stdint cimport uint8_t
 
-from cython cimport nogil
 from ThreadPoolHelper import Pool
 from fsutils.img import Img
 from fsutils.utils.mimecfg import FILE_TYPES
@@ -58,12 +57,12 @@ cdef class Dir(Base):
         - `size_human`  : Read-only property returning the size of the directory in human readable format.
 
     """
-    def __cinit__(self, str path):
+    def __cinit__(self, str path='./'):
         self.path = path
         self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
         self._db = {}
 
-    def __init__(self, path: Optional[str] = None) -> None:
+    def __init__(self, path: str = './') -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
@@ -71,10 +70,6 @@ cdef class Dir(Base):
             path (str) : The path to the directory.
 
         """
-
-        if not path:
-            path = './'
-
         super().__init__(path)
         self._pkl_path = str(Path(self.path, f".{self.prefix.removeprefix('.')}.pkl"))
 
@@ -432,13 +427,15 @@ cdef inline Base _obj(str path):
     return Base.__new__(Base, path) # type: ignore
 
 class File:
-    def __new__(cls, filepath):
+    def __new__(cls, filepath, /, init=False):
         # Dynamically create the class name and instantiate it
-        return _obj(filepath)
-
+        cls = _obj(filepath)
+        if init:
+            cls.__init__(filepath)
+        return cls
 
     @staticmethod
-    def from_hash(hash: str, db: dict[str, set[str]]) -> Base:
+    def from_hash(hash: str, db: dict[str, set[str]]) -> list[Base]:
         return [_obj(path) for path in db[hash]]
 
 cpdef Base obj(str file_path):
