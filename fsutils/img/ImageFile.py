@@ -1,19 +1,20 @@
 """Represents an image."""
 
 import base64
-import os
 import subprocess
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Never
+from typing import Any
+
 import cv2
+import exifread
 import imagehash
+import rawpy
 from PIL import Image
 from PIL.ExifTags import TAGS
-from fsutils.file import Base
-import rawpy
 
+from fsutils.file import Base
 
 ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 
@@ -77,29 +78,17 @@ class Img(Base):
             return img.size
 
     @property
-    def tags(self) -> list[tuple[str, Any]]:
+    def tags(self) -> dict[str, Any]:
         """Return a list of all tags in the EXIF data."""
-        _tags = []
-        with Image.open(self.path) as img:
-            exif = img.getexif()
-        for tag_id in exif:
-            try:
-                tags = TAGS.get(tag_id, tag_id)
-                data = exif.get(tag_id)
-                if isinstance(data, bytes):
-                    data = data.decode()
-                if tags == "XMLPacket":
-                    continue  # Skip 'XMLPacket'
-                tag = (tags, data)
-                if tag not in _tags:
-                    _tags.append(tag)
-                _tags.append(tag)
-            except UnicodeDecodeError:
-                continue
-            except Exception as e:
-                print(f"Error extracting tag {tag_id}: {e!r}")
-                continue
-        return _tags
+        with open(self.path, "rb") as f:
+            _tags = exifread.process_file(f)
+
+        tags = {
+            tag: data
+            for tag, data in _tags.items()
+            if tag not in {"JPEGThumbnail", "TIFFThumbnail", "Filename"}
+        }
+        return tags
 
     @property
     def capture_date(self) -> datetime:

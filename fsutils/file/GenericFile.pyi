@@ -1,9 +1,12 @@
 import os
 from collections.abc import Iterator
 from datetime import datetime
+
 from typing import Any
+from typing import NamedTuple
 
 GIT_OBJECT_REGEX = ...
+type times = tuple[datetime, datetime, datetime]
 
 class Base:
     """This is the base class for all of the following objects.
@@ -126,7 +129,7 @@ class Base:
 
     @property
     def parts(self) -> tuple[str, ...]: ...
-    def times(self) -> tuple[datetime, datetime, datetime]:
+    def times(self) -> times:
         """Return access, modification, and creation times of a file."""
 
     def exists(self) -> bool:
@@ -172,7 +175,9 @@ class Base:
     def read_text(self) -> str:
         """Read the contents of the file as a string."""
 
-    def sha256(self) -> str: ...
+    def sha256(self) -> str:
+        """Compute and return the SHA-256 hash of the file."""
+
     def read_json(self) -> object: ...
     def __hash__(self) -> int:
         """Return the hash of the file."""

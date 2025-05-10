@@ -1,4 +1,3 @@
-# cython: boundscheck=False, wraparound=False, divide_zero_check=False, cdivsion=True
 
 """Represents a directory. Contains methods to list objects inside this directory."""
 
@@ -14,12 +13,14 @@ cimport cython
 import fnmatch
 from libc.stdlib cimport free
 from libc.stdint cimport uint8_t
+from enum import Enum
 
 from ThreadPoolHelper import Pool
 from fsutils.img import Img
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.video import Video
 from fsutils.utils.tools  import format_bytes
+from fsutils.file.GenericFile import Base
 from fsutils.file.GenericFile cimport Base
 
 
@@ -99,22 +100,22 @@ cdef class Dir(Base):
             return True
         return False
 
-    def videos(self) -> list[Video]:
+    def videos(self, *, bint init=False) -> list[Video]:
         cdef tuple[str] valid_exts = FILE_TYPES['video']
-        return [Video.__new__(Video, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
+        return [File(file, init=init) for file in self.ls_files() if file.lower().endswith(valid_exts)]
 
-    def images(self) -> list[Img]:
+    def images(self, *, bint init=False) -> list[Img]:
         cdef tuple[str] valid_exts = FILE_TYPES['img']
-        return [Img.__new__(Img, file) for file in self.ls_files() if file.lower().endswith(valid_exts)]
+        return [File(file, init=init) for file in self.ls_files() if file.lower().endswith(valid_exts)]
 
     def non_media(self) -> list[Base]:
         """Return a generator of all files that are not media."""
         cdef tuple[str] valid_exts = (*FILE_TYPES['video'],*FILE_TYPES['img'])
-        return [Base.__new__(Base, file) for file in self.ls_files() if not file.lower().endswith(valid_exts)] # type: ignore
+        return [Base.__new__(Base, file) for file in self.ls_files() if not file.lower().endswith(valid_exts)]
 
-    def fileobjects(self) -> list[Base]:
+    def fileobjects(self, *, bint init=False) -> list[Base]:
         """Return a list of all file objects."""
-        return [obj(file) for file in self.ls_files()] # type: ignore
+        return [File(file) for file in self.ls_files()]
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
@@ -197,6 +198,8 @@ cdef class Dir(Base):
         """Size of directory in human-readable format."""
         return format_bytes(self.size)
 
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     def duplicates(self, unsigned short int num_keep=2, bint updatedb=False) -> list[list[str]]: # type: ignore
         """Return a list of duplicate files in the directory.
 
@@ -216,7 +219,7 @@ cdef class Dir(Base):
         return pickle.loads(Path(self._pkl_path).read_bytes()) if Path(self._pkl_path).exists() else {}
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    def serialize(self, **kwargs) ->  dict[str, set[str]]:
+    def serialize(self, bint replace=False) ->  dict[str, set[str]]:
         """Create an hash index of all files in self.
 
         Paramaters
@@ -242,11 +245,10 @@ cdef class Dir(Base):
         mapping = defaultdict(set)
 
         self._pkl_path = self._pkl_path.lstrip('.')
-        if Path(self._pkl_path).exists():
-            Path(self._pkl_path).unlink()
-        elif Path(self._pkl_path).exists() and kwargs.get('replace', True) is False:
+        if Path(self._pkl_path).exists() and replace is False:
             return self.db
-
+        elif replace is True and Path(self._pkl_path).exists():
+            Path(self._pkl_path).unlink()
         with nogil:
             _map = hashDirectory(path)
         if _map is not NULL:
@@ -276,11 +278,8 @@ cdef class Dir(Base):
         reset = '\033[0m'
         purple = '\033[35m'
 
-        self_db = set(self.db.keys())
-        other_db = set(other.db.keys())
-
-        common_files = self_db & other_db
-        unique_files = self_db - other_db
+        common_files = self.db.keys() & other.db.keys()
+        unique_files = self.db.keys() - other.db.keys()
 
         print(template.format(key='Total: ',color=purple, reset=reset, value=num_files, percentage=""))
         print(template.format(key="Common: ", color=blue, reset=reset,value=len(common_files),percentage=f"{len(common_files)/num_files*100:.0f}%"))
@@ -306,7 +305,6 @@ cdef class Dir(Base):
                 yield item.path
 
     def traverse(self, root=None, bint follow_symlinks=False) -> Generator[os.DirEntry, None, None]:
-        # pyright: ignore
         """Recursively traverse a directory tree starting from the given path.
 
         Yields
@@ -326,15 +324,15 @@ cdef class Dir(Base):
                     continue
     def filter(self, str ext) -> list[Base]:
         """Filter files by extension."""
-        return [obj(item.path) for item in filter(lambda x: x.name.endswith(ext), self.traverse())]
+        return [File(item.path) for item in filter(lambda x: x.name.endswith(ext), self.traverse())]
 
     def glob(self, str pattern) -> list[Base]:
         """Filter files by glob pattern."""
-        return [obj(item.path) for item in filter(lambda x: fnmatch.fnmatch(x.name, pattern), self.traverse())]
+        return [File(item.path) for item in filter(lambda x: fnmatch.fnmatch(x.name, pattern), self.traverse())]
 
     def __getitem__(self, str key, /) -> list[Base]:
         """Get a file by name."""
-        return [_obj(item.path) for item in self.ls() if item.name == key]
+        return [File(item.path) for item in self.ls() if item.name == key]
 
 
     def __format__(self, str format_spec, /) -> str:
@@ -342,28 +340,26 @@ cdef class Dir(Base):
         if format_spec == "videos":
             print(Video.fmtheader())
             return "\n".join(
-                result for result in pool.execute(format, self.videos(), progress_bar=False)
+                result for result in pool.execute(format, self.videos(init=True), progress_bar=False)
             )
         elif format_spec == "images":
             print(Img.fmtheader())
             return "\n".join(
-                result for result in pool.execute(format, self.images(), progress_bar=False)
+                result for result in pool.execute(format, self.images(init=True), progress_bar=False)
             )
         else:
             raise ValueError("Invalid format specifier")
 
     def __hash__(self) -> int:
-        return hash((tuple(self.content), self.is_empty()))
+        return hash(self.sha256())
 
     def __len__(self) -> int:
         """Return the number of items in the object."""
         return len(list(self.traverse()))
 
     def __contains__(self, item: Base) -> bint:
-        sha = item.sha256()
-        if isinstance(sha, bytes):
-            sha = sha.decode()
-        return sha in self.db # type: ignore
+        sha = item.sha256() # pyright: ignore[reportGeneralTypeIssues]
+        return sha in self.db
 
 
     def __iter__(self) -> Iterator[Base]:
@@ -377,70 +373,48 @@ cdef class Dir(Base):
                 yield cls_instance
             for file in files:
                 try:
-                    cls_instance = _obj(os.path.join(root, file))
+                    cls_instance = File(os.path.join(root, file))
                     yield cls_instance
                 except FileNotFoundError as e:
                     print(f"DirNode.Dir.__iter__(): {e!r}")
 
     def __eq__(self, other: "Dir", /) -> bint:
         """Compare the contents of two Dir objects."""
-        return all(
-            (
-                isinstance(other, self.__class__),
-                hash(self) == hash(other),
-            ),
-        ) # type: ignore
+        return isinstance(other, Dir) and self.sha256() == other.sha256()
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"# type: ignore
+        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"
 
-cdef inline Base _obj(str path):
+class FileType(Enum):
+    img = (".jpg", ".jpeg", ".png", ".gif", ".nef", ".webp"), Img
+    video  = (".mp4", ".avi", ".mkv", ".wmv", ".webm", ".m4v", ".flv", ".mpg", ".mov"), Video
+    def __init__(self, tuple[str] extensions, cls):
+        self.exts = extensions
+        self.cls = cls
+
+EXTENSION_MAP: dict[str, Base] = {ext: filetype.cls for filetype in FileType for ext in filetype.exts}
+
+
+cdef inline Base _create(str path):
     """Return a Base object for the given path."""
-    cdef unicode ext, file_type
-    cdef tuple[str] extensions
-    cdef str class_name
-    cdef object FileClass
-    cdef object module
-
-    pathobj = Path(path)
-    if pathobj.is_dir():
+    cdef str ext
+    cdef object cls
+    if os.path.isdir(path):
         return Dir(path)
-    ext = pathobj.suffix.lower()
-
-    for file_type, extensions in FILE_TYPES.items():
-        if ext in extensions:
-            # Dynamically create the class name and instantiate it
-            class_name = file_type.capitalize()
-            module = sys.modules[__name__]
-            try:
-                FileClass = getattr(module, class_name)
-                return FileClass.__new__(FileClass, path) # type: ignore
-            except FileNotFoundError as e:
-                print(f"{e!r}")
-            except AttributeError:
-                class_name = 'Base'
-                return Base.__new__(Base, path) # type: ignore
-    try:
-        FileClass = Base.__new__(Base, path) # type: ignore
-    except FileNotFoundError as e:
-        return None # type: ignore
-    return Base.__new__(Base, path) # type: ignore
+    ext = os.path.splitext(path)[-1].lower()
+    cls = EXTENSION_MAP.get(ext, Base)
+    return cls.__new__(cls, path)
 
 class File:
-    def __new__(cls, filepath, /, init=False):
-        # Dynamically create the class name and instantiate it
-        cls = _obj(filepath)
+    def __new__(cls, str filepath, *, bint init=False) -> Base:
+        cdef Base _cls
+        _cls = _create(filepath)
         if init:
-            cls.__init__(filepath)
-        return cls
-
+            _cls.__init__(filepath)
+        return _cls
     @staticmethod
-    def from_hash(hash: str, db: dict[str, set[str]]) -> list[Base]:
-        return [_obj(path) for path in db[hash]]
-
-cpdef Base obj(str file_path):
-    """Return a Base instance for the given file path."""
-    return _obj(file_path)
+    def from_hash(str hash, dict[str, set[str]] db) -> list[Base]:
+        return [File.__new__(File, path) for path in db[hash]]
 
 
 cdef int stat_result(item):

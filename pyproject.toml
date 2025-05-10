@@ -10,6 +10,7 @@ requires-python = ">=3.13"
 dependencies = [
     "chardet>=5.2.0",
     "cython>=3.0.12",
+    "exifread>=3.3.0",
     "imagehash>=4.3.2",
     "matplotlib>=3.10.1",
     "opencv-python>=4.11.0.86",

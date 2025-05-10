@@ -1,8 +1,9 @@
+import os
+from collections.abc import Generator, Iterator
+
 from fsutils.file.GenericFile import Base
 from fsutils.img import Img
 from fsutils.video import Video
-import os
-from collections.abc import Generator, Iterator
 
 class Dir(Base):
     """A class representing information about a directory.
@@ -30,7 +31,10 @@ class Dir(Base):
 
     path: str
 
-    def __init__(self, path: str | None = ...) -> None:
+    def __cinit__(self, path: str = ...) -> None:
+        """Fast __new__."""
+
+    def __init__(self, path: str = ...) -> None:
         """Initialize a new instance of the Dir class.
 
         Parameters
@@ -54,8 +58,8 @@ class Dir(Base):
     def is_empty(self) -> bool:
         """Check if the directory is empty."""
 
-    def videos(self) -> list[Video]: ...
-    def images(self) -> list[Img]: ...
+    def videos(self, *, init=False) -> list[Video]: ...
+    def images(self, *, init=False) -> list[Img]: ...
     def non_media(self) -> list[Base]:
         """Return a generator of all files that are not media."""
 
@@ -107,7 +111,9 @@ class Dir(Base):
     def compare(self, other: Dir) -> tuple[set[str], set[str]]:
         """Compare the current directory with another directory."""
 
-    def ls(self, follow_symlinks: bool = ..., recursive: bool = ...) -> Generator[os.DirEntry]: ...
+    def ls(
+        self, follow_symlinks: bool = ..., recursive: bool = ...
+    ) -> Generator[os.DirEntry]: ...
     def ls_dirs(self, follow_symlinks: bool = ...) -> Generator[str]:
         """Return a list of paths for all directories in self."""
 
@@ -145,5 +151,7 @@ class Dir(Base):
 
     def __repr__(self) -> str: ...
 
-def obj(file_path: str) -> Base:
-    """Return a File instance for the given file path."""
+class File:
+    def __new__(cls, filepath: str, *, init: bool = False) -> Base: ...
+    @staticmethod
+    def from_hash(hash: str, db: dict[str, set[str]]) -> list[Base]: ...

@@ -10,6 +10,10 @@ from pathlib import Path
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.utils.tools import format_bytes
 
+from collections import namedtuple
+from typing import TypeAlias
+
+times: TypeAlias = namedtuple("st_times", ["atime", "mtime", "ctime"])
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
@@ -78,7 +82,6 @@ cdef class Base:
                 raise FileNotFoundError(f"File '{path}' does not exist")
         except PermissionError as e:
             print(f"Permission denied to access file {self.name}: {e!r}")
-
 
     def head(self, unsigned int n = 5) -> list[str]:
         """Return the first n lines of the file."""
@@ -176,9 +179,9 @@ cdef class Base:
         """Return the last access time of the file."""
         return datetime.fromtimestamp(self.stat().st_atime)
 
-    def times(self) -> tuple[datetime, datetime, datetime]:
+    def times(self) -> times: #:tuple[datetime, datetime, datetime]:
         """Return access, modification, and creation times of a file."""
-        return tuple(map(datetime.fromtimestamp, self.stat()[-3:]))
+        return times(*map(datetime.fromtimestamp, self.stat()[-3:]))
     @property
     def parts(self) -> tuple[str, ...]:
         return Path(self.path).parts
@@ -220,7 +223,7 @@ cdef class Base:
             other (Object): The Object to compare (FileObject, VideoObject, etc.)
 
         """
-        return all((other.exists(), self.exists(), hash(self) == hash(other))) # type: ignore
+        return self.sha256() == other.sha256()
 
     def __bool__(self) -> bool:
         """Check if the file exists."""
@@ -248,6 +251,7 @@ cdef class Base:
             return f.read()
 
     def sha256(self) -> str:
+        """Compute and return the SHA-256 hash of the file."""
         cdef bytes _path = self.path.encode('utf-8')
         cdef char* path = <char*>_path
         cdef sha256_hash_t *hash = <sha256_hash_t *>returnHash(path)

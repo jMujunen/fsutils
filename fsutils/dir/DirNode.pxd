@@ -3,6 +3,8 @@
 from fsutils.file.GenericFile cimport Base
 from libc.stdint cimport uint8_t
 
+
+
 cdef extern from "hash.c":
     ctypedef struct sha256_hash_t:
         uint8_t _hash[32]
@@ -44,10 +46,3 @@ cdef class Dir(Base):
     cdef public str _pkl_path
     cdef unsigned long int _size
     cdef dict[str, set[str]] _db
-
-
-cdef inline Base _obj(str path)
-
-cpdef Base obj(str file_path)
-
-
