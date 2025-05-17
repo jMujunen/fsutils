@@ -38,7 +38,7 @@ def frametimes(num_frames: int, clip_fps: int, saving_fps: int) -> list[int]:
     print("duration:", duration)
     # use np.arange() to make floating-point steps
     for i in np.arange(0, duration, 1 / saving_fps):
-        s.append(i)
+        s.append(i.copy())
     return s
 
 
