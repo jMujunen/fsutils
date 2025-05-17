@@ -265,7 +265,7 @@ struct HashMap *hashDirectory(const char *directory) {
     mtx_init(&runningMutex, mtx_plain);
 
     // Create threads
-    const int numThreads = 16;
+    const int numThreads = 20;
     struct ThreadArgs args[numThreads];
     thrd_t threads[numThreads];
 
@@ -344,106 +344,4 @@ void printProgressBar(int current, int total) {
 
     printf("\r[%s] %3.0f%%", bar, ((double)current / total) * 100);
     fflush(stdout);
-}
-
-int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        printf("Usage: %s <directory>\n", argv[0]);
-        return 1;
-    }
-    int numFiles = 0;
-    char **filePaths = listFilesRecursively(argv[1], &numFiles);
-    if (!filePaths) {
-        return 1;
-    }
-    printf("Number of files: %d\n", numFiles);
-    // Allocate hashes array
-    sha256_hash_t **hashes = malloc(numFiles * sizeof(sha256_hash_t *));
-    if (!hashes) {
-        printf("Error allocating memory for hashes\n");
-        free(filePaths);
-        return 1;
-    }
-
-    // Pre-allocate each hash
-    for (int i = 0; filePaths[i] != NULL; i++) {
-        char* path = filePaths[i];
-        hashes[i] = malloc(sizeof(sha256_hash_t));
-        if (!hashes[i]) {
-            printf("Error allocating memory for hash\n");
-            for (int j = 0; j < i; j++) {
-                free(hashes[j]);
-            }
-            free(hashes);
-            free(filePaths);
-            return 1;
-        }
-    }
-    // Initialize mutexes
-    mtx_init(&progressMutex, mtx_plain);
-    mtx_init(&runningMutex, mtx_plain);
-
-    const int numThreads = 16;
-    struct ThreadArgs args[numThreads];
-    thrd_t threads[numThreads];
-
-    // Calculate the range for each thread
-    for (int t = 0; t < numThreads; t++) {
-        args[t].startIndex = (t * numFiles) / numThreads;
-        args[t].endIndex = ((t + 1) * numFiles) / numThreads;
-        if (t == numThreads - 1) {
-            args[t].endIndex = numFiles;
-        }
-        args[t].filePaths = filePaths;
-        args[t].hashes = hashes;
-
-        int ret = thrd_create(&threads[t], processFiles, &args[t]);
-        if (ret != thrd_success) {
-            printf("Error creating thread %d\n", t);
-            // Clean up resources
-            for (int j = 0; j < numFiles; j++) {
-                if (hashes[j]) free(hashes[j]);
-            }
-            free(hashes);
-            free(filePaths);
-            mtx_destroy(&progressMutex);
-            mtx_destroy(&runningMutex);
-            return 1;
-        }
-    }
-
-    // Wait for all threads to finish
-    for (int t = 0; t < numThreads; t++) {
-        thrd_join(threads[t], NULL);
-    }
-    // Wait for progress thread to finish
-    mtx_lock(&runningMutex);
-    running = 0;
-    mtx_unlock(&runningMutex);
-
-    // Destroy mutexes
-    mtx_destroy(&progressMutex);
-    mtx_destroy(&runningMutex);
-
-    // Print the results
-    for (int i = 0; i < numFiles; i++) {
-        if (!hashes[i]) continue;
-        printf("%-80s: ", filePaths[i]);
-        for (int j = 0; j < 32; j++) {
-            printf("%02x", hashes[i]->_hash[j]);
-        }
-        printf("\n");
-    }
-
-    // Free resources
-    for (int i = 0; i < numFiles; i++) {
-        free(hashes[i]);
-    }
-    free(hashes);
-    for (int i = 0; i < numFiles; i++) {
-        free(filePaths[i]);
-    }
-    free(filePaths);
-
-    return 0;
 }
