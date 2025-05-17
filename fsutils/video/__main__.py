@@ -22,6 +22,7 @@ import argparse
 import contextlib
 from typing import Any
 
+from rich.console import Console
 from ThreadPoolHelper import Pool
 
 from ..utils.mimecfg import FILE_TYPES
@@ -130,7 +131,9 @@ def main() -> Any:
             return 0
         case "info":
             print(Video.fmtheader())
-            print("\n".join(sorted(Pool().execute(format, videos, progress_bar=False))))
+            pool = Pool()
+            for result in pool.execute(format, videos, progress_bar=False):
+                print(result)
             return 0
         case "compress":
             for vid in videos:

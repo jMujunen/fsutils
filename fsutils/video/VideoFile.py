@@ -4,16 +4,17 @@ import contextlib
 import os
 import subprocess
 import sys
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
+
 import cv2
 
 from fsutils.file import Base
 from fsutils.img import Img
 from fsutils.utils.tools import format_bytes, format_timedelta, frametimes
-from fsutils.video.FFProbe import FFProbe, FFStream
-from dataclasses import dataclass, field
+from fsutils.video.FFProbe import FFProbe, Stream, Tags
 
 cv2.setLogLevel(1)
 
@@ -59,7 +60,7 @@ class FFMPEG_GIF_OPTIONS:
         return template.format(input_file=input_file, **self.__dict__).split()
 
 
-class Video(Base, FFProbe):  # noqa: PLR0904
+class Video(Base):  # noqa: PLR0904
     """A class representing information about a video.
 
     | Method | Description |
@@ -84,8 +85,7 @@ class Video(Base, FFProbe):  # noqa: PLR0904
         - `bitrate`
     """
 
-    _metadata: FFStream | None = None
-    _fmt: dict[str, Any] | None = None
+    _metadata: Stream
 
     def __init__(self, path: str | Path, *args, **kwargs) -> None:
         """Initialize a new Video object.
@@ -95,44 +95,38 @@ class Video(Base, FFProbe):  # noqa: PLR0904
             - `path (str)` : The absolute path to the video file.
 
         """
-        Base.__init__(self, str(path), *args, **kwargs)
+        super().__init__(str(path), *args, **kwargs)
         for k, v in FFProbe(path).streams[0].__dict__.items():
             setattr(self, k, v)
-        # FFProbe.__init__(self, path)
-        # vid_stream = FFProbe(path).streams[0]
-        # FFStream.__init__(self, vid_stream.__dict__)
 
     @property
-    def metadata(self) -> FFStream:
+    def metadata(self) -> Stream:
         """Extract the metadata of the video."""
-        if self._metadata is None:
-            probe = FFProbe(self.path)
-            for stream in probe.streams:
-                if stream.is_video():
-                    self._metadata = stream
-                    break
-            else:
-                raise ValueError(f"No video stream found in {self.name}")
+        probe = FFProbe(self.path)
+        for stream in probe.streams:
+            if stream.is_video():
+                self._metadata = stream
+                break
+        else:
+            raise ValueError(f"No video stream found in {self.name}")
 
         return self._metadata
 
     @property
-    def bitrate(self) -> int:
-        return int(self.bit_rate)
+    def tags(self) -> Tags:
+        """Extract the tags of the video."""
+        return FFProbe(self.path).tags
 
     @property
     def bitrate_human(self) -> str:
         """Return the bitrate in a human readable format."""
-        try:
-            return format_bytes(self.bitrate)
-        except Exception:
-            return ""
+        return format_bytes(int(self.metadata.bit_rate))
 
     @property
     def capture_date(self) -> datetime:
         """Return the capture date of the file."""
         try:
-            date, time = self.tags.get("creation_time", "").split("T")
+            date, time = self.tags.creation_time.split("T")  # pyright: ignore[reportAttributeAccessIssue]
             year, month, day = date.split("-")
             hour, minute, second = time.split(".")[0].split(":")
             return datetime(
@@ -147,14 +141,14 @@ class Video(Base, FFProbe):  # noqa: PLR0904
             return self.mtime
 
     @property
-    def codec(self) -> str | None:
+    def codec(self) -> str:
         """Codec eg `H264` | `H265`."""
-        return self.__dict__.get("codec_name", None)
+        return self.metadata.codec_name
 
     @property
     def dimensions(self) -> tuple[int, int] | None:
         """Return width and height of the video `(1920x1080)`."""
-        return self.width, self.height
+        return self.metadata.width, self.metadata.height
 
     def is_corrupt(self) -> bool:
         """Check if the video is corrupt."""
@@ -167,10 +161,10 @@ class Video(Base, FFProbe):  # noqa: PLR0904
             sys.exit(0)
 
     @property
-    def fps(self) -> int:
+    def fps(self) -> float:
         """Return the frames per second of the video."""
-        enum, denum = map(int, self.avg_frame_rate.split("/"))
-        return round(enum / denum)
+        enum, denum = map(int, self.metadata.avg_frame_rate.split("/"))
+        return round(enum / denum, 2)
 
     @property
     def num_frames(self) -> int:
@@ -180,7 +174,9 @@ class Video(Base, FFProbe):  # noqa: PLR0904
             num_frames = self.nb_frames
         else:
             try:
-                num_frames = round(cv2.VideoCapture(self.path).get(cv2.CAP_PROP_FRAME_COUNT))
+                num_frames = round(
+                    cv2.VideoCapture(self.path).get(cv2.CAP_PROP_FRAME_COUNT)
+                )
                 self.nb_frames = num_frames
             except Exception as e:
                 print(f"Error getting num_frames with cv2: {e!r}")
@@ -213,9 +209,7 @@ class Video(Base, FFProbe):  # noqa: PLR0904
                 print("Not overwriting existing file")
                 return Img(output_path)
 
-        generate_palette_cmd = (
-            f'ffmpeg -i {self.path} -vf "{FILTERS},palettegen" -y -v error  -stats {_TMPFILE}'
-        )
+        generate_palette_cmd = f'ffmpeg -i {self.path} -vf "{FILTERS},palettegen" -y -v error  -stats {_TMPFILE}'
         generate_gif_cmd = f'ffmpeg -i {self.path} -i {_TMPFILE} -lavfi "{FILTERS} [x]; [x][1:v] paletteuse" -y -v error {output_path}'
         try:
             subprocess.check_call(generate_palette_cmd, shell=True)
@@ -227,30 +221,30 @@ class Video(Base, FFProbe):  # noqa: PLR0904
             print(f"\033[31mError:\033[0m{e!r}")
         return None
 
-    def make_gif(self, scale=640, fps=15, loop=False, **kwargs: Any) -> Img:
+    def make_gif(
+        self, scale: int = 640, fps: int = 15, *, output: str | None = None
+    ) -> Img:
         """Convert the video to a gif using FFMPEG.
+
+        Adjust default values depending on if quality or file size are a priority.
 
         Parameters
         -----------
-            - `scale` : int, optional (default is 500)
-            - `fps`   : int, optional (default is 10)
-
-            Breakdown:
-            * `FPS` : Deault is 24 but the for smaller file sizes, try 6-10
-            * `SCALE`  is the width of the output gif in pixels.
-                - 500-1000 = high quality but larger file size.
-                - 100-500   = medium quality and smaller file size.
-                - 10-100    = low quality and smaller file size.
-
-            * The default `fps | scale` of `24 | 500` means a decent quality gif.
+            scale : int, optional (default is 640)
+                The width of the output gif in pixels.
+            fps : int, optional (default is 15)
+                The frames per second of the gif.
+            output : str, optional
+               The full path of the gif to be created.
 
         Returns
         --------
-            - `Img` : New `Img` object of the gif created from this video file.
+            Img: A Img object representing the gif created from this video file.
         """
 
-        output = kwargs.get("output", f"{self.parent}/{self.prefix}{'.gif'}")
-        output_path = Path(output)
+        output_path = (
+            Path(self.parent, self.prefix, ".gif") if output is None else Path(output)
+        )
         if output_path.exists():
             if input("Overwrite existing file? (y/n): ").lower() in {"Y", "y", "yes"}:
                 output_path.unlink()
@@ -311,7 +305,8 @@ class Video(Base, FFProbe):  # noqa: PLR0904
                 # if closest duration is less than or equals the frametime,
                 # then save the frame
                 output_path = Path(
-                    output_dir, f"frame{format_timedelta(timedelta(seconds=frametime))}.jpg"
+                    output_dir,
+                    f"frame{format_timedelta(timedelta(seconds=frametime))}.jpg",
                 )
                 print(f"Writing frame {count} to {output_path}")
                 cv2.imwrite(
@@ -398,11 +393,14 @@ class Video(Base, FFProbe):  # noqa: PLR0904
 
     def __repr__(self) -> str:
         """Return a string representation of the file."""
-        return f"{self.__class__.__name__}(name={self.name}, size={self.size_human})".format(
-            **vars(self)
+        return (
+            f"{self.__class__.__name__}(name={self.name}, size={self.size_human})".format(
+                **vars(self)
+            )
         )
 
-    def sha256(self) -> bytes:
+    def sha256(self) -> str:
+        """Return the sha256 hash of the file."""
         return super().sha256()
 
     def hash(self) -> int:
@@ -411,7 +409,9 @@ class Video(Base, FFProbe):  # noqa: PLR0904
 
     def __format__(self, format_spec: str, /) -> str:
         """Return the object in tabular format."""
-        template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {!s:<10}"
+        template = (
+            "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {!s:<10}"
+        )
         name = self.name
         iterations = 0
         while len(name) > 20 and iterations < 5:  # Protection from infinite loop
@@ -426,16 +426,25 @@ class Video(Base, FFProbe):  # noqa: PLR0904
             self.bitrate_human,
             self.size_human,
             self.codec,
-            self.duration,
-            self.framerate,
+            self.metadata.duration,
+            self.fps,
             self.dimensions,
         )
 
     @staticmethod
     def fmtheader() -> str:
-        template = "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n"
+        template = (
+            "{:<25} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}\n"
+        )
         header = template.format(
-            "File", "Num Frames", "Bitrate", "Size", "Codec", "Duration", "FPS", "Dimensions"
+            "File",
+            "Num Frames",
+            "Bitrate",
+            "Size",
+            "Codec",
+            "Duration",
+            "FPS",
+            "Dimensions",
         )
         linebreak = template.format(
             "-" * 25, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10

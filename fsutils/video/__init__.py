@@ -1,2 +1,2 @@
-from .FFProbe import FFProbe, FFStream
+from .FFProbe import FFProbe
 from .VideoFile import Video
