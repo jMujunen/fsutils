@@ -181,7 +181,8 @@ cdef class Base:
 
     def times(self) -> times: #:tuple[datetime, datetime, datetime]:
         """Return access, modification, and creation times of a file."""
-        return times(*map(datetime.fromtimestamp, self.stat()[-3:]))
+        a, m, c = map(datetime.fromtimestamp, self.stat()[-3:])
+        return times(m, c, a)
     @property
     def parts(self) -> tuple[str, ...]:
         return Path(self.path).parts
@@ -270,5 +271,4 @@ cdef class Base:
     def __str__(self) -> str:
         """Return a string representation of the file."""
         return self.path
-
 

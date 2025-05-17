@@ -1,9 +1,7 @@
 import os
 from collections.abc import Iterator
 from datetime import datetime
-
-from typing import Any
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 GIT_OBJECT_REGEX = ...
 type times = tuple[datetime, datetime, datetime]
