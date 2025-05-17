@@ -171,14 +171,6 @@ cdef class Dir(Base):
 
 
     @property
-    def db(self) -> dict[str, set[str]]:
-        if not self._db:
-            self._db = self._load_database()
-        return self._db
-    @db.setter
-    def db(self, value: dict[str, set[str]]):# -> dict[str, set[str]]:
-        self._db = value
-    @property
     def size(self) -> int:
         """Size of all files and directories in the current directory."""
         if hasattr(self, "_size"):
@@ -214,12 +206,28 @@ cdef class Dir(Base):
         hashes = self.serialize(replace=updatedb) # type: ignore
         return [list(value) for value in hashes.values() if len(value) > num_keep]
 
+    @property
+    def db(self) -> dict[str, set[str]]:
+        if not self._db:
+            self._db = self._load_database()
+        return self._db
+    @db.setter
+    def db(self, value: dict[str, set[str]]):# -> dict[str, set[str]]:
+        self._db = value
+
     def _load_database(self) -> dict[str, set[str]]:
         """Deserialize the pickled database."""
-        return pickle.loads(Path(self._pkl_path).read_bytes()) if Path(self._pkl_path).exists() else {}
+        pklpath = Path(self._pkl_path)
+        if not pklpath.exists():
+            raise FileNotFoundError(pklpath)
+        db = pickle.loads(pklpath.read_bytes())
+        if not db:
+            raise RuntimeError(f'Database is empty for {self._pkl_path}')
+        return db
+
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    def serialize(self, bint replace=False) ->  dict[str, set[str]]:
+    def serialize(self, *, bint replace=True) ->  dict[str, set[str]]:
         """Create an hash index of all files in self.
 
         Paramaters
@@ -232,10 +240,6 @@ cdef class Dir(Base):
                 and the values are lists of file paths.
 
         """
-        if len(self.files) == 0:
-            with open(self._pkl_path, 'wb') as f:
-                pickle.dump({}, f)
-            return {}
         cdef bytes _path = self.path.encode('utf-8')
         cdef char* path = <char*>_path
         cdef HashMap *_map
@@ -249,6 +253,9 @@ cdef class Dir(Base):
             return self.db
         elif replace is True and Path(self._pkl_path).exists():
             Path(self._pkl_path).unlink()
+        if len(self.files) == 0:
+            print(f'\033[33mWarning: \033[0m{self.path} has no files')
+            return {}
         with nogil:
             _map = hashDirectory(path)
         if _map is not NULL:
@@ -256,7 +263,11 @@ cdef class Dir(Base):
                 _filepath = _map.entries[i].filepath
                 _sha = _map.entries[i].sha._hash
                 sha = ''.join([format(_sha[i], '02x') for i in range(0,32)])
-                mapping[sha].add(_filepath.decode('utf-8'))
+                try:
+                    mapping[sha].add(_filepath.decode('utf-8'))
+                except UnicodeDecodeError:
+                    print(f'\033[31mError decoding {_filepath}')
+                    # mapping[sha].add(_filepath.decode('utf-8', errors='ignore'))
             free(_map.entries)
             free(_map)
 
@@ -330,10 +341,20 @@ cdef class Dir(Base):
         """Filter files by glob pattern."""
         return [File(item.path) for item in filter(lambda x: fnmatch.fnmatch(x.name, pattern), self.traverse())]
 
-    def __getitem__(self, str key, /) -> list[Base]:
-        """Get a file by name."""
-        return [File(item.path) for item in self.ls() if item.name == key]
-
+    def __getitem__(self, key: str | Base, /) -> list[Base]:
+        """Get a file by name or instance"""
+        cdef list[Base] results = []
+        if isinstance(key, str):
+            results = [File(item.path) for item in self.ls() if item.name == key]
+        elif isinstance(key, Base):
+            key_sha = key.sha256()
+            if key_sha in self.db:
+                results = File.from_hash(key_sha, self.db)
+            else:
+                results =  []
+        else:
+            raise TypeError(f"Expected str or Base, got {type(key)}")
+        return results
 
     def __format__(self, str format_spec, /) -> str:
         pool = Pool()
@@ -380,7 +401,7 @@ cdef class Dir(Base):
 
     def __eq__(self, other: "Dir", /) -> bint:
         """Compare the contents of two Dir objects."""
-        return isinstance(other, Dir) and self.sha256() == other.sha256()
+        return isinstance(other, Dir) and self.content == other.content
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, size={self.size_human}, is_empty={self.is_empty()})"
