@@ -7,4 +7,5 @@ class DurationError(Exception):
 
 
 class CorruptMediaError(Exception):
-    pass
+    def __init__(self, filepath: str) -> None:
+        super().__init__(f"{filepath} is corrupt")

@@ -18,10 +18,11 @@ from enum import Enum
 from ThreadPoolHelper import Pool
 from fsutils.img import Img
 from fsutils.utils.mimecfg import FILE_TYPES
-from fsutils.video import Video
+from fsutils.video import Video, FFProbe
+from fsutils.audio import Audio
 from fsutils.utils.tools  import format_bytes
-from fsutils.file.GenericFile import Base
 from fsutils.file.GenericFile cimport Base
+
 
 
 cdef class Dir(Base):
@@ -409,6 +410,35 @@ cdef class Dir(Base):
 class FileType(Enum):
     img = (".jpg", ".jpeg", ".png", ".gif", ".nef", ".webp"), Img
     video  = (".mp4", ".avi", ".mkv", ".wmv", ".webm", ".m4v", ".flv", ".mpg", ".mov"), Video
+    audio = (
+        ".3ga",
+        ".aac",
+        ".ac3",
+        ".aif",
+        ".aiff",
+        ".alac",
+        ".amr",
+        ".ape",
+        ".au",
+        ".dss",
+        ".flac",
+        ".flv",
+        ".m4a",
+        ".m4b",
+        ".m4p",
+        ".mp3",
+        ".mpga",
+        ".ogg",
+        ".oga",
+        ".mogg",
+        ".opus",
+        ".qcp",
+        ".tta",
+        ".voc",
+        ".wav",
+        ".wma",
+        ".wv"
+    ), Audio
     def __init__(self, tuple[str] extensions, cls):
         self.exts = extensions
         self.cls = cls

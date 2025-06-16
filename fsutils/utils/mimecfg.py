@@ -175,7 +175,7 @@ FILE_TYPES: dict[str, tuple] = {
         ".pickle",
         ".so",
     ),
-    "ignored": (),
+    "ignored": (".xml",),
     "dupes": (),  # For duplicate files
 }
 IGNORED_DIRS = ("site-packages", ".Trash-info", ".git", "venv", ".venv", ".cache")

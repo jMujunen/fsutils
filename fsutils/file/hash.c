@@ -53,6 +53,7 @@ char** listFilesRecursively(const char *basePath, int *count) {
     int files_in_dir = 0;
     int _count = 0;
     const int initialSize = 9000000;
+    // int capacity = 0;
     result = (char **)malloc(initialSize * sizeof(char *));
     if (!result) {
         printf("Memory allocation failed\n");
@@ -177,6 +178,35 @@ int hashFile(const char *filePath, sha256_hash_t *hash) {
     return 0;
 }
 
+typedef struct {
+    char **filePaths;
+    int count;
+    int index;
+    mtx_t lock;
+} WorkQueue;
+
+/**
+ * Thread function to process a range of files.
+ */
+
+// int processFiles(void *arg) {
+//     WorkQueue *queue = (WorkQueue *)arg;
+//     while (1) {
+//         mtx_lock(&queue->lock);
+//         if (queue->index >= queue->count) {
+//             mtx_unlock(&queue->lock);
+//             break;
+//         }
+//         const char *filePath = queue->filePaths[queue->index++];
+//         mtx_unlock(&queue->lock);
+
+//         // Hash the file
+//         ...
+//     }
+//     return 0;
+// }
+
+
 /**
  * Thread function to process a range of files.
  */
@@ -244,9 +274,11 @@ struct HashMap *hashDirectory(const char *directory) {
     if (!filePaths) {
         return NULL;
     }
+    printf("Hashing %d files...\n", numFiles);
     // Allocate hashes array
     sha256_hash_t **hashes = malloc(numFiles * sizeof(sha256_hash_t *));
-    for (int i = 0; filePaths[i] != NULL; i++) {
+    // for (int i = 0; filePaths[i] != NULL; i++) {
+    for (int i = 0; i < numFiles; i++) {
         char* path = filePaths[i];
         hashes[i] = malloc(sizeof(sha256_hash_t));
         if (!hashes[i]) {
@@ -265,12 +297,13 @@ struct HashMap *hashDirectory(const char *directory) {
     mtx_init(&runningMutex, mtx_plain);
 
     // Create threads
-    const int numThreads = 20;
+    const int numThreads = 24;
     struct ThreadArgs args[numThreads];
     thrd_t threads[numThreads];
 
     // Allocate memory for hash map
-    struct HashMap *map = malloc(numFiles * sizeof(struct HashMapEntry) + sizeof(int) * numFiles);
+    // struct HashMap *map = malloc(numFiles * sizeof(struct HashMapEntry) + sizeof(int) * numFiles);
+    struct HashMap *map = malloc(sizeof(struct HashMap));
     map->entries = malloc(numFiles * sizeof(struct HashMapEntry));
     map->size = numFiles;
 

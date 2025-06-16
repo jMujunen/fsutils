@@ -1,6 +1,7 @@
 """Represents an image."""
 
 import base64
+import logging
 import subprocess
 from collections import namedtuple
 from datetime import datetime
@@ -11,8 +12,12 @@ import cv2
 import exifread
 import imagehash
 import rawpy
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from PIL.ExifTags import TAGS
+
+from fsutils.utils.Exceptions import CorruptMediaError
+
+exifread.logger.setLevel(logging.CRITICAL)
 
 from fsutils.file import Base
 
@@ -21,7 +26,7 @@ ENCODE_SPEC = {".jpg": "JPEG", ".gif": "GIF", ".png": "JPEG"}
 Dims = namedtuple("Dims", ["width", "height"])
 
 
-class Img(Base):
+class Img(Base):  # noqa: PLR0904
     """Represents an image.
 
     Methods
@@ -45,15 +50,21 @@ class Img(Base):
         """
         super().__init__(str(path))
 
+    def find_sidecar(self) -> Base:
+        """Search the current directory for a sidecar file and load its contents into the object."""
+        return Base(f"{self.parent}/{self.name}.xmp")
+
     def calculate_hash(self, spec: str = "avg") -> imagehash.ImageHash:
         """Calculate the hash value of the image.
 
         Paramters:
         ---------
-            - `spec (str)` : The specification for the hashing algorithm to use.
+            spec : The specification for the hashing algorithm to use.
                             Supported values are 'avg', 'dhash', and 'phash'.
 
-
+        Raises:
+        -------
+            ValueError : If the specified hashing algorithm is not supported.
         """
         # Ignore heic until feature is implemented to support it.
         # Excluding this has unwanted effects when comparing hash values
@@ -77,39 +88,55 @@ class Img(Base):
         with Image.open(self.path) as img:
             return img.size
 
-    @property
-    def tags(self) -> dict[str, Any]:
+    def tags(self, method="exifread") -> dict[str, Any]:
         """Return a list of all tags in the EXIF data."""
-        with open(self.path, "rb") as f:
-            _tags = exifread.process_file(f)
 
-        tags = {
-            tag: data
-            for tag, data in _tags.items()
-            if tag not in {"JPEGThumbnail", "TIFFThumbnail", "Filename"}
-        }
-        return tags
+        def _exifread() -> dict[str, Any]:
+            with open(self.path, "rb") as f:
+                return {
+                    tag: data
+                    for tag, data in exifread.process_file(f).items()
+                    if tag not in {"JPEGThumbnail", "TIFFThumbnail", "Filename"}
+                }
+
+        def _pilexif() -> dict[str, Any]:
+            results = {}
+            with Image.open(self.path) as f:
+                exif = f.getexif()
+            for tag_id in exif:
+                tag = TAGS.get(tag_id, tag_id)
+                data = exif.get(tag_id, "")
+                if isinstance(data, bytes):
+                    data = data.decode()
+                elif isinstance(data, str):
+                    data = data.replace("\x00", "")
+
+                if tag == "XMLPacket":
+                    continue  # Skip 'XMLPacket'
+                if not data:
+                    continue
+                results[tag] = data
+            return results
+
+        if method == "pil":
+            try:
+                return _pilexif()
+            except (UnidentifiedImageError, UnicodeDecodeError) as e:
+                raise CorruptMediaError(self.path) from e
+        try:
+            return _exifread()
+        except Exception:
+            return _pilexif()
 
     @property
     def capture_date(self) -> datetime:
         """Return the capture date of the image if it exists in the EXIF data."""
-        for idx, val in self.tags:
-            try:
-                if idx.startswith("DateTime"):
-                    date, time = val.split(" ")
-                    year, month, day = date.split(":")
-                    hour, minute, second = time.split(":")
-                    return datetime(
-                        int(year),
-                        int(month),
-                        int(day),
-                        int(hour),
-                        int(minute),
-                        int(second[:2]),
-                    )
-            except:  # noqa
-                continue
-        return self.mtime
+        try:
+            return datetime.fromisoformat(
+                str(self.tags(method="pil")["DateTime"]).replace(":", "-", count=2)
+            )
+        except KeyError:
+            return self.mtime
 
     def is_corrupt(self) -> bool:
         """Check if the image is corrupt."""
@@ -179,15 +206,21 @@ class Img(Base):
         -------
             Img : The processed image and an instance of this class
 
+        Raises
+        ------
+            ValueError : If the file is not a supported RAW file.
         """
         # Load presets if provided
+        if output is None:
+            # Default to the current directory with a .jpg extension
+            output = Path(self.parent, f"{self.prefix}.jpg")
         preset_data = {"bright": 0.5, "use_camera_wb": False}
         if self.suffix.lower().endswith(".nef"):
             with rawpy.imread(self.path) as raw:
                 rgb = raw.postprocess(**preset_data)
                 image = Image.fromarray(rgb)
                 image.save(output)
-                return Img.__new__(Img, image)
+                return Img.__new__(Img, str(output))
         else:
             raise ValueError("Unsupported file format")
 

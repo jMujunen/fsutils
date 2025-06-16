@@ -3,6 +3,7 @@
 import json
 import re
 import subprocess
+from dataclasses import dataclass, field
 
 from pydantic import BaseModel, Field
 
@@ -81,7 +82,7 @@ class Tags:
     def __init__(self, **kwargs):
         """Initialize the Tags object."""
         for k, v in kwargs.items():
-            if k in {"major_brand", "minor_version", "compatible_brands"}:
+            if k in {"major_brand", "minor_version", "compatible_brands", "encoder"}:
                 continue
             key = k.replace("com.", "")
             if "." in key:
@@ -118,6 +119,30 @@ class Tags:
 
 
 class Stream(BaseModel):
+    codec_name: str = Field(kw_only=True, default="")
+    codec_type: str = Field(kw_only=True, default="")
+    duration: float | None = None
+    bit_rate: int | None = None
+    sample_rate: int | None = None
+
+    def is_video(self) -> bool:
+        """Check if the stream is a video."""
+        return self.codec_type == "video"
+
+    def is_audio(self) -> bool:
+        """Check if the stream is an audio."""
+        return self.codec_type == "audio"
+
+    def is_subtitle(self) -> bool:
+        """Check if the stream is a subtitle."""
+        return self.codec_type == "subtitle"
+
+    def is_data(self) -> bool:
+        """Check if the stream is a data."""
+        return self.codec_type == "data"
+
+
+class VideoStream(Stream):
     width: int = Field(kw_only=True, default=0)
     height: int = Field(kw_only=True, default=0)
     codec_name: str = Field(kw_only=True, default="")
@@ -137,54 +162,48 @@ class Stream(BaseModel):
     field_order: str | None = None
     time_base: str | None = None
     start_time: float | None = None
-    bit_rate: str | None = None
     nb_frames: int | None = None
 
-    def is_video(self) -> bool:
-        """Check if the stream is a video."""
-        return self.codec_type == "video"
 
-    def is_audio(self) -> bool:
-        """Check if the stream is an audio."""
-        return self.codec_type == "audio"
-
-    def is_subtitle(self) -> bool:
-        """Check if the stream is a subtitle."""
-        return self.codec_type == "subtitle"
-
-    def is_data(self) -> bool:
-        """Check if the stream is a data."""
-        return self.codec_type == "data"
+class AudioStream(Stream):
+    title: str | None = None
+    artist: str | None = None
+    album: str | None = None
+    sample_rate: int | None = None
+    channels: int | None = None
+    channel_layout: str | None = None
 
 
+@dataclass
 class FFProbe:
     """FFProbe wraps the ffprobe command and pulls the data into an object form::
     metadata = FFProbe("multimedia-file.mov").
     """
 
-    streams: list[Stream]
+    path: str
+    streams: list[Stream] = field(default_factory=list)
+    # videostream: VideoStream = field(default_factory=VideoStream)
+    # audiostream: AudioStream = field(default_factory=AudioStream)
+    tags: Tags = field(default_factory=Tags)
 
-    def __init__(self, filepath: str) -> None:
-        """Initialize the FFProbe object.
-
-        Parameters
-        ------------
-            - `filepath` (str) : Path to video file.
-        """
-        self.streams = []
+    def __post_init__(self) -> None:
+        """Initialize the FFProbe object."""
         cmd = 'ffprobe -v error -show_streams -show_format -output_format json file:"{}"'
 
-        result = subprocess.getoutput(cmd.format(str(filepath)))
+        result = subprocess.getoutput(cmd.format(str(self.path)))
         data = json.loads(result)
 
         streams = data.get("streams", [])
         tags = data.get("format", {}).get("tags", {})
         self.tags = Tags(**tags)
         if not streams:
-            raise FFProbeError(f"No streams found in file {filepath}")
+            raise FFProbeError(f"No streams found in file {self.path}")
 
         for stream in streams:
-            self.streams.append(Stream(**stream))
+            if stream["codec_type"] == "audio":
+                self.streams.append(AudioStream(**{**stream, **tags}))
+            elif stream["codec_type"] == "video":
+                self.streams.append(VideoStream(**stream))
 
         # for stream in streams:
         # FFStream.__init__(self, stream)

@@ -14,7 +14,7 @@ import cv2
 from fsutils.file import Base
 from fsutils.img import Img
 from fsutils.utils.tools import format_bytes, format_timedelta, frametimes
-from fsutils.video.FFProbe import FFProbe, Stream, Tags
+from fsutils.video.FFProbe import FFProbe, Tags, VideoStream
 
 cv2.setLogLevel(1)
 
@@ -85,7 +85,7 @@ class Video(Base):  # noqa: PLR0904
         - `bitrate`
     """
 
-    _metadata: Stream
+    _metadata: VideoStream
 
     def __init__(self, path: str | Path, *args, **kwargs) -> None:
         """Initialize a new Video object.
@@ -100,7 +100,7 @@ class Video(Base):  # noqa: PLR0904
             setattr(self, k, v)
 
     @property
-    def metadata(self) -> Stream:
+    def metadata(self) -> VideoStream:
         """Extract the metadata of the video."""
         probe = FFProbe(self.path)
         for stream in probe.streams:
