@@ -19,7 +19,7 @@ from ThreadPoolHelper import Pool
 from fsutils.img import Img
 from fsutils.utils.mimecfg import FILE_TYPES
 from fsutils.video import Video, FFProbe
-from fsutils.audio import Audio
+# from fsutils.audio import Audio
 from fsutils.utils.tools  import format_bytes
 from fsutils.file.GenericFile cimport Base
 
