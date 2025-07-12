@@ -410,6 +410,7 @@ cdef class Dir(Base):
 class FileType(Enum):
     img = (".jpg", ".jpeg", ".png", ".gif", ".nef", ".webp"), Img
     video  = (".mp4", ".avi", ".mkv", ".wmv", ".webm", ".m4v", ".flv", ".mpg", ".mov"), Video
+    """
     audio = (
         ".3ga",
         ".aac",
@@ -438,7 +439,8 @@ class FileType(Enum):
         ".wav",
         ".wma",
         ".wv"
-    ), Audio
+    ), Audio"""
+
     def __init__(self, tuple[str] extensions, cls):
         self.exts = extensions
         self.cls = cls
