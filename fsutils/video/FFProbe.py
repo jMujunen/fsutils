@@ -4,6 +4,7 @@ import json
 import re
 import subprocess
 from dataclasses import dataclass, field
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +13,7 @@ from fsutils.utils.Exceptions import FFProbeError
 tags_key_sanitizer = re.compile(r"com.(apple.)?")
 
 
-class DotDict(dict):
+class DotDict(dict[str, Any]):
     """A dictionary subclass that supports dot notation for nested keys.
 
     Example:
@@ -188,7 +189,9 @@ class FFProbe:
 
     def __post_init__(self) -> None:
         """Initialize the FFProbe object."""
-        cmd = 'ffprobe -v error -show_streams -show_format -output_format json file:"{}"'
+        cmd = (
+            'ffprobe -v error -show_streams -show_format -output_format json file:"{}"'
+        )
 
         result = subprocess.getoutput(cmd.format(str(self.path)))
         data = json.loads(result)
