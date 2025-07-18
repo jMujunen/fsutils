@@ -17,6 +17,9 @@ times: TypeAlias = namedtuple("st_times", ["atime", "mtime", "ctime"])
 
 GIT_OBJECT_REGEX = re.compile(r"([a-f0-9]{37,41})")
 
+
+
+
 cdef class Base:
     """This is the base class for all of the following objects.
 
@@ -62,12 +65,13 @@ cdef class Base:
         - `__str__()` : Return a string representation of the object
 
     """
-    def __cinit__(self, str path, str encoding="utf-8", *args, **kwargs): #-> None:
+
+    def __cinit__(self, str path, str encoding="utf-8") -> None:
         """Construct the Base object."""
         self.path = path
         self.encoding = encoding
 
-    def __init__(self, str path, str encoding="utf-8", *args, **kwargs): #-> None:
+    def __init__(self, str path, str encoding="utf-8") -> None:
         """Construct the Base object.
 
         Paramaters:
