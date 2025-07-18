@@ -1,7 +1,7 @@
 import os
 from collections.abc import Iterator
 from datetime import datetime
-from typing import Any, NamedTuple
+from typing import Any
 
 GIT_OBJECT_REGEX = ...
 type times = tuple[datetime, datetime, datetime]
@@ -54,6 +54,8 @@ class Base:
 
     path: str
     encoding: str
+    def __cinit__(self, path: str, encoding: str = "utf-8") -> None:
+        """Construct the Base object."""
 
     def __init__(self, path: str, encoding: str = ..., *args, **kwargs) -> None:
         """Construct the Base object.
