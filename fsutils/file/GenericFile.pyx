@@ -266,7 +266,7 @@ cdef class Base:
             raise ValueError("Failed to compute SHA256 hash for file: {}".format(self.path))
 
 
-    def read_json(self) -> dict:
+    def read_json(self) -> dict|list:
         return json.loads(self.read_text())
 
     def __hash__(self) -> int:
